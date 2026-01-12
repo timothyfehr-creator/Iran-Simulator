@@ -1,0 +1,19 @@
+{
+  "status": "OK",
+  "errors": [],
+  "warnings": [],
+  "coverage": {
+    "regime_structure": "COMPLETE",
+    "historical_protests": "COMPLETE",
+    "ethnic_composition": "COMPLETE",
+    "information_control": "PARTIAL",
+    "external_actors": "COMPLETE"
+  },
+  "stats": {
+    "power_centers_count": 9,
+    "protest_events_count": 5,
+    "ethnic_groups_count": 6,
+    "external_actors_count": 4,
+    "evidence_sources_count": 15
+  }
+}

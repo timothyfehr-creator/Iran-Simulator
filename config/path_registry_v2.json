@@ -1,0 +1,501 @@
+{
+  "_comment": "Registry of valid paths for iran_crisis_intel schema with strict validation",
+  "_schema_version": "2.0",
+  "_enforcement": "STRICT - Unknown paths will be REJECTED",
+  "paths": {
+    "current_state.protest_metrics.current_snapshot.provinces_affected.value": {
+      "type": "integer",
+      "units": "count",
+      "description": "Number of provinces affected by protests"
+    },
+    "current_state.protest_metrics.current_snapshot.cities_affected.value": {
+      "type": "integer",
+      "units": "count",
+      "description": "Number of cities affected by protests"
+    },
+    "current_state.protest_metrics.current_snapshot.intensity_trend": {
+      "type": "enum",
+      "enum_values": ["ESCALATING", "PLATEAUED", "DECLINING"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Trend in protest intensity"
+    },
+    "current_state.protest_metrics.current_snapshot.trend_evidence": {
+      "type": "string",
+      "units": "text",
+      "description": "Evidence for intensity trend assessment"
+    },
+    "current_state.protest_metrics.protest_character.organizational_level": {
+      "type": "enum",
+      "enum_values": ["SPONTANEOUS", "LOOSELY_ORGANIZED", "COORDINATED", "HIGHLY_COORDINATED"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Level of protest organization"
+    },
+    "current_state.protest_metrics.protest_character.cross_class_coalition": {
+      "type": "enum",
+      "enum_values": ["NONE", "EMERGING", "PARTIAL", "BROAD"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Extent of cross-class coalition"
+    },
+    "current_state.protest_metrics.protest_character.evidence": {
+      "type": "string",
+      "units": "text",
+      "description": "Evidence for protest character assessment"
+    },
+    "current_state.protest_metrics.protest_character.primary_demands": {
+      "type": "string",
+      "units": "text",
+      "description": "Primary demands of protesters"
+    },
+    "current_state.protest_metrics.time_series[].cities_affected.value": {
+      "type": "integer",
+      "units": "count",
+      "description": "Cities affected on specific date (time series)"
+    },
+    "current_state.information_environment.internet_status.current": {
+      "type": "enum",
+      "enum_values": ["BLACKOUT", "SEVERELY_DEGRADED", "PARTIAL", "FUNCTIONAL"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Current internet access status"
+    },
+    "current_state.information_environment.internet_status.blackout_start": {
+      "type": "string",
+      "units": "datetime",
+      "description": "When internet blackout began (ISO 8601)"
+    },
+    "current_state.information_environment.internet_status.methodology": {
+      "type": "string",
+      "units": "text",
+      "description": "How internet status was measured"
+    },
+    "current_state.information_environment.regime_narrative.key_statements": {
+      "type": "string",
+      "units": "text",
+      "description": "Key regime statements or narratives"
+    },
+    "current_state.casualties.protesters.killed.low": {
+      "type": "integer",
+      "units": "people",
+      "description": "Low estimate of protesters killed"
+    },
+    "current_state.casualties.protesters.killed.mid": {
+      "type": "integer",
+      "units": "people",
+      "description": "Mid estimate of protesters killed"
+    },
+    "current_state.casualties.protesters.killed.high": {
+      "type": "integer",
+      "units": "people",
+      "description": "High estimate of protesters killed"
+    },
+    "current_state.casualties.protesters.detained.estimate": {
+      "type": "integer",
+      "units": "people",
+      "description": "Estimated number detained"
+    },
+    "current_state.casualties.security_forces.killed.total": {
+      "type": "integer",
+      "units": "people",
+      "description": "Total security forces killed"
+    },
+    "current_state.casualties.security_forces.killed.irgc": {
+      "type": "integer",
+      "units": "people",
+      "description": "IRGC members killed"
+    },
+    "current_state.casualties.security_forces.killed.basij": {
+      "type": "integer",
+      "units": "people",
+      "description": "Basij members killed"
+    },
+    "current_state.casualties.security_forces.killed.police": {
+      "type": "integer",
+      "units": "people",
+      "description": "Police killed"
+    },
+    "current_state.economic_conditions.oil_exports_bpd.value": {
+      "type": "integer",
+      "units": "bpd",
+      "description": "Oil exports in barrels per day"
+    },
+    "current_state.economic_conditions.inflation.official_annual_percent": {
+      "type": "number",
+      "units": "percent",
+      "description": "Official annual inflation rate"
+    },
+    "current_state.economic_conditions.rial_usd_rate.date": {
+      "type": "string",
+      "units": "date",
+      "description": "Date of exchange rate observation"
+    },
+    "current_state.economic_conditions.rial_usd_rate.market": {
+      "type": "integer",
+      "units": "count",
+      "description": "Market exchange rate (rials per USD)"
+    },
+    "external_actors.united_states.stated_position.quotes": {
+      "type": "string",
+      "units": "text",
+      "description": "Quotes from US officials on Iran protests"
+    },
+    "current_situation.protest_status.active": {
+      "type": "boolean",
+      "units": "boolean",
+      "description": "Whether protests are currently active"
+    },
+    "current_situation.protest_status.estimated_participants": {
+      "type": "object",
+      "units": "object",
+      "description": "Estimated participant counts (can have city selectors)"
+    },
+    "current_situation.protest_status.geographic_spread": {
+      "type": "array",
+      "units": "array",
+      "description": "List of cities/regions with protests"
+    },
+    "current_situation.protest_status.duration_days": {
+      "type": "integer",
+      "units": "count",
+      "description": "How long protests have been ongoing"
+    },
+    "current_situation.protest_status.intensity_trend": {
+      "type": "enum",
+      "enum_values": ["DECLINING", "STABLE", "ESCALATING"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Trend in protest intensity"
+    },
+    "current_situation.regime_response.casualties": {
+      "type": "object",
+      "units": "object",
+      "description": "Casualty counts (protester, security_forces)"
+    },
+    "current_situation.regime_response.arrests": {
+      "type": "integer",
+      "units": "count",
+      "description": "Number of arrests"
+    },
+    "current_situation.regime_response.internet_shutdown": {
+      "type": "enum",
+      "enum_values": ["NONE", "PARTIAL", "COMPLETE"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Level of internet shutdown"
+    },
+    "current_situation.regime_response.crackdown_severity": {
+      "type": "enum",
+      "enum_values": ["NONE", "LIGHT", "MODERATE", "SEVERE", "MASS_CASUALTY"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Severity of regime crackdown"
+    },
+    "current_situation.regime_response.defections": {
+      "type": "object",
+      "units": "object",
+      "description": "Information about security force defections"
+    },
+    "current_situation.defections.confirmed_count": {
+      "type": "integer",
+      "units": "count",
+      "description": "Number of confirmed defections"
+    },
+
+    "_baseline_comment": "=== BASELINE KNOWLEDGE PATHS (stable reference data) ===",
+
+    "baseline.regime_structure.supreme_leader.name": {
+      "type": "string",
+      "units": "text",
+      "description": "Current Supreme Leader name"
+    },
+    "baseline.regime_structure.supreme_leader.tenure_start_year": {
+      "type": "integer",
+      "units": "count",
+      "description": "Year Supreme Leader took office"
+    },
+    "baseline.regime_structure.supreme_leader.tenure_years": {
+      "type": "integer",
+      "units": "count",
+      "description": "Years in power"
+    },
+    "baseline.regime_structure.supreme_leader.age": {
+      "type": "integer",
+      "units": "count",
+      "description": "Current age"
+    },
+    "baseline.regime_structure.supreme_leader.health_baseline": {
+      "type": "string",
+      "units": "text",
+      "description": "Known health conditions and baseline"
+    },
+    "baseline.regime_structure.power_centers[].name": {
+      "type": "string",
+      "units": "text",
+      "description": "Name of power center (IRGC, Basij, Assembly of Experts, etc.)"
+    },
+    "baseline.regime_structure.power_centers[].role": {
+      "type": "string",
+      "units": "text",
+      "description": "Primary role and function"
+    },
+    "baseline.regime_structure.power_centers[].estimated_personnel.low": {
+      "type": "integer",
+      "units": "people",
+      "description": "Low estimate of personnel"
+    },
+    "baseline.regime_structure.power_centers[].estimated_personnel.high": {
+      "type": "integer",
+      "units": "people",
+      "description": "High estimate of personnel"
+    },
+    "baseline.regime_structure.power_centers[].economic_control_percent": {
+      "type": "number",
+      "units": "percent",
+      "description": "Estimated share of economy controlled"
+    },
+    "baseline.regime_structure.power_centers[].loyalty_assessment": {
+      "type": "enum",
+      "enum_values": ["HIGHLY_LOYAL", "LOYAL", "MIXED", "QUESTIONABLE"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Historical loyalty assessment to Supreme Leader"
+    },
+
+    "baseline.historical_protests.base_rate_summary.major_protests_since_1979": {
+      "type": "integer",
+      "units": "count",
+      "description": "Count of major protests since revolution"
+    },
+    "baseline.historical_protests.base_rate_summary.outcomes.SUPPRESSED": {
+      "type": "integer",
+      "units": "count",
+      "description": "Number of protests that were suppressed"
+    },
+    "baseline.historical_protests.base_rate_summary.outcomes.PARTIAL_CONCESSIONS": {
+      "type": "integer",
+      "units": "count",
+      "description": "Number of protests that led to partial concessions"
+    },
+    "baseline.historical_protests.base_rate_summary.outcomes.REGIME_CHANGE": {
+      "type": "integer",
+      "units": "count",
+      "description": "Number of protests that led to regime change"
+    },
+    "baseline.historical_protests.base_rate_summary.defections_occurred": {
+      "type": "integer",
+      "units": "count",
+      "description": "Number of protests with security force defections"
+    },
+    "baseline.historical_protests.events[].id": {
+      "type": "string",
+      "units": "text",
+      "description": "Unique identifier for historical protest event"
+    },
+    "baseline.historical_protests.events[].year": {
+      "type": "integer",
+      "units": "count",
+      "description": "Year of protest"
+    },
+    "baseline.historical_protests.events[].name": {
+      "type": "string",
+      "units": "text",
+      "description": "Common name for protest event"
+    },
+    "baseline.historical_protests.events[].trigger": {
+      "type": "string",
+      "units": "text",
+      "description": "What triggered the protest"
+    },
+    "baseline.historical_protests.events[].duration_days": {
+      "type": "integer",
+      "units": "count",
+      "description": "Duration in days"
+    },
+    "baseline.historical_protests.events[].geographic_scope": {
+      "type": "string",
+      "units": "text",
+      "description": "Geographic spread (cities, provinces)"
+    },
+    "baseline.historical_protests.events[].casualties.killed.low": {
+      "type": "integer",
+      "units": "people",
+      "description": "Low estimate of deaths"
+    },
+    "baseline.historical_protests.events[].casualties.killed.high": {
+      "type": "integer",
+      "units": "people",
+      "description": "High estimate of deaths"
+    },
+    "baseline.historical_protests.events[].casualties.arrested": {
+      "type": "integer",
+      "units": "people",
+      "description": "Estimated arrests"
+    },
+    "baseline.historical_protests.events[].outcome": {
+      "type": "enum",
+      "enum_values": ["SUPPRESSED", "PARTIAL_CONCESSIONS", "REGIME_CHANGE"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Outcome of protest"
+    },
+    "baseline.historical_protests.events[].defections_occurred": {
+      "type": "boolean",
+      "units": "boolean",
+      "description": "Whether security force defections occurred"
+    },
+    "baseline.historical_protests.events[].key_factors": {
+      "type": "array",
+      "units": "array",
+      "description": "Key factors in outcome"
+    },
+
+    "baseline.ethnic_composition.summary.total_population_millions": {
+      "type": "number",
+      "units": "count",
+      "description": "Total population in millions"
+    },
+    "baseline.ethnic_composition.summary.persian_percent": {
+      "type": "number",
+      "units": "percent",
+      "description": "Persian share of population"
+    },
+    "baseline.ethnic_composition.summary.minority_percent": {
+      "type": "number",
+      "units": "percent",
+      "description": "Non-Persian minority share of population"
+    },
+    "baseline.ethnic_composition.groups[].name": {
+      "type": "string",
+      "units": "text",
+      "description": "Ethnic group name"
+    },
+    "baseline.ethnic_composition.groups[].population_percent": {
+      "type": "number",
+      "units": "percent",
+      "description": "Percentage of total population"
+    },
+    "baseline.ethnic_composition.groups[].population_millions": {
+      "type": "number",
+      "units": "count",
+      "description": "Population in millions"
+    },
+    "baseline.ethnic_composition.groups[].primary_provinces": {
+      "type": "array",
+      "units": "array",
+      "description": "Provinces where group is concentrated"
+    },
+    "baseline.ethnic_composition.groups[].historical_grievance_level": {
+      "type": "enum",
+      "enum_values": ["HIGH", "MEDIUM", "LOW"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Historical grievance intensity"
+    },
+    "baseline.ethnic_composition.groups[].armed_groups": {
+      "type": "array",
+      "units": "array",
+      "description": "Known armed resistance groups"
+    },
+    "baseline.ethnic_composition.groups[].cross_border_kin_state": {
+      "type": "string",
+      "units": "text",
+      "description": "Neighboring state with ethnic kin"
+    },
+
+    "baseline.information_control.doctrine": {
+      "type": "string",
+      "units": "text",
+      "description": "Overall information control doctrine"
+    },
+    "baseline.information_control.blackout_capability.technical_means": {
+      "type": "string",
+      "units": "text",
+      "description": "Technical infrastructure for blackouts"
+    },
+    "baseline.information_control.blackout_capability.implementation_speed": {
+      "type": "string",
+      "units": "text",
+      "description": "How quickly blackout can be achieved"
+    },
+    "baseline.information_control.blackout_historical[].year": {
+      "type": "integer",
+      "units": "count",
+      "description": "Year of historical blackout"
+    },
+    "baseline.information_control.blackout_historical[].event": {
+      "type": "string",
+      "units": "text",
+      "description": "Event that triggered blackout"
+    },
+    "baseline.information_control.blackout_historical[].duration_days": {
+      "type": "integer",
+      "units": "count",
+      "description": "Duration of blackout"
+    },
+    "baseline.information_control.blackout_historical[].coverage": {
+      "type": "enum",
+      "enum_values": ["TOTAL", "REGIONAL", "PARTIAL"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Extent of blackout"
+    },
+    "baseline.information_control.censorship_infrastructure.platforms_blocked": {
+      "type": "array",
+      "units": "array",
+      "description": "List of blocked platforms"
+    },
+
+    "baseline.external_actors.playbooks[].actor": {
+      "type": "string",
+      "units": "text",
+      "description": "External actor name (US, Israel, Russia, China)"
+    },
+    "baseline.external_actors.playbooks[].historical_posture": {
+      "type": "string",
+      "units": "text",
+      "description": "Historical posture toward Iran"
+    },
+    "baseline.external_actors.playbooks[].intervention_precedents": {
+      "type": "array",
+      "units": "array",
+      "description": "Historical intervention actions"
+    },
+    "baseline.external_actors.playbooks[].current_policy_baseline": {
+      "type": "string",
+      "units": "text",
+      "description": "Current baseline policy"
+    },
+    "baseline.external_actors.playbooks[].sanctions_status": {
+      "type": "string",
+      "units": "text",
+      "description": "Current sanctions status if applicable"
+    }
+  },
+  "source_type_buckets": {
+    "description": "Required source diversity for coverage gates",
+    "buckets": [
+      "wires",
+      "ngos",
+      "regime_outlets",
+      "persian_services",
+      "osint_think_tank",
+      "internet_monitoring"
+    ],
+    "bucket_mapping": {
+      "wires": ["Reuters", "Associated Press", "AP", "AFP", "Bloomberg"],
+      "ngos": ["Amnesty International", "Human Rights Watch", "HRW", "Iran Human Rights", "HRANA"],
+      "regime_outlets": ["Mehr News", "IRNA", "Press TV", "Tasnim"],
+      "persian_services": ["Iran International", "BBC Persian", "Radio Farda", "VOA Persian"],
+      "osint_think_tank": ["OSINT", "ISW", "Carnegie", "Atlantic Council"],
+      "internet_monitoring": ["NetBlocks", "OONI", "Censored Planet"]
+    }
+  },
+  "coverage_gates": {
+    "min_evidence_docs": 40,
+    "min_farsi_docs": 10,
+    "require_all_buckets": false,
+    "min_buckets": 3
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "merge_notes": [
+    {
+      "path": "current_situation.protest_status.estimated_participants",
+      "selector": {
+        "city": "Tehran"
+      },
+      "winner_claim_id": "claim_test_001",
+      "candidates": [
+        {
+          "claim_id": "claim_test_001",
+          "source_grade": "A1"
+        }
+      ]
+    },
+    {
+      "path": "current_situation.regime_response.crackdown_severity",
+      "selector": null,
+      "winner_claim_id": "claim_test_002",
+      "candidates": [
+        {
+          "claim_id": "claim_test_002",
+          "source_grade": "A1"
+        }
+      ]
+    },
+    {
+      "path": "current_situation.defections.confirmed_count",
+      "selector": null,
+      "winner_claim_id": "claim_test_003",
+      "candidates": [
+        {
+          "claim_id": "claim_test_003",
+          "source_grade": "C3"
+        }
+      ]
+    }
+  ],
+  "claim_count": 3
+}

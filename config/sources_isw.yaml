@@ -1,0 +1,44 @@
+source_id: SRC_ISW
+organization: Institute for the Study of War (ISW)
+bucket: osint_think_tank
+default_access_grade: B  # Usually reliable
+default_bias_grade: 2    # Probably true (OSINT, not government-confirmed)
+language: en
+base_url: https://understandingwar.org
+
+# Seed URLs for initial backfill (15 items)
+seed_urls:
+  - https://understandingwar.org/research/middle-east/iran-update-december-29-2025/
+  - https://understandingwar.org/research/middle-east/iran-update-december-30-2025/
+  - https://understandingwar.org/research/middle-east/iran-update-december-31-2025/
+  - https://understandingwar.org/research/middle-east/iran-update-january-2-2026/
+  - https://understandingwar.org/research/middle-east/iran-protests-january-3-2026/
+  - https://understandingwar.org/research/middle-east/iran-protests-january-4-2026/
+  - https://understandingwar.org/research/middle-east/iran-update-january-5-2026/
+  - https://understandingwar.org/research/middle-east/iran-update-january-6-2026/
+  - https://understandingwar.org/research/middle-east/iran-update-january-7-2026/
+  - https://understandingwar.org/research/middle-east/iran-update-january-8-2026/
+  - https://understandingwar.org/research/middle-east/iran-update-january-9-2026/
+  - https://understandingwar.org/research/middle-east/iran-update-january-10-2026/
+  - https://understandingwar.org/map/protests-in-iran-from-330-pm-et-on-january-8-to-330-pm-et-on-january-9-2026/
+  - https://understandingwar.org/map/protests-in-iran-from-330-pm-et-on-january-9-to-330-pm-et-on-january-10-2026/
+  - https://understandingwar.org/map/protests-in-tehran-city-from-330-pm-et-on-january-9-to-330-pm-et-on-january-10-2026/
+
+# URL patterns for automated discovery
+url_patterns:
+  daily_updates: "https://understandingwar.org/research/middle-east/iran-update-*"
+  protest_updates: "https://understandingwar.org/research/middle-east/iran-protests-*"
+  protest_maps: "https://understandingwar.org/map/protests-in-iran-*"
+
+# Scraping selectors (CSS/XPath for content extraction)
+content_selectors:
+  main_content: "article .field-name-body"
+  title: "h1.page-title"
+  published_date: "time[datetime]"  # ISO 8601 in datetime attribute
+  toplines_heading: "h2, h3"  # Look for headings containing "Key Takeaways" or "Toplines"
+
+# Text extraction settings
+extraction:
+  first_n_words: 400  # For key_excerpts if no toplines section
+  toplines_keywords: ["Key Takeaways", "Toplines", "Summary", "Key Points"]
+  max_raw_text_length: 50000  # Truncate extremely long pages

@@ -1,0 +1,128 @@
+{
+  "_comment": "Registry of valid paths for iran_crisis_intel schema with enum normalization rules",
+  "_schema_version": "1.0",
+  "paths": {
+    "current_situation.protest_status.active": {
+      "type": "boolean",
+      "description": "Whether protests are currently active"
+    },
+    "current_situation.protest_status.estimated_participants": {
+      "type": "object",
+      "description": "Estimated participant counts (can have city selectors)"
+    },
+    "current_situation.protest_status.geographic_spread": {
+      "type": "array",
+      "description": "List of cities/regions with protests"
+    },
+    "current_situation.protest_status.duration_days": {
+      "type": "integer",
+      "description": "How long protests have been ongoing"
+    },
+    "current_situation.protest_status.intensity_trend": {
+      "type": "enum",
+      "enum_values": ["DECLINING", "STABLE", "ESCALATING"],
+      "normalize_uppercase": true,
+      "description": "Trend in protest intensity"
+    },
+    "current_situation.regime_response.casualties": {
+      "type": "object",
+      "description": "Casualty counts (protester, security_forces)"
+    },
+    "current_situation.regime_response.arrests": {
+      "type": "integer",
+      "description": "Number of arrests"
+    },
+    "current_situation.regime_response.internet_shutdown": {
+      "type": "enum",
+      "enum_values": ["NONE", "PARTIAL", "COMPLETE"],
+      "normalize_uppercase": true,
+      "description": "Level of internet shutdown"
+    },
+    "current_situation.regime_response.crackdown_severity": {
+      "type": "enum",
+      "enum_values": ["NONE", "LIGHT", "MODERATE", "SEVERE", "MASS_CASUALTY"],
+      "normalize_uppercase": true,
+      "description": "Severity of regime crackdown"
+    },
+    "current_situation.regime_response.defections": {
+      "type": "object",
+      "description": "Information about security force defections"
+    },
+    "current_situation.defections.confirmed_count": {
+      "type": "integer",
+      "description": "Number of confirmed defections"
+    },
+    "current_situation.khamenei_health.status": {
+      "type": "enum",
+      "enum_values": ["HEALTHY", "FRAIL", "ILL", "CRITICAL", "DECEASED"],
+      "normalize_uppercase": true,
+      "description": "Khamenei's health status"
+    },
+    "current_situation.khamenei_health.public_appearance_date": {
+      "type": "string",
+      "description": "Date of most recent public appearance"
+    },
+    "current_situation.us_posture.current": {
+      "type": "enum",
+      "enum_values": ["RHETORICAL", "INFORMATION_OPS", "ECONOMIC", "COVERT", "CYBER_OFFENSIVE", "KINETIC", "GROUND"],
+      "normalize_uppercase": true,
+      "description": "Current US intervention posture"
+    },
+    "current_situation.us_posture.sanctions_level": {
+      "type": "enum",
+      "enum_values": ["BASELINE", "ESCALATED", "MAXIMUM_PRESSURE"],
+      "normalize_uppercase": true,
+      "description": "Level of US sanctions"
+    },
+    "current_situation.ethnic_regions.kurdistan.coordination_level": {
+      "type": "enum",
+      "enum_values": ["NONE", "LOW", "MEDIUM", "HIGH"],
+      "normalize_uppercase": true,
+      "description": "Level of coordination in Kurdistan"
+    },
+    "current_situation.ethnic_regions.balochistan.coordination_level": {
+      "type": "enum",
+      "enum_values": ["NONE", "LOW", "MEDIUM", "HIGH"],
+      "normalize_uppercase": true,
+      "description": "Level of coordination in Balochistan"
+    },
+    "current_situation.ethnic_regions.azarbaijan.coordination_level": {
+      "type": "enum",
+      "enum_values": ["NONE", "LOW", "MEDIUM", "HIGH"],
+      "normalize_uppercase": true,
+      "description": "Level of coordination in Azarbaijan"
+    },
+    "current_situation.economic_indicators.oil_production_bpd": {
+      "type": "number",
+      "description": "Oil production in barrels per day"
+    },
+    "current_situation.economic_indicators.inflation_rate_annual": {
+      "type": "number",
+      "description": "Annual inflation rate (percentage)"
+    },
+    "current_situation.economic_indicators.currency_collapse": {
+      "type": "boolean",
+      "description": "Whether currency has collapsed"
+    },
+    "regional_cascade.syria.protest_spillover": {
+      "type": "boolean",
+      "description": "Whether protests have spread to Syria"
+    },
+    "regional_cascade.iraq.protest_spillover": {
+      "type": "boolean",
+      "description": "Whether protests have spread to Iraq"
+    },
+    "regional_cascade.lebanon.protest_spillover": {
+      "type": "boolean",
+      "description": "Whether protests have spread to Lebanon"
+    }
+  },
+  "enum_normalization_rules": {
+    "description": "All enum values must be UPPERCASE. Importer will normalize to uppercase and reject if not in allowed list.",
+    "examples": {
+      "valid": ["ESCALATING", "MODERATE", "RHETORICAL"],
+      "invalid_will_be_normalized": ["escalating", "Moderate", "rhetorical"],
+      "invalid_will_be_rejected": ["unknown", "INVALID_VALUE"]
+    }
+  }
+}

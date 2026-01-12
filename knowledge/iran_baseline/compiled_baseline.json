@@ -1,0 +1,656 @@
+{
+  "_schema_version": "1.0",
+  "_type": "baseline_knowledge_pack",
+  "metadata": {
+    "pack_id": "iran_baseline_v1",
+    "created_date": "2026-01-11T22:07:17Z",
+    "curator_notes": "",
+    "last_updated": "2026-01-11T22:07:17Z",
+    "coverage_assessment": {
+      "regime_structure": "COMPLETE",
+      "historical_protests": "COMPLETE",
+      "ethnic_composition": "COMPLETE",
+      "information_control": "PARTIAL",
+      "external_actors": "COMPLETE"
+    }
+  },
+  "regime_structure": {
+    "supreme_leader": {
+      "name": "Ali Khamenei",
+      "sources": [
+        "DOC1"
+      ],
+      "tenure_start_year": 1989,
+      "tenure_years": 37,
+      "age": 86,
+      "health_baseline": "Advanced age (86), constitutional control over judiciary, military, IRGC, state media and Guardian Council. No major decisions occur without his consent."
+    },
+    "power_centers": [
+      {
+        "name": "Supreme Leader's Office",
+        "sources": [
+          "DOC1",
+          "DOC1",
+          "DOC1"
+        ],
+        "role": "Ultimate authority over all branches of government. Constitutional control over judiciary, military, IRGC, state media, and half of Guardian Council.",
+        "loyalty_assessment": "HIGHLY_LOYAL"
+      },
+      {
+        "name": "Assembly of Experts",
+        "sources": [
+          "DOC2",
+          "DOC2",
+          "DOC2",
+          "DOC2"
+        ],
+        "role": "Body of ~88 Islamic jurists constitutionally empowered to appoint or dismiss the Supreme Leader. Members elected to 8-year terms after stringent vetting. In practice acts as rubber stamp - never removed a leader.",
+        "low": 88,
+        "loyalty_assessment": "HIGHLY_LOYAL"
+      },
+      {
+        "name": "Guardian Council",
+        "sources": [
+          "DOC3",
+          "DOC3",
+          "DOC3",
+          "DOC3"
+        ],
+        "role": "12-member body with veto power over legislation and elections. 6 clerics appointed by Supreme Leader, 6 jurists nominated by judiciary. Vets all candidates for elected office, disqualifying those deemed insufficiently loyal.",
+        "low": 12,
+        "loyalty_assessment": "HIGHLY_LOYAL"
+      },
+      {
+        "name": "Expediency Discernment Council",
+        "sources": [
+          "DOC3",
+          "DOC3",
+          "DOC3"
+        ],
+        "role": "High-level advisory and arbitration body. Resolves deadlocks between Majles and Guardian Council. Advises Supreme Leader on general policies. Members include senior officials from different factions.",
+        "loyalty_assessment": "LOYAL"
+      },
+      {
+        "name": "Islamic Revolutionary Guard Corps (IRGC)",
+        "sources": [
+          "DOC4",
+          "DOC4",
+          "DOC4",
+          "DOC4",
+          "DOC7",
+          "DOC4"
+        ],
+        "role": "Principal defender of Islamic Republic since 1979. Answers directly to Supreme Leader, operates parallel to regular military. Central roles in internal security, strategic arsenals (ballistic missiles), commands Quds Force, sponsors allied militant groups abroad.",
+        "low": 125000,
+        "high": 190000,
+        "economic_control_percent": 20,
+        "loyalty_assessment": "HIGHLY_LOYAL"
+      },
+      {
+        "name": "Basij Resistance Force",
+        "sources": [
+          "DOC4",
+          "DOC4",
+          "DOC4",
+          "DOC4",
+          "DOC4"
+        ],
+        "role": "Paramilitary volunteer militia under IRGC command. Regime's grassroots enforcers. Integrated under IRGC control since 2007 to counter internal unrest. Deployed to quell protests and enforce social restrictions.",
+        "low": 100000,
+        "high": 1000000,
+        "loyalty_assessment": "LOYAL"
+      },
+      {
+        "name": "Artesh (Regular Army)",
+        "sources": [
+          "DOC5",
+          "DOC5",
+          "DOC5"
+        ],
+        "role": "Regular army tasked with defending borders and territorial integrity against external threats. Kept largely apolitical and sidelined in strategic decision-making since 1979. Role confined to conventional defense.",
+        "loyalty_assessment": "LOYAL"
+      },
+      {
+        "name": "Ministry of Intelligence and Security (MOIS)",
+        "sources": [
+          "DOC6",
+          "DOC6",
+          "DOC6"
+        ],
+        "role": "Primary civilian intelligence agency. Responsible for domestic intelligence, monitoring dissidents, counterespionage, and foreign covert operations. Works closely with IRGC intelligence units. Conducts assassinations, cyberattacks, arrests of journalists and dual nationals.",
+        "loyalty_assessment": "HIGHLY_LOYAL"
+      },
+      {
+        "name": "Majles (Islamic Consultative Assembly)",
+        "sources": [
+          "DOC3",
+          "DOC3",
+          "DOC3",
+          "DOC3"
+        ],
+        "role": "290-seat parliament. Drafts and passes legislation, can summon or impeach ministers. Legislative power constrained by Guardian Council which reviews every law. All candidates must be pre-approved.",
+        "low": 290,
+        "loyalty_assessment": "LOYAL"
+      }
+    ]
+  },
+  "historical_protests": {
+    "base_rate_summary": {
+      "major_protests_since_1979": 5,
+      "outcomes": {
+        "SUPPRESSED": 5,
+        "PARTIAL_CONCESSIONS": 0,
+        "REGIME_CHANGE": 0
+      },
+      "defections_occurred": 0,
+      "analyst_note": ""
+    },
+    "events": [
+      {
+        "id": "1999_student",
+        "sources": [
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8"
+        ],
+        "year": 1999,
+        "name": "1999 Student Protests",
+        "trigger": "Shut-down of reformist newspaper by hardliners",
+        "duration_days": 7,
+        "geographic_scope": "Tehran University and other campuses, spread to Tabriz, Mashhad, Isfahan",
+        "casualties": {
+          "killed": {
+            "low": 3
+          },
+          "arrested": 1400
+        },
+        "outcome": "SUPPRESSED",
+        "defections_occurred": false,
+        "key_factors": [
+          "Security forces stormed dormitories at night",
+          "President Khatami backed crackdown despite reformist image",
+          "No security personnel punished"
+        ]
+      },
+      {
+        "id": "2009_green",
+        "sources": [
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8"
+        ],
+        "year": 2009,
+        "name": "Green Movement",
+        "trigger": "Disputed June 12, 2009 re-election of President Ahmadinejad",
+        "duration_days": 180,
+        "geographic_scope": "Tehran and dozens of cities - millions marched under 'Where is my vote?' slogan",
+        "casualties": {
+          "killed": {
+            "low": 36,
+            "high": 72
+          },
+          "arrested": 4000
+        },
+        "outcome": "SUPPRESSED",
+        "defections_occurred": false,
+        "key_factors": [
+          "Basij and police used batons, tear gas, live ammunition",
+          "Partial internet and media blackouts",
+          "Green Movement leaders placed under house arrest",
+          "Regime labeled movement 'foreign-backed sedition'"
+        ]
+      },
+      {
+        "id": "2017_economic",
+        "sources": [
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8"
+        ],
+        "year": 2017,
+        "name": "2017-2018 Economic Protests (Dey 96)",
+        "trigger": "Economic hardship and frustration with corruption",
+        "duration_days": 14,
+        "geographic_scope": "More than 100 cities across all 31 provinces - working class/provincial areas",
+        "casualties": {
+          "killed": {
+            "low": 22
+          },
+          "arrested": 1000
+        },
+        "outcome": "SUPPRESSED",
+        "defections_occurred": false,
+        "key_factors": [
+          "Decentralized/leaderless protests",
+          "Social media blocked (Telegram)",
+          "Chants targeted Supreme Leader directly"
+        ]
+      },
+      {
+        "id": "2019_november",
+        "sources": [
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8"
+        ],
+        "year": 2019,
+        "name": "November 2019 Protests (Bloody Aban)",
+        "trigger": "50-200% gasoline price increase overnight",
+        "duration_days": 7,
+        "geographic_scope": "Cities and towns across Iran - especially working-class areas",
+        "casualties": {
+          "killed": {
+            "low": 304,
+            "high": 1500
+          },
+          "arrested": 7000
+        },
+        "outcome": "SUPPRESSED",
+        "defections_occurred": false,
+        "key_factors": [
+          "IRGC and anti-riot police opened fire city after city",
+          "First nationwide internet blackout (~1 week)",
+          "Regime demonstrated willingness to use mass lethal force",
+          "Regime blamed foreign instigators"
+        ]
+      },
+      {
+        "id": "2022_mahsa",
+        "sources": [
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8",
+          "DOC8"
+        ],
+        "year": 2022,
+        "name": "Mahsa Amini Uprising (Woman, Life, Freedom)",
+        "trigger": "Death of Mahsa (Jina) Amini in morality police custody after arrest for alleged improper hijab",
+        "duration_days": 150,
+        "geographic_scope": "~160 cities in all 31 provinces - led notably by young women and men",
+        "casualties": {
+          "killed": {
+            "low": 500
+          },
+          "arrested": 20000
+        },
+        "outcome": "SUPPRESSED",
+        "defections_occurred": false,
+        "key_factors": [
+          "Live ammunition and birdshot used",
+          "At least 4 demonstrators executed after rushed trials",
+          "One publicly hanged from crane as warning",
+          "Intermittent internet disruptions",
+          "Issues raised remain largely unaddressed"
+        ]
+      }
+    ]
+  },
+  "ethnic_composition": {
+    "summary": {
+      "total_population_millions": 88,
+      "persian_percent": 60,
+      "minority_percent": 40,
+      "periphery_risk_assessment": ""
+    },
+    "groups": [
+      {
+        "name": "Persian (Fars)",
+        "sources": [
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12"
+        ],
+        "population_percent": 60,
+        "historical_grievance_level": "LOW",
+        "armed_groups": []
+      },
+      {
+        "name": "Azeri (Azerbaijani Turk)",
+        "sources": [
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12"
+        ],
+        "population_percent": 16,
+        "primary_provinces": [
+          "East Azerbaijan",
+          "West Azerbaijan",
+          "Ardabil",
+          "Zanjan"
+        ],
+        "historical_grievance_level": "LOW",
+        "armed_groups": [],
+        "cross_border_kin_state": "Azerbaijan"
+      },
+      {
+        "name": "Kurdish",
+        "sources": [
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12"
+        ],
+        "population_percent": 10,
+        "primary_provinces": [
+          "Kurdistan",
+          "Kermanshah",
+          "West Azerbaijan",
+          "Ilam"
+        ],
+        "historical_grievance_level": "HIGH",
+        "armed_groups": [
+          "KDPI (Kurdistan Democratic Party of Iran)",
+          "Komala",
+          "PJAK (PKK affiliate)"
+        ],
+        "cross_border_kin_state": "Iraq (KRG), Turkey, Syria"
+      },
+      {
+        "name": "Ahwazi Arab",
+        "sources": [
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12"
+        ],
+        "population_percent": 2,
+        "primary_provinces": [
+          "Khuzestan"
+        ],
+        "historical_grievance_level": "HIGH",
+        "armed_groups": [
+          "ASMLA (Arab Struggle Movement for the Liberation of Ahwaz)"
+        ],
+        "cross_border_kin_state": "Iraq (Shia Arab south)"
+      },
+      {
+        "name": "Baloch (Baluch)",
+        "sources": [
+          "DOC13",
+          "DOC13",
+          "DOC13",
+          "DOC13",
+          "DOC13",
+          "DOC13"
+        ],
+        "population_percent": 2,
+        "primary_provinces": [
+          "Sistan and Baluchestan"
+        ],
+        "historical_grievance_level": "HIGH",
+        "armed_groups": [
+          "Jundallah (Army of God) - defunct 2010",
+          "Jaish al-Adl (Army of Justice)"
+        ],
+        "cross_border_kin_state": "Pakistan"
+      },
+      {
+        "name": "Turkmen (Turkoman)",
+        "sources": [
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12",
+          "DOC12"
+        ],
+        "population_percent": 2,
+        "primary_provinces": [
+          "Golestan",
+          "North Khorasan"
+        ],
+        "historical_grievance_level": "MEDIUM",
+        "armed_groups": [],
+        "cross_border_kin_state": "Turkmenistan"
+      }
+    ]
+  },
+  "information_control": {
+    "doctrine": "Regime uses internet blackouts as primary tool during protests. Playbook: shut down or severely throttle internet, cellular data, and messaging networks to hamper protester coordination and conceal crackdown scope. Depriving protesters of communication causes scattered demonstrations to 'peter out' due to lack of mutual awareness.",
+    "blackout_capability": {
+      "technical_means": "National Information Network (domestic intranet) enables state to keep critical services online for government use while cutting off global internet. Centralized control through Telecommunications Company of Iran (TCI).",
+      "implementation_speed": "Can achieve near-total nationwide blackout within hours"
+    },
+    "blackout_historical": [
+      {
+        "year": 2019,
+        "event": "November 2019 protests",
+        "duration_days": 7,
+        "coverage": "TOTAL"
+      }
+    ],
+    "censorship_infrastructure": {
+      "platforms_blocked": [
+        "Facebook",
+        "Twitter/X",
+        "YouTube",
+        "Telegram (partially)",
+        "Instagram (during crises)"
+      ]
+    }
+  },
+  "external_actors": {
+    "playbooks": [
+      {
+        "actor": "United States",
+        "sources": [
+          "DOC11",
+          "DOC11",
+          "DOC11",
+          "DOC11"
+        ],
+        "historical_posture": "Supports protests rhetorically and through sanctions on officials. Historically cautious about direct intervention. However, in severe crisis has signaled willingness to escalate: cyber weapons, sanctions tightening, even limited military strikes.",
+        "intervention_precedents": [
+          "Diplomatic condemnation and symbolic support",
+          "Internet freedom tools",
+          "Sanctions tightening",
+          "Covert support to opposition media",
+          "Contingency planning for kinetic action in extreme scenarios"
+        ],
+        "current_policy_baseline": "Maximum pressure sanctions, rhetorical support for protesters. High threshold for kinetic action given risks of war. Would contemplate no-fly zones or strikes only to prevent mass atrocities or destabilizing spillover in extreme scenarios."
+      },
+      {
+        "actor": "Israel",
+        "sources": [
+          "DOC18",
+          "DOC18",
+          "DOC18",
+          "DOC18"
+        ],
+        "historical_posture": "Views Iran as most dangerous adversary. Will not permit Iran to acquire nuclear weapons capability. Active covert operations: sabotaged nuclear facilities (Stuxnet), assassinated scientists, conducted airstrikes on nuclear sites (2025).",
+        "intervention_precedents": [
+          "Nuclear facility sabotage (Stuxnet, explosions)",
+          "Nuclear scientist assassinations",
+          "Hundreds of airstrikes in Syria against IRGC/Hezbollah",
+          "Airstrikes on Iranian nuclear sites (2025)"
+        ],
+        "current_policy_baseline": "Red lines: (1) Iran nuclear weapons - unacceptable, met with preemptive force; (2) Advanced weapons to proxies - continual preventive strikes; (3) Direct attack on Israel - retaliation on Iranian targets. Proactive, often unilateral operations."
+      },
+      {
+        "actor": "Russia",
+        "sources": [
+          "DOC17",
+          "DOC17",
+          "DOC17",
+          "DOC17"
+        ],
+        "historical_posture": "Strategic partner. Opposes external regime-change efforts. Provides diplomatic cover (UN veto), arms sales, some material support. But avoids entrapment in Iran's domestic turmoil.",
+        "intervention_precedents": [
+          "S-300 air defense sales",
+          "Drone cooperation",
+          "UN veto protection",
+          "Mild condemnation of Western strikes - no direct intervention"
+        ],
+        "current_policy_baseline": "Politically/economically shore up Tehran, block Western intervention, encourage Iranian leaders to restore order. Opposes sudden collapse that could create chaos. Would stop short of direct military involvement inside Iran."
+      },
+      {
+        "actor": "China",
+        "sources": [
+          "DOC17",
+          "DOC17",
+          "DOC17",
+          "DOC17"
+        ],
+        "historical_posture": "Strong economic ties, supports Iran as counterweight to US influence. Overriding interest is regional stability and uninterrupted energy flows. Publicly emphasizes non-interference.",
+        "intervention_precedents": [
+          "Continued Iranian oil imports despite sanctions",
+          "Possible sale of cyber surveillance/crowd control tech",
+          "Opposition to UN sanctions or regime change",
+          "Staying low-key during protests"
+        ],
+        "current_policy_baseline": "Safeguard economic interests and energy security, avoid entanglement, oppose US-led intervention. Would tacitly support government restoration of order. Pragmatic - would swiftly seek understanding with any new authority."
+      }
+    ]
+  },
+  "evidence_sources": [
+    {
+      "doc_id": "DOC1",
+      "title": "Iran's Political Power Structure",
+      "organization": "Council on Foreign Relations",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC2",
+      "title": "Assembly of Experts Overview",
+      "organization": "Council on Foreign Relations",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC3",
+      "title": "Guardian Council and Legislative Bodies",
+      "organization": "Council on Foreign Relations",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC4",
+      "title": "IRGC Structure and Role",
+      "organization": "RAND Corporation",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC5",
+      "title": "Iran's Military Forces",
+      "organization": "Congressional Research Service",
+      "access_grade": "B",
+      "bias_grade": "2"
+    },
+    {
+      "doc_id": "DOC6",
+      "title": "Iran Intelligence Services",
+      "organization": "US State Department",
+      "access_grade": "B",
+      "bias_grade": "2"
+    },
+    {
+      "doc_id": "DOC7",
+      "title": "IRGC Economic Empire",
+      "organization": "RAND Corporation",
+      "access_grade": "C",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC8",
+      "title": "Iran Protest History 1999-2023",
+      "organization": "Human Rights Watch / Amnesty International",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC9",
+      "title": "Defection Patterns in Authoritarian Transitions",
+      "organization": "Academic Research / CFR Analysis",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC10",
+      "title": "Sudan 2019 Transition Analysis",
+      "organization": "Academic Research",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC11",
+      "title": "Romania 1989 Collapse",
+      "organization": "Academic Research",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC12",
+      "title": "Iran Ethnic Composition",
+      "organization": "CIA World Factbook / Academic Sources",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC13",
+      "title": "Baluchistan Situation Report",
+      "organization": "Human Rights Watch",
+      "access_grade": "B",
+      "bias_grade": "1"
+    },
+    {
+      "doc_id": "DOC17",
+      "title": "Russia and China Positioning on Iran",
+      "organization": "Institute for the Study of War",
+      "access_grade": "B",
+      "bias_grade": "2"
+    },
+    {
+      "doc_id": "DOC18",
+      "title": "Israel Red Lines on Iran",
+      "organization": "Institute for the Study of War",
+      "access_grade": "B",
+      "bias_grade": "2"
+    }
+  ]
+}

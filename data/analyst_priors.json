@@ -1,0 +1,573 @@
+{
+  "_comment": "PLACEHOLDER - Generate using prompts/02_security_analyst_prompt.md with intel file",
+  "_schema_version": "2.0",
+  "metadata": {
+    "analyst_id": "SECURITY_ANALYST_AGENT",
+    "intel_file_reviewed": "iran_crisis_intel.json",
+    "analysis_date": null,
+    "time_horizon_days": 90,
+    "overall_confidence": null,
+    "key_assumptions": [],
+    "dissenting_considerations": []
+  },
+  "regime_outcomes": {
+    "time_horizon_days": 90,
+    "must_sum_to_one": true,
+    "REGIME_SURVIVES_STATUS_QUO": {
+      "probability": {
+        "point": 0.55,
+        "low": 0.4,
+        "high": 0.7,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.55
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - Historical Iranian protest suppression rate",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "REGIME_SURVIVES_WITH_CONCESSIONS": {
+      "probability": {
+        "point": 0.15,
+        "low": 0.08,
+        "high": 0.25,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.15
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "MANAGED_TRANSITION": {
+      "probability": {
+        "point": 0.1,
+        "low": 0.05,
+        "high": 0.18,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.1
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - Khamenei age/health actuarial estimate",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "probability": {
+        "point": 0.12,
+        "low": 0.05,
+        "high": 0.22,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.12
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - Authoritarian collapse base rate",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "ETHNIC_FRAGMENTATION": {
+      "probability": {
+        "point": 0.08,
+        "low": 0.03,
+        "high": 0.15,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.08
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "sum_check": 1.0,
+    "sampling": {
+      "method": "dirichlet",
+      "concentration": 30,
+      "alpha": null,
+      "notes": "If alpha is null, alpha_i is derived from point estimates and concentration."
+    },
+    "role": "diagnostic_only"
+  },
+  "transition_probabilities": {
+    "security_force_defection_given_protests_30d": {
+      "probability": {
+        "point": 0.08,
+        "low": 0.03,
+        "high": 0.15,
+        "dist": "beta_pert",
+        "window_days": 60,
+        "mode": 0.08,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 30
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - No defections in 2009, 2019, 2022",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "regime_collapse_given_defection": {
+      "probability": {
+        "point": 0.65,
+        "low": 0.45,
+        "high": 0.8,
+        "dist": "beta_pert",
+        "window_days": 14,
+        "mode": 0.65,
+        "time_basis": "window",
+        "anchor": "defection_day",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "mass_casualty_crackdown_given_escalation": {
+      "probability": {
+        "point": 0.4,
+        "low": 0.25,
+        "high": 0.6,
+        "dist": "beta_pert",
+        "window_days": 30,
+        "mode": 0.4,
+        "time_basis": "window",
+        "anchor": "escalation_start",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - 2019 November crackdown killed 1,500",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "protests_sustain_30d": {
+      "probability": {
+        "point": 0.45,
+        "low": 0.3,
+        "high": 0.6,
+        "dist": "beta_pert",
+        "window_days": 30,
+        "mode": 0.45,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "protests_escalate_14d": {
+      "probability": {
+        "point": 0.35,
+        "low": 0.2,
+        "high": 0.5,
+        "dist": "beta_pert",
+        "window_days": 14,
+        "mode": 0.35,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "ethnic_coordination_given_protests_30d": {
+      "probability": {
+        "point": 0.25,
+        "low": 0.12,
+        "high": 0.4,
+        "dist": "beta_pert",
+        "window_days": 60,
+        "mode": 0.25,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 30
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "khamenei_death_90d": {
+      "probability": {
+        "point": 0.08,
+        "low": 0.03,
+        "high": 0.15,
+        "window_days": 90,
+        "dist": "beta_pert",
+        "mode": 0.08,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - 86 year old male actuarial",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "orderly_succession_given_khamenei_death": {
+      "probability": {
+        "point": 0.7,
+        "low": 0.5,
+        "high": 0.85,
+        "dist": "beta_pert",
+        "window_days": 1,
+        "mode": 0.7,
+        "time_basis": "instant",
+        "anchor": "khamenei_death_day",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - elite-cohesion & succession-path base rates",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "protests_collapse_given_crackdown_30d": {
+      "probability": {
+        "point": 0.55,
+        "low": 0.35,
+        "high": 0.75,
+        "window_days": 30,
+        "dist": "beta_pert",
+        "mode": 0.55,
+        "time_basis": "window",
+        "anchor": "crackdown_start",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - protest survival vs repression outcomes (e.g., Iran 2019, 2022; Belarus 2020)",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "meaningful_concessions_given_protests_30d": {
+      "probability": {
+        "point": 0.15,
+        "low": 0.07,
+        "high": 0.3,
+        "window_days": 30,
+        "dist": "beta_pert",
+        "mode": 0.15,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 30
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - Iranian concession patterns under sustained unrest",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "elite_fracture_given_economic_collapse": {
+      "probability": {
+        "point": 0.3,
+        "low": 0.15,
+        "high": 0.45,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.3,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "protests_collapse_given_concessions_30d": {
+      "probability": {
+        "point": 0.65,
+        "low": 0.45,
+        "high": 0.82,
+        "dist": "beta_pert",
+        "window_days": 30,
+        "mode": 0.65,
+        "time_basis": "window",
+        "anchor": "concessions_start",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "fragmentation_outcome_given_ethnic_uprising": {
+      "probability": {
+        "low": 0.15,
+        "mode": 0.3,
+        "high": 0.45,
+        "dist": "beta_pert",
+        "time_basis": "window",
+        "anchor": "ethnic_uprising_day",
+        "start_offset_days": 0,
+        "window_days": 30
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - vary by case; use as MVP prior",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    }
+  },
+  "us_intervention_probabilities": {
+    "information_ops": {
+      "probability": {
+        "point": 0.7,
+        "low": 0.5,
+        "high": 0.85,
+        "dist": "beta_pert",
+        "window_days": 30,
+        "mode": 0.7,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - Already did this in 2022",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "economic_escalation": {
+      "probability": {
+        "point": 0.5,
+        "low": 0.3,
+        "high": 0.7,
+        "dist": "beta_pert",
+        "window_days": 30,
+        "mode": 0.5,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "covert_support_given_protests_30d": {
+      "probability": {
+        "point": 0.35,
+        "low": 0.15,
+        "high": 0.55,
+        "dist": "beta_pert",
+        "window_days": 60,
+        "mode": 0.35,
+        "time_basis": "window",
+        "anchor": "t0",
+        "start_offset_days": 30
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "cyber_attack_given_crackdown": {
+      "probability": {
+        "point": 0.4,
+        "low": 0.2,
+        "high": 0.6,
+        "dist": "beta_pert",
+        "window_days": 14,
+        "mode": 0.4,
+        "time_basis": "window",
+        "anchor": "crackdown_start",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "kinetic_strike_given_crackdown": {
+      "probability": {
+        "point": 0.25,
+        "low": 0.1,
+        "high": 0.45,
+        "dist": "beta_pert",
+        "window_days": 14,
+        "mode": 0.25,
+        "time_basis": "window",
+        "anchor": "crackdown_start",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - June 2025 precedent",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "ground_intervention_given_collapse": {
+      "probability": {
+        "point": 0.15,
+        "low": 0.05,
+        "high": 0.3,
+        "dist": "beta_pert",
+        "window_days": 14,
+        "mode": 0.15,
+        "time_basis": "window",
+        "anchor": "collapse_day",
+        "start_offset_days": 0
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - Post-Iraq/Afghanistan reluctance",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    }
+  },
+  "regional_cascade_probabilities": {
+    "israel_strikes_given_weakening": {
+      "probability": {
+        "point": 0.45,
+        "low": 0.25,
+        "high": 0.65,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.45
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "proxy_activation_given_us_intervention": {
+      "probability": {
+        "point": 0.6,
+        "low": 0.4,
+        "high": 0.8,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.6
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "gulf_realignment_given_collapse": {
+      "probability": {
+        "point": 0.7,
+        "low": 0.5,
+        "high": 0.85,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.7
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "russia_support_given_threatened": {
+      "probability": {
+        "point": 0.3,
+        "low": 0.15,
+        "high": 0.5,
+        "dist": "beta_pert",
+        "window_days": 90,
+        "mode": 0.3
+      },
+      "reasoning": {
+        "base_rate_anchor": "PLACEHOLDER - Russia distracted by Ukraine",
+        "evidence_for_higher": [],
+        "evidence_for_lower": [],
+        "analogies_considered": [],
+        "confidence_in_estimate": "LOW"
+      }
+    }
+  },
+  "sensitivity_flags": {
+    "highest_uncertainty_estimates": [],
+    "estimates_most_sensitive_to_new_info": [],
+    "key_indicators_to_watch": []
+  },
+  "red_team": {
+    "systematic_biases_possible": [],
+    "alternative_models": [],
+    "black_swan_scenarios": []
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "run_manifest": {
+    "run_id": "test_minimal_001",
+    "query": "Minimal test bundle for Iran Crisis Simulator",
+    "executed_at_utc": "2026-01-11T12:00:00Z",
+    "data_cutoff_utc": "2026-01-11T12:00:00Z",
+    "time_horizon_days": 90,
+    "researcher": "Test Suite",
+    "notes": "Synthetic fixture for end-to-end validation"
+  },
+  "source_index": [
+    {
+      "source_id": "src_test_001",
+      "organization": "Test News Agency",
+      "title": "Iran Protests Update - Test Article",
+      "url": "https://example.com/test-article-001",
+      "published_at_utc": "2026-01-10T18:00:00Z",
+      "access_grade": "A",
+      "bias_grade": "1",
+      "language": "en",
+      "notes": "Synthetic test source"
+    },
+    {
+      "source_id": "src_test_002",
+      "organization": "Test Persian Media",
+      "title": "گزارش آزمایشی از تهران",
+      "url": "https://example.com/test-article-002",
+      "published_at_utc": "2026-01-10T12:00:00Z",
+      "access_grade": "B",
+      "bias_grade": "2",
+      "language": "fa",
+      "notes": "Synthetic test source in Persian"
+    }
+  ],
+  "evidence_docs": [
+    {
+      "doc_id": "doc_test_001",
+      "source_id": "src_test_001",
+      "title": "Iran Protests Update - Test Article",
+      "url": "https://example.com/test-article-001",
+      "published_at_utc": "2026-01-10T18:00:00Z",
+      "retrieved_at_utc": "2026-01-11T09:00:00Z",
+      "language": "en",
+      "raw_text": "This is a synthetic test article about Iranian protests. Estimated 100,000 participants in Tehran. Regime response has been moderate so far.",
+      "translation_en": null,
+      "translation_confidence": null,
+      "key_excerpts": [
+        {
+          "excerpt_id": "exc_001",
+          "text_original": "Estimated 100,000 participants in Tehran",
+          "text_en": "Estimated 100,000 participants in Tehran",
+          "page_or_timestamp": "para 2"
+        },
+        {
+          "excerpt_id": "exc_002",
+          "text_original": "Regime response has been moderate so far",
+          "text_en": "Regime response has been moderate so far",
+          "page_or_timestamp": "para 5"
+        }
+      ]
+    },
+    {
+      "doc_id": "doc_test_002",
+      "source_id": "src_test_002",
+      "title": "گزارش آزمایشی از تهران",
+      "url": "https://example.com/test-article-002",
+      "published_at_utc": "2026-01-10T12:00:00Z",
+      "retrieved_at_utc": "2026-01-11T09:15:00Z",
+      "language": "fa",
+      "raw_text": "این یک مقاله آزمایشی است",
+      "translation_en": "This is a test article. Local sources report continued protests.",
+      "translation_confidence": "MACHINE",
+      "key_excerpts": [
+        {
+          "excerpt_id": "exc_001",
+          "text_original": "منابع محلی از ادامه اعتراضات خبر می‌دهند",
+          "text_en": "Local sources report continued protests",
+          "page_or_timestamp": null
+        }
+      ]
+    }
+  ],
+  "candidate_claims": [
+    {
+      "claim_id": "claim_test_001",
+      "path": "current_situation.protest_status.estimated_participants",
+      "selector": {"city": "Tehran"},
+      "value": 100000,
+      "units": "count",
+      "null_reason": null,
+      "as_of_utc": "2026-01-10T18:00:00Z",
+      "source_grade": "A1",
+      "source_doc_refs": [
+        {
+          "doc_id": "doc_test_001",
+          "excerpt_id": "exc_001"
+        }
+      ],
+      "claim_class": "ESTIMATED",
+      "confidence": "MEDIUM",
+      "triangulated": false,
+      "notes": "Single source estimate"
+    },
+    {
+      "claim_id": "claim_test_002",
+      "path": "current_situation.regime_response.crackdown_severity",
+      "selector": null,
+      "value": "MODERATE",
+      "units": "categorical",
+      "null_reason": null,
+      "as_of_utc": "2026-01-10T18:00:00Z",
+      "source_grade": "A1",
+      "source_doc_refs": [
+        {
+          "doc_id": "doc_test_001",
+          "excerpt_id": "exc_002"
+        },
+        {
+          "doc_id": "doc_test_002",
+          "excerpt_id": "exc_001"
+        }
+      ],
+      "claim_class": "FACTUAL",
+      "confidence": "HIGH",
+      "triangulated": true,
+      "notes": "Confirmed by multiple sources"
+    },
+    {
+      "claim_id": "claim_test_003",
+      "path": "current_situation.defections.confirmed_count",
+      "selector": null,
+      "value": null,
+      "units": "count",
+      "null_reason": "INSUFFICIENT_DATA",
+      "as_of_utc": "2026-01-10T18:00:00Z",
+      "source_grade": "C3",
+      "source_doc_refs": [
+        {
+          "doc_id": "doc_test_001",
+          "excerpt_id": "exc_002"
+        }
+      ],
+      "claim_class": "SPECULATIVE",
+      "confidence": "LOW",
+      "triangulated": false,
+      "notes": "No confirmed defections reported; data gap"
+    }
+  ]
+}

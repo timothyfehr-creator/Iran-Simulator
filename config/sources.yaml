@@ -1,0 +1,164 @@
+sources:
+  # OSINT Think Tanks
+  - id: isw
+    name: "Institute for the Study of War"
+    type: rss
+    bucket: osint_think_tank
+    urls:
+      - https://understandingwar.org/rss.xml
+    access_grade: B
+    bias_grade: 2
+    language: en
+    fetcher: src.ingest.fetch_rss
+    enabled: true
+
+  # NGOs / Rights Monitors
+  - id: hrana
+    name: "Human Rights Activists News Agency"
+    type: web
+    bucket: ngos
+    urls:
+      - https://www.en-hrana.org/category/news/
+    selectors:
+      article: ".post"
+      title: "h2.entry-title a"
+      date: ".entry-meta time"
+      content: ".entry-content"
+    access_grade: B
+    bias_grade: 2
+    language: en
+    fetcher: src.ingest.fetch_web
+    enabled: true
+
+  - id: amnesty
+    name: "Amnesty International"
+    type: rss
+    bucket: ngos
+    urls:
+      - https://www.amnesty.org/en/latest/news/feed/
+    filters:
+      - keyword: "iran"
+    access_grade: A
+    bias_grade: 2
+    language: en
+    fetcher: src.ingest.fetch_rss
+    enabled: true
+
+  - id: hrw
+    name: "Human Rights Watch"
+    type: rss
+    bucket: ngos
+    urls:
+      - https://www.hrw.org/rss
+    filters:
+      - keyword: "iran"
+    access_grade: A
+    bias_grade: 2
+    language: en
+    fetcher: src.ingest.fetch_rss
+    enabled: true
+
+  # Regime Outlets
+  - id: irna
+    name: "Islamic Republic News Agency"
+    type: rss
+    bucket: regime_outlets
+    urls:
+      - https://en.irna.ir/service/World/rss
+    access_grade: C
+    bias_grade: 4
+    language: en
+    fetcher: src.ingest.fetch_rss
+    enabled: true
+
+  - id: tasnim
+    name: "Tasnim News Agency"
+    type: web
+    bucket: regime_outlets
+    urls:
+      - https://www.tasnimnews.com/en
+    selectors:
+      article: ".list-item"
+      title: "h4 a"
+      date: ".time"
+      content: ".story"
+    access_grade: C
+    bias_grade: 4
+    language: en
+    fetcher: src.ingest.fetch_web
+    enabled: true
+
+  - id: mehr
+    name: "Mehr News Agency"
+    type: rss
+    bucket: regime_outlets
+    urls:
+      - https://en.mehrnews.com/rss
+    access_grade: C
+    bias_grade: 4
+    language: en
+    fetcher: src.ingest.fetch_rss
+    enabled: true
+
+  # Persian Services
+  - id: radio_farda
+    name: "Radio Farda"
+    type: rss
+    bucket: persian_services
+    urls:
+      - https://www.radiofarda.com/api/zmgqoeqotqmo
+    access_grade: B
+    bias_grade: 2
+    language: fa
+    fetcher: src.ingest.fetch_rss
+    enabled: true
+
+  - id: bbc_persian
+    name: "BBC Persian"
+    type: rss
+    bucket: persian_services
+    urls:
+      - http://www.bbc.co.uk/persian/index.xml
+    access_grade: A
+    bias_grade: 2
+    language: fa
+    fetcher: src.ingest.fetch_rss
+    enabled: true
+
+  - id: iran_intl
+    name: "Iran International"
+    type: web
+    bucket: persian_services
+    urls:
+      - https://www.iranintl.com/en
+    selectors:
+      article: "article.post"
+      title: "h2 a"
+      date: "time"
+      content: ".content"
+    access_grade: B
+    bias_grade: 2
+    language: en
+    fetcher: src.ingest.fetch_web
+    enabled: true
+
+  # Wires (manual/licensed)
+  - id: reuters
+    name: "Reuters"
+    type: manual
+    bucket: wires
+    notes: "Requires licensed access or manual copy-paste"
+    access_grade: A
+    bias_grade: 1
+    language: en
+    enabled: false
+
+  - id: ap
+    name: "Associated Press"
+    type: manual
+    bucket: wires
+    notes: "Requires licensed access or manual copy-paste"
+    access_grade: A
+    bias_grade: 1
+    language: en
+    enabled: false

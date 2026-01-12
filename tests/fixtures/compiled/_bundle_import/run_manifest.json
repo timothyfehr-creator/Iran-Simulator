@@ -1,0 +1,9 @@
+{
+  "run_id": "test_minimal_001",
+  "query": "Minimal test bundle for Iran Crisis Simulator",
+  "executed_at_utc": "2026-01-11T12:00:00Z",
+  "data_cutoff_utc": "2026-01-11T12:00:00Z",
+  "time_horizon_days": 90,
+  "researcher": "Test Suite",
+  "notes": "Synthetic fixture for end-to-end validation"
+}

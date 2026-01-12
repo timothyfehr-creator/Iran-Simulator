@@ -1,0 +1,24 @@
+[
+  {
+    "source_id": "src_test_001",
+    "organization": "Test News Agency",
+    "title": "Iran Protests Update - Test Article",
+    "url": "https://example.com/test-article-001",
+    "published_at_utc": "2026-01-10T18:00:00Z",
+    "access_grade": "A",
+    "bias_grade": "1",
+    "language": "en",
+    "notes": "Synthetic test source"
+  },
+  {
+    "source_id": "src_test_002",
+    "organization": "Test Persian Media",
+    "title": "\u06af\u0632\u0627\u0631\u0634 \u0622\u0632\u0645\u0627\u06cc\u0634\u06cc \u0627\u0632 \u062a\u0647\u0631\u0627\u0646",
+    "url": "https://example.com/test-article-002",
+    "published_at_utc": "2026-01-10T12:00:00Z",
+    "access_grade": "B",
+    "bias_grade": "2",
+    "language": "fa",
+    "notes": "Synthetic test source in Persian"
+  }
+]

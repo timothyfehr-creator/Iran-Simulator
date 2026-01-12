@@ -1,0 +1,155 @@
+{
+  "n_runs": 10,
+  "outcome_distribution": {
+    "REGIME_SURVIVES_STATUS_QUO": {
+      "count": 7,
+      "probability": 0.7,
+      "ci_low": 0.39677321997956516,
+      "ci_high": 0.892210712513788
+    },
+    "REGIME_SURVIVES_WITH_CONCESSIONS": {
+      "count": 1,
+      "probability": 0.1,
+      "ci_low": 0.01787574951572113,
+      "ci_high": 0.4041563854975721
+    },
+    "ETHNIC_FRAGMENTATION": {
+      "count": 1,
+      "probability": 0.1,
+      "ci_low": 0.01787574951572113,
+      "ci_high": 0.4041563854975721
+    },
+    "MANAGED_TRANSITION": {
+      "count": 1,
+      "probability": 0.1,
+      "ci_low": 0.01787574951572113,
+      "ci_high": 0.4041563854975721
+    }
+  },
+  "outcome_timing": {
+    "REGIME_SURVIVES_STATUS_QUO": {
+      "mean_day": 90,
+      "median_day": 90,
+      "min_day": 90,
+      "max_day": 90
+    },
+    "REGIME_SURVIVES_WITH_CONCESSIONS": {
+      "mean_day": 60,
+      "median_day": 60,
+      "min_day": 60,
+      "max_day": 60
+    },
+    "ETHNIC_FRAGMENTATION": {
+      "mean_day": 58,
+      "median_day": 58,
+      "min_day": 58,
+      "max_day": 58
+    },
+    "MANAGED_TRANSITION": {
+      "mean_day": 25,
+      "median_day": 25,
+      "min_day": 25,
+      "max_day": 25
+    }
+  },
+  "key_event_rates": {
+    "us_intervention": 1.0,
+    "security_force_defection": 0.1,
+    "khamenei_death": 0.1,
+    "ethnic_uprising": 0.2
+  },
+  "sample_trajectories": [
+    {
+      "outcome": "REGIME_SURVIVES_WITH_CONCESSIONS",
+      "outcome_day": 60,
+      "events": [
+        "Day 12: US escalates economic pressure",
+        "Day 53: Regime offers meaningful concessions",
+        "Day 57: US begins covert support to opposition",
+        "Day 60: Protests collapse after concessions",
+        "Day 60: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 90,
+      "events": [
+        "Day 3: US escalates economic pressure",
+        "Day 56: US begins covert support to opposition"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 90,
+      "events": [
+        "Day 5: US begins information operations support",
+        "Day 15: US escalates economic pressure",
+        "Day 30: Protest momentum begins declining"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 90,
+      "events": [
+        "Day 9: Protests escalate",
+        "Day 14: US begins information operations support",
+        "Day 26: Protest momentum begins declining",
+        "Day 28: US escalates economic pressure"
+      ]
+    },
+    {
+      "outcome": "ETHNIC_FRAGMENTATION",
+      "outcome_day": 58,
+      "events": [
+        "Day 5: US begins information operations support",
+        "Day 10: US escalates economic pressure",
+        "Day 23: Protest momentum begins declining",
+        "Day 58: Ethnic region declares autonomy"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 90,
+      "events": [
+        "Day 11: US begins information operations support",
+        "Day 22: Protest momentum begins declining"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 90,
+      "events": [
+        "Day 3: US escalates economic pressure",
+        "Day 23: Protest momentum begins declining",
+        "Day 44: US begins covert support to opposition"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 90,
+      "events": [
+        "Day 4: US begins information operations support",
+        "Day 12: Protest momentum begins declining",
+        "Day 88: Ethnic region declares autonomy"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 90,
+      "events": [
+        "Day 11: Protest momentum begins declining",
+        "Day 60: Security force defection",
+        "Day 86: US begins covert support to opposition"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 25,
+      "events": [
+        "Day 4: US escalates economic pressure",
+        "Day 10: Protests escalate",
+        "Day 25: Khamenei dies"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "_comment": "PLACEHOLDER - Replace with output from Deep Research using prompts/01_research_prompt.md",
+  "_schema_version": "1.0",
+  
+  "metadata": {
+    "requirement_id": "IRAN-2026-001",
+    "generated_date": null,
+    "data_cutoff": null,
+    "crisis_day_count": 14,
+    "analyst_notes": "PLACEHOLDER - Run research prompt to populate"
+  },
+
+  "kiq_summaries": {
+    "kiq_1_regime_stability": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_2_protest_trajectory": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_3_ethnic_fragmentation": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_4_us_intervention": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_5_regional_cascade": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    }
+  },
+
+  "current_state": {
+    "as_of": null,
+    "protest_metrics": {
+      "time_series": [],
+      "current_snapshot": {
+        "provinces_affected": {"value": 27, "of_total": 31, "source_grade": "B2"},
+        "cities_affected": {"value": 100, "source_grade": "B2"},
+        "estimated_participants_current": {"low": null, "high": null}
+      }
+    },
+    "casualties": {
+      "protesters": {
+        "killed": {"low": 30, "mid": 36, "high": 50, "source_grade": "B2"}
+      },
+      "security_forces": {
+        "killed": {"total": 12, "source_grade": "B3"}
+      }
+    }
+  },
+
+  "geographic_data": {
+    "provinces": [
+      {
+        "name": "Tehran",
+        "population_millions": 14.0,
+        "primary_ethnicity": "Persian",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": ["Tehran"],
+        "strategic_features": "Capital, government center",
+        "borders": []
+      },
+      {
+        "name": "Kermanshah",
+        "population_millions": 2.0,
+        "primary_ethnicity": "Kurdish",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": ["Kermanshah"],
+        "strategic_features": "Kurdish region, Iraq border",
+        "borders": ["Iraq"]
+      },
+      {
+        "name": "Lorestan",
+        "population_millions": 1.8,
+        "primary_ethnicity": "Lur",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": ["Lordegan", "Borujerd"],
+        "strategic_features": "Western Iran",
+        "borders": []
+      },
+      {
+        "name": "Sistan and Baluchestan",
+        "population_millions": 2.9,
+        "primary_ethnicity": "Baloch",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": ["Zahedan", "Iranshahr"],
+        "strategic_features": "Baloch region, Pakistan border, Sunni majority",
+        "borders": ["Pakistan", "Afghanistan"]
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project-specific: ISW ingestion output
+ingest/
+
+# Outputs and run artifacts
+outputs/
+runs/
+logs/
+reports/
+*.png
+*.svg
+
+# Data bundles and intermediate files
+bundle_*.json
+*.jsonl
+
+# Environment / Secrets
+.env
+*.env
+.env.*
+
+# Exceptions - keep these tracked
+!.env.example
+!tests/fixtures/*.json
+!tests/fixtures/*.jsonl
+!tests/fixtures/**/*.json
+!tests/fixtures/**/*.jsonl
+!data/iran_crisis_intel.json
+!data/analyst_priors.json
+!knowledge/iran_baseline/*.jsonl
