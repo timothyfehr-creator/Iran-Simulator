@@ -1,0 +1,58 @@
+{
+  "variable": "Protest_State",
+  "states": [
+    "DECLINING",
+    "STABLE",
+    "ESCALATING",
+    "ORGANIZED",
+    "COLLAPSED"
+  ],
+  "parents": [
+    "Protest_Escalation",
+    "Protest_Sustained"
+  ],
+  "parent_states": {
+    "Protest_Escalation": [
+      "NO",
+      "YES"
+    ],
+    "Protest_Sustained": [
+      "NO",
+      "YES"
+    ]
+  },
+  "derivation_notes": "ORGANIZED requires both Escalation=YES and Sustained=YES. DECLINING most likely when neither escalation nor sustained.",
+  "values": [
+    [
+      0.7,
+      0.3,
+      0.4,
+      0.1
+    ],
+    [
+      0.25,
+      0.4,
+      0.25,
+      0.2
+    ],
+    [
+      0.04,
+      0.2,
+      0.3,
+      0.3
+    ],
+    [
+      0.005,
+      0.05,
+      0.04,
+      0.35
+    ],
+    [
+      0.005,
+      0.05,
+      0.01,
+      0.05
+    ]
+  ],
+  "column_order": "Escalation(NO,YES) x Sustained(NO,YES)"
+}

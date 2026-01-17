@@ -1,0 +1,41 @@
+{
+  "variable": "Internet_Status",
+  "states": [
+    "ON",
+    "THROTTLED",
+    "OFF"
+  ],
+  "parents": [
+    "Regime_Response"
+  ],
+  "parent_states": {
+    "Regime_Response": [
+      "STATUS_QUO",
+      "CRACKDOWN",
+      "CONCESSIONS",
+      "SUPPRESSED"
+    ]
+  },
+  "derivation_notes": "Internet typically ON under STATUS_QUO/CONCESSIONS. CRACKDOWN triggers throttling/blackout. SUPPRESSED = highest blackout probability.",
+  "values": [
+    [
+      0.95,
+      0.3,
+      0.85,
+      0.15
+    ],
+    [
+      0.04,
+      0.5,
+      0.12,
+      0.35
+    ],
+    [
+      0.01,
+      0.2,
+      0.03,
+      0.5
+    ]
+  ],
+  "column_order": "Response(STATUS_QUO, CRACKDOWN, CONCESSIONS, SUPPRESSED)"
+}

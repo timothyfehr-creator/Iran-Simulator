@@ -1,0 +1,85 @@
+{
+  "variable": "Protest_Sustained",
+  "states": [
+    "NO",
+    "YES"
+  ],
+  "parents": [
+    "Protest_Escalation",
+    "Regime_Response",
+    "Internet_Status"
+  ],
+  "parent_states": {
+    "Protest_Escalation": [
+      "NO",
+      "YES"
+    ],
+    "Regime_Response": [
+      "STATUS_QUO",
+      "CRACKDOWN",
+      "CONCESSIONS",
+      "SUPPRESSED"
+    ],
+    "Internet_Status": [
+      "ON",
+      "THROTTLED",
+      "OFF"
+    ]
+  },
+  "derivation_notes": "Base sustained prob=0.45 (30-day window). Modifiers: Concessions -30%, SUPPRESSED -80%, Internet OFF -50%.",
+  "values": [
+    [
+      0.92,
+      0.94,
+      0.96,
+      0.9319999999999999,
+      0.949,
+      0.966,
+      0.944,
+      0.958,
+      0.972,
+      0.984,
+      0.988,
+      0.99,
+      0.625,
+      0.71875,
+      0.8125,
+      0.68125,
+      0.7609375,
+      0.840625,
+      0.7375,
+      0.8031250000000001,
+      0.86875,
+      0.925,
+      0.94375,
+      0.9625
+    ],
+    [
+      0.08,
+      0.06,
+      0.04,
+      0.068,
+      0.051000000000000004,
+      0.034,
+      0.055999999999999994,
+      0.041999999999999996,
+      0.027999999999999997,
+      0.016,
+      0.012,
+      0.01,
+      0.375,
+      0.28125,
+      0.1875,
+      0.31875,
+      0.23906249999999998,
+      0.159375,
+      0.26249999999999996,
+      0.19687499999999997,
+      0.13124999999999998,
+      0.07500000000000001,
+      0.05625000000000001,
+      0.037500000000000006
+    ]
+  ],
+  "column_order": "Escalation(2) x Response(4) x Internet(3) = 24 columns"
+}

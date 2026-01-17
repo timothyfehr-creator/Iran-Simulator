@@ -1,0 +1,42 @@
+{
+  "variable": "Ethnic_Uprising",
+  "states": [
+    "NO",
+    "YES"
+  ],
+  "parents": [
+    "Protest_Sustained",
+    "Economic_Stress"
+  ],
+  "parent_states": {
+    "Protest_Sustained": [
+      "NO",
+      "YES"
+    ],
+    "Economic_Stress": [
+      "STABLE",
+      "PRESSURED",
+      "CRITICAL"
+    ]
+  },
+  "derivation_notes": "Base ethnic uprising prob=0.18 (60-day window). Requires sustained protests. CRITICAL economy +40%.",
+  "values": [
+    [
+      0.98,
+      0.98,
+      0.98,
+      0.88,
+      0.862,
+      0.8320000000000001
+    ],
+    [
+      0.02,
+      0.02,
+      0.02,
+      0.12,
+      0.13799999999999998,
+      0.16799999999999998
+    ]
+  ],
+  "column_order": "Sustained(2) x Economic(3) = 6 columns"
+}

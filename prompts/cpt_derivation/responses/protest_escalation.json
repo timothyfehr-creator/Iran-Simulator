@@ -1,0 +1,31 @@
+{
+  "variable": "Protest_Escalation",
+  "states": [
+    "NO",
+    "YES"
+  ],
+  "parents": [
+    "Economic_Stress"
+  ],
+  "parent_states": {
+    "Economic_Stress": [
+      "STABLE",
+      "PRESSURED",
+      "CRITICAL"
+    ]
+  },
+  "derivation_notes": "Base escalation prob=0.35 (14-day window) converted to marginal=0.323. Economic modifiers: PRESSURED +10%, CRITICAL +20%.",
+  "values": [
+    [
+      0.6772222222222222,
+      0.6449444444444444,
+      0.6126666666666667
+    ],
+    [
+      0.3227777777777778,
+      0.35505555555555557,
+      0.3873333333333333
+    ]
+  ],
+  "column_order": "Economic_Stress(STABLE, PRESSURED, CRITICAL)"
+}

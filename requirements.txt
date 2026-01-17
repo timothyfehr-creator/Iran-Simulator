@@ -12,6 +12,24 @@ python-dotenv>=1.0.0
 openai>=1.0.0  # Required for auto-ingest claim extraction
 # anthropic>=0.18.0  # Optional - for alternative claim extraction
 
-# Existing optional dependencies
+# ABM Engine (Project Swarm)
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Visualization
 matplotlib>=3.7.0
 seaborn>=0.12.0
+
+# Dashboard
+streamlit>=1.30.0
+plotly>=5.18.0
+pandas>=2.0.0
+
+# React Frontend API
+fastapi>=0.109.0
+uvicorn>=0.27.0
+
+# Bayesian Network (prototype)
+pgmpy>=0.1.25
+networkx>=3.0
+pyvis>=0.3.0  # Interactive network visualization
