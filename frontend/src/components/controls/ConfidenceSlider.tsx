@@ -1,0 +1,89 @@
+import { Info } from 'lucide-react';
+import { useState } from 'react';
+
+interface ConfidenceSliderProps {
+  value: number;
+  onChange: (value: number) => void;
+  label: string;
+  description?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  unit?: string;
+  ariaLabel?: string;
+  lowLabel?: string;
+  highLabel?: string;
+}
+
+export function ConfidenceSlider({
+  value,
+  onChange,
+  label,
+  description,
+  min = 0,
+  max = 100,
+  step = 1,
+  unit = '%',
+  ariaLabel,
+  lowLabel,
+  highLabel,
+}: ConfidenceSliderProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(parseFloat(e.target.value));
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-1.5">
+          <label className="text-sm text-gray-300 font-medium" htmlFor={`slider-${label}`}>
+            {label}
+          </label>
+          {description && (
+            <div className="relative">
+              <button
+                type="button"
+                className="text-gray-500 hover:text-gray-300 transition-colors"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+                onClick={() => setShowTooltip(!showTooltip)}
+                aria-label={`Info about ${label}`}
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+              {showTooltip && (
+                <div className="absolute left-0 bottom-full mb-2 w-56 p-2 bg-war-room-panel border border-war-room-border rounded-lg shadow-lg z-50">
+                  <p className="text-xs text-gray-400 leading-relaxed">{description}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        <span className="text-sm font-mono text-war-room-accent font-bold">
+          {value}
+          {unit}
+        </span>
+      </div>
+      <input
+        id={`slider-${label}`}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={handleChange}
+        className="slider-input"
+        aria-label={ariaLabel || label}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+      />
+      <div className="flex justify-between text-xs text-gray-500">
+        <span>{lowLabel || `${min}${unit}`}</span>
+        <span>{highLabel || `${max}${unit}`}</span>
+      </div>
+    </div>
+  );
+}
