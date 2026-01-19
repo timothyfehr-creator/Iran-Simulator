@@ -46,6 +46,20 @@ class RegimeState(Enum):
     TRANSITION = "transition"                     # Managed succession
     SUPPRESSED = "suppressed"                     # Protests crushed, regime stable
 
+
+class EconomicStress(Enum):
+    """Economic stress levels based on Rial exchange rate and inflation.
+
+    Thresholds (configurable via analyst_priors.json):
+    - STABLE: Rial < 800k IRR/USD, inflation < 30%
+    - PRESSURED: Rial 800k-1.2M IRR/USD, inflation 30-50%
+    - CRITICAL: Rial > 1.2M IRR/USD OR inflation > 50%
+    """
+    STABLE = "stable"           # Normal economic stress
+    PRESSURED = "pressured"     # Elevated economic stress
+    CRITICAL = "critical"       # Severe economic stress
+
+
 class USPosture(Enum):
     RHETORICAL = "rhetorical"                     # Statements only
     INFORMATION_OPS = "information_ops"           # Starlink, cyber support
@@ -75,13 +89,63 @@ class ProtestState(Enum):
     ORGANIZED = "organized"                       # Developed leadership/coordination
     COLLAPSED = "collapsed"
 
+
+# ============================================================================
+# REGIONAL CASCADE STATE DEFINITIONS
+# ============================================================================
+
+class CountryStability(Enum):
+    """Stability state for secondary countries (Iraq, Syria)"""
+    STABLE = "stable"           # Business as usual
+    STRESSED = "stressed"       # Elevated tensions, minor unrest
+    CRISIS = "crisis"           # Active instability, conflict
+    COLLAPSE = "collapse"       # State failure, power vacuum
+
+
+class IsraelPosture(Enum):
+    """Israel's posture toward Iran during crisis"""
+    MONITORING = "monitoring"           # Watching developments
+    STRIKES = "strikes"                 # Conducting targeted strikes
+    MAJOR_OPERATION = "major_operation" # Major military campaign
+
+
+class RussiaPosture(Enum):
+    """Russia's posture toward Iran during crisis"""
+    OBSERVING = "observing"       # Diplomatic support only
+    SUPPORTING = "supporting"     # Material aid, advisors
+    INTERVENING = "intervening"   # Direct military involvement
+
+
+# Ordering for external actor escalation
+ISRAEL_POSTURE_LEVEL = {
+    IsraelPosture.MONITORING: 0,
+    IsraelPosture.STRIKES: 1,
+    IsraelPosture.MAJOR_OPERATION: 2,
+}
+
+RUSSIA_POSTURE_LEVEL = {
+    RussiaPosture.OBSERVING: 0,
+    RussiaPosture.SUPPORTING: 1,
+    RussiaPosture.INTERVENING: 2,
+}
+
+
 # ============================================================================
 # SIMULATION STATE
 # ============================================================================
 
 @dataclass
+class RegionalState:
+    """State of a secondary country in the regional system (Iraq or Syria)"""
+    country: str = ""
+    stability: CountryStability = CountryStability.STABLE
+    proxy_activated: bool = False       # Iranian proxies attacking US/Israel
+    crisis_start_day: Optional[int] = None
+    events: List[str] = field(default_factory=list)
+
+@dataclass
 class SimulationState:
-    """Current state of a single simulation run"""
+    """Current state of a single simulation run - includes regional cascade"""
     day: int = 0
     regime_state: RegimeState = RegimeState.STATUS_QUO
     us_posture: USPosture = USPosture.RHETORICAL
@@ -95,7 +159,7 @@ class SimulationState:
     ethnic_uprising_day: Optional[int] = None
     khamenei_death_day: Optional[int] = None
     collapse_day: Optional[int] = None
-    
+
     # Cumulative trackers
     protester_casualties: int = 0
     security_force_casualties: int = 0
@@ -103,13 +167,30 @@ class SimulationState:
     khamenei_dead: bool = False
     ethnic_uprising: bool = False
     us_intervened: bool = False
-    
+
     # Outcome
     final_outcome: Optional[str] = None
     outcome_day: Optional[int] = None
-    
+
     # Event log
     events: List[str] = field(default_factory=list)
+
+    # -------------------------------------------------------------------------
+    # REGIONAL CASCADE STATE
+    # -------------------------------------------------------------------------
+
+    # Secondary country states
+    iraq: RegionalState = field(default_factory=lambda: RegionalState(country="Iraq"))
+    syria: RegionalState = field(default_factory=lambda: RegionalState(country="Syria"))
+
+    # External actor postures
+    israel_posture: IsraelPosture = IsraelPosture.MONITORING
+    russia_posture: RussiaPosture = RussiaPosture.OBSERVING
+    gulf_realignment: bool = False
+
+    # Regional anchor days
+    us_kinetic_day: Optional[int] = None      # When US goes kinetic (for proxy activation)
+    israel_strike_day: Optional[int] = None   # When Israel begins strikes
 
 
 # ============================================================================
@@ -277,15 +358,159 @@ class ProbabilitySampler:
 class IranCrisisSimulation:
     """
     Monte Carlo simulation of Iran crisis scenarios.
-    
+
     The simulation runs day-by-day for 90 days, with state transitions
     governed by the probability priors from the Security Analyst Agent.
+
+    When use_abm=True, protest dynamics are driven by the Agent-Based Model
+    (Project Swarm) instead of the state machine.
     """
-    
-    def __init__(self, intel: dict, priors: dict):
+
+    def __init__(self, intel: dict, priors: dict, use_abm: bool = False, seed: Optional[int] = None):
         self.intel = intel
         self.sampler = ProbabilitySampler(priors)
         self.priors = priors
+        # Cache economic stress level (computed once from intel)
+        self._economic_stress: Optional[EconomicStress] = None
+        self._economic_data: Dict[str, float] = {}
+
+        # ABM integration (Project Swarm)
+        self.use_abm = use_abm
+        self.abm = None
+        if use_abm:
+            # Handle both running as module (python -m src.simulation) and script (python src/simulation.py)
+            try:
+                from src.abm_engine import ABMEngine
+            except ImportError:
+                import sys
+                sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+                from abm_engine import ABMEngine
+            # Pass CLI seed for reproducibility; None means non-deterministic
+            self.abm = ABMEngine({"n_agents": 10_000, "seed": seed}, intel)
+
+    # ----------------------------------------------------------------------
+    # Economic State Machine
+    # ----------------------------------------------------------------------
+
+    def _get_economic_stress(self) -> EconomicStress:
+        """Determine economic stress level from intel data.
+
+        Uses thresholds from priors if available, otherwise defaults:
+        - STABLE: Rial < 800k, inflation < 30%
+        - PRESSURED: Rial 800k-1.2M, inflation 30-50%
+        - CRITICAL: Rial > 1.2M OR inflation > 50%
+
+        Returns:
+            EconomicStress enum value
+        """
+        if self._economic_stress is not None:
+            return self._economic_stress
+
+        # Get thresholds from priors or use defaults
+        thresholds = self.priors.get("economic_thresholds", {})
+        rial_critical = int(thresholds.get("rial_critical_threshold", 1_200_000))
+        rial_pressured = int(thresholds.get("rial_pressured_threshold", 800_000))
+        inflation_critical = float(thresholds.get("inflation_critical_threshold", 50))
+        inflation_pressured = float(thresholds.get("inflation_pressured_threshold", 30))
+
+        # Extract economic data from intel
+        try:
+            econ = self.intel.get("current_state", {}).get("economic_conditions", {})
+
+            # Get Rial rate (check various possible paths)
+            rial_data = econ.get("rial_usd_rate", {})
+            rial_rate = rial_data.get("market") or rial_data.get("mid") or rial_data.get("value")
+            if rial_rate is None:
+                rial_rate = 1_000_000  # Default to moderate if missing
+
+            # Get inflation (check various possible paths)
+            inflation_data = econ.get("inflation", {})
+            inflation = inflation_data.get("official_annual_percent") or inflation_data.get("mid") or inflation_data.get("value")
+            if inflation is None:
+                inflation = 35  # Default to moderate if missing
+
+            # Store for later reporting
+            self._economic_data = {
+                "rial_rate": float(rial_rate),
+                "inflation": float(inflation),
+            }
+
+            # Classify stress level
+            if rial_rate > rial_critical or inflation > inflation_critical:
+                self._economic_stress = EconomicStress.CRITICAL
+            elif rial_rate > rial_pressured or inflation > inflation_pressured:
+                self._economic_stress = EconomicStress.PRESSURED
+            else:
+                self._economic_stress = EconomicStress.STABLE
+
+        except (KeyError, TypeError, ValueError):
+            # Default to PRESSURED if data unavailable
+            self._economic_stress = EconomicStress.PRESSURED
+            self._economic_data = {
+                "rial_rate": 1_000_000,
+                "inflation": 35,
+            }
+
+        return self._economic_stress
+
+    def _get_economic_modifier(self, event_type: str) -> float:
+        """Get the probability multiplier for an event type based on economic stress.
+
+        Reads multipliers from priors if available, otherwise uses defaults:
+        - CRITICAL: +20% protest escalation, +30% elite fracture, +15% defection
+        - PRESSURED: +10% protest escalation, +15% elite fracture, +8% defection
+
+        Args:
+            event_type: One of "protest_escalation", "elite_fracture", "security_defection"
+
+        Returns:
+            Probability multiplier (1.0 = no change)
+        """
+        stress = self._get_economic_stress()
+
+        # Get multipliers from priors or use defaults
+        multipliers = self.priors.get("economic_modifiers", {})
+
+        default_multipliers = {
+            EconomicStress.CRITICAL: {
+                "protest_escalation": 1.20,
+                "elite_fracture": 1.30,
+                "security_defection": 1.15,
+                "regime_concession": 1.10,
+            },
+            EconomicStress.PRESSURED: {
+                "protest_escalation": 1.10,
+                "elite_fracture": 1.15,
+                "security_defection": 1.08,
+                "regime_concession": 1.05,
+            },
+            EconomicStress.STABLE: {
+                # No modifiers for stable economy
+            }
+        }
+
+        # Check for custom multipliers in priors
+        if stress == EconomicStress.CRITICAL:
+            key = f"critical_{event_type}_multiplier"
+            return float(multipliers.get(key, default_multipliers[stress].get(event_type, 1.0)))
+        elif stress == EconomicStress.PRESSURED:
+            key = f"pressured_{event_type}_multiplier"
+            return float(multipliers.get(key, default_multipliers[stress].get(event_type, 1.0)))
+        else:
+            return 1.0
+
+    def _apply_economic_modifiers(self, base_prob: float, event_type: str) -> float:
+        """Adjust probability based on economic stress level.
+
+        Args:
+            base_prob: Base probability to adjust
+            event_type: Type of event for modifier lookup
+
+        Returns:
+            Adjusted probability (capped at 0.95)
+        """
+        modifier = self._get_economic_modifier(event_type)
+        return min(0.95, base_prob * modifier)
 
     # ----------------------------------------------------------------------
     # Time-basis helpers (P3 semantics)
@@ -312,6 +537,11 @@ class IranCrisisSimulation:
             return state.khamenei_death_day
         if anchor == "collapse_day":
             return state.collapse_day
+        # Regional cascade anchors
+        if anchor == "us_kinetic_day":
+            return state.us_kinetic_day
+        if anchor == "israel_strike_day":
+            return state.israel_strike_day
         return None
 
     @classmethod
@@ -366,10 +596,17 @@ class IranCrisisSimulation:
 
         # Sample each parameter once per trajectory (prevents re-drawing priors every day)
         self.sampler.reset_cache()
-        
+
+        # Reset ABM for new trajectory (Monte Carlo support)
+        if self.use_abm and self.abm is not None:
+            self.abm.reset()
+
+        # Initialize economic data for ABM context
+        self._get_economic_stress()
+
         # Initialize from current intel
         state.protester_casualties = self._get_initial_casualties()
-        
+
         for day in range(1, 91):
             state.day = day
             
@@ -414,9 +651,43 @@ class IranCrisisSimulation:
                 state.events.append(f"Day {state.day}: Succession crisis triggers regime collapse")
                 return
 
-        # 2. Protest trajectory
-        if state.protest_state != ProtestState.COLLAPSED:
-            self._update_protest_state(state)
+        # 2. Protest trajectory - ABM or state machine
+        if self.use_abm and self.abm is not None:
+            # Build global context for ABM
+            abm_context = {
+                "protest_state": state.protest_state.value.upper(),
+                "regime_state": state.regime_state.value.upper(),
+                "rial_rate": self._economic_data.get("rial_rate", 1_000_000),
+                "crackdown_intensity": 0.8 if state.regime_state == RegimeState.CRACKDOWN else 0.2,
+                "concessions_offered": state.regime_state == RegimeState.CONCESSIONS,
+                "internet_blackout": state.regime_state == RegimeState.CRACKDOWN,
+            }
+
+            # Run ABM step
+            abm_result = self.abm.step(abm_context)
+
+            # Map ABM outputs to macro state
+            if abm_result["total_protesting"] > 0.10:
+                if state.protest_state != ProtestState.ESCALATING:
+                    state.protest_state = ProtestState.ESCALATING
+                    if state.escalation_start_day is None:
+                        state.escalation_start_day = state.day
+                        state.events.append(f"Day {state.day}: Protests escalate (ABM: {abm_result['total_protesting']:.1%})")
+            elif abm_result["total_protesting"] < 0.02:
+                if state.protest_state != ProtestState.COLLAPSED:
+                    state.protest_state = ProtestState.COLLAPSED
+                    state.events.append(f"Day {state.day}: Protests collapse (ABM: {abm_result['total_protesting']:.1%})")
+
+            # ABM-driven defection (30% threshold)
+            if abm_result["defection_rate"] > 0.30 and not state.defection_occurred:
+                state.defection_occurred = True
+                state.defection_day = state.day
+                state.regime_state = RegimeState.DEFECTION
+                state.events.append(f"Day {state.day}: Security force defection (ABM: {abm_result['defection_rate']:.1%})")
+        else:
+            # Fallback to state machine logic
+            if state.protest_state != ProtestState.COLLAPSED:
+                self._update_protest_state(state)
         if state.final_outcome:
             return
 
@@ -447,7 +718,10 @@ class IranCrisisSimulation:
 
         # 7. Terminal outcomes
         self._check_terminal_states(state)
-    
+
+        # 8. Regional cascade updates (Iraq/Syria spillover, external actor responses)
+        self._update_regional_cascade(state)
+
     def _update_protest_state(self, state: SimulationState):
         """Update protest intensity.
 
@@ -458,6 +732,16 @@ class IranCrisisSimulation:
         if state.day <= 14 and state.protest_state == ProtestState.STABLE:
             p_escalate_14d = self.sampler.sample("transition", "protests_escalate_14d")
             daily_escalate = self._window_prob_to_daily_hazard(p_escalate_14d, 14)
+
+            # FEEDBACK LOOP: Economic stress increases protest escalation probability
+            # Rationale: Economic hardship fuels grievances and mobilization
+            daily_escalate = self._apply_economic_modifiers(daily_escalate, "protest_escalation")
+
+            # FEEDBACK LOOP: Concessions dampen protest escalation probability
+            # Rationale: Regime flexibility reduces grievance intensity
+            if state.regime_state == RegimeState.CONCESSIONS:
+                daily_escalate *= 0.5
+
             if random.random() < daily_escalate:
                 state.protest_state = ProtestState.ESCALATING
                 state.events.append(f"Day {state.day}: Protests escalate")
@@ -506,6 +790,16 @@ class IranCrisisSimulation:
             prob_obj = self.sampler._get_probability("transition", "mass_casualty_crackdown_given_escalation")
             if self._window_active(state, prob_obj):
                 daily_crackdown = self._daily_hazard_from_window_prob("transition", "mass_casualty_crackdown_given_escalation")
+
+                # FEEDBACK LOOP: Regional instability increases regime anxiety → higher crackdown probability
+                # Rationale: Iraq/Syria crisis signals regime vulnerability, triggering preemptive repression
+                regional_crisis = (
+                    state.iraq.stability in [CountryStability.CRISIS, CountryStability.COLLAPSE] or
+                    state.syria.stability in [CountryStability.CRISIS, CountryStability.COLLAPSE]
+                )
+                if regional_crisis:
+                    daily_crackdown *= 1.2
+
                 if random.random() < daily_crackdown:
                     state.regime_state = RegimeState.CRACKDOWN
                     state.crackdown_start_day = state.day
@@ -548,6 +842,16 @@ class IranCrisisSimulation:
 
         if self._protests_active_for_30d_condition(state) and self._window_active(state, prob_obj):
             daily_prob = self._daily_hazard_from_window_prob("transition", "security_force_defection_given_protests_30d")
+
+            # FEEDBACK LOOP: Economic stress increases defection probability
+            # Rationale: Economic hardship affects military pay, morale, and family welfare
+            daily_prob = self._apply_economic_modifiers(daily_prob, "security_defection")
+
+            # FEEDBACK LOOP: Concessions reduce defection probability
+            # Rationale: Security forces see regime flexibility as sign of adaptability, not weakness
+            if state.regime_state == RegimeState.CONCESSIONS:
+                daily_prob *= 0.7
+
             if random.random() < daily_prob:
                 state.defection_occurred = True
                 state.defection_day = state.day
@@ -651,6 +955,9 @@ class IranCrisisSimulation:
                 daily_kinetic = self._daily_hazard_from_window_prob("us_intervention", "kinetic_strike_given_crackdown")
                 if random.random() < daily_kinetic:
                     escalate(USPosture.KINETIC, "US conducts military strikes")
+                    # Track kinetic day for regional cascade proxy activation
+                    if state.us_kinetic_day is None:
+                        state.us_kinetic_day = state.day
 
         # Ground intervention in a collapse scenario: windowed from collapse onset
         if state.regime_state == RegimeState.COLLAPSE and self._posture_lt(state.us_posture, USPosture.GROUND):
@@ -662,7 +969,7 @@ class IranCrisisSimulation:
     
     def _check_terminal_states(self, state: SimulationState):
         """Check if simulation has reached a terminal state"""
-        
+
         # Protests collapsed + no defection = regime survives
         if state.protest_state == ProtestState.COLLAPSED and not state.defection_occurred:
             if state.regime_state == RegimeState.CONCESSIONS:
@@ -671,7 +978,140 @@ class IranCrisisSimulation:
                 state.final_outcome = "REGIME_SURVIVES_STATUS_QUO"
             state.outcome_day = state.day
             state.events.append(f"Day {state.day}: Regime successfully suppresses protests")
-    
+
+    # -------------------------------------------------------------------------
+    # REGIONAL CASCADE METHODS
+    # -------------------------------------------------------------------------
+
+    def _update_regional_cascade(self, state: SimulationState):
+        """Update regional cascade: Iraq/Syria stability and external actor responses."""
+        self._update_iraq_stability(state)
+        self._update_syria_stability(state)
+        self._update_proxy_activations(state)
+        self._update_israel_posture(state)
+        self._update_russia_posture(state)
+        self._update_gulf_realignment(state)
+
+    def _update_iraq_stability(self, state: SimulationState):
+        """Update Iraq stability based on Iran crisis spillover."""
+        iraq = state.iraq
+
+        # Already in terminal state
+        if iraq.stability == CountryStability.COLLAPSE:
+            return
+
+        # Iran collapse → Iraq crisis (most severe coupling)
+        if state.regime_state == RegimeState.COLLAPSE and iraq.stability != CountryStability.CRISIS:
+            prob_obj = self.sampler._get_probability("regional", "iraq_crisis_given_iran_collapse")
+            if self._window_active(state, prob_obj):
+                daily_prob = self._daily_hazard_from_window_prob("regional", "iraq_crisis_given_iran_collapse")
+                if random.random() < daily_prob:
+                    iraq.stability = CountryStability.CRISIS
+                    iraq.crisis_start_day = state.day
+                    iraq.events.append(f"Day {state.day}: Iraq enters crisis (Iran collapse spillover)")
+                    state.events.append(f"Day {state.day}: REGIONAL: Iraq destabilized by Iran collapse")
+
+        # Iran escalation → Iraq stressed (milder coupling)
+        if (state.escalation_start_day is not None and
+            iraq.stability == CountryStability.STABLE):
+            prob_obj = self.sampler._get_probability("regional", "iraq_stressed_given_iran_crisis")
+            if self._window_active(state, prob_obj):
+                daily_prob = self._daily_hazard_from_window_prob("regional", "iraq_stressed_given_iran_crisis")
+                if random.random() < daily_prob:
+                    iraq.stability = CountryStability.STRESSED
+                    iraq.events.append(f"Day {state.day}: Iraq enters stressed state (Iran crisis spillover)")
+
+    def _update_syria_stability(self, state: SimulationState):
+        """Update Syria stability based on Iran crisis spillover."""
+        syria = state.syria
+
+        # Already in terminal state
+        if syria.stability == CountryStability.COLLAPSE:
+            return
+
+        # Iran collapse → Syria crisis
+        if state.regime_state == RegimeState.COLLAPSE and syria.stability != CountryStability.CRISIS:
+            prob_obj = self.sampler._get_probability("regional", "syria_crisis_given_iran_collapse")
+            if self._window_active(state, prob_obj):
+                daily_prob = self._daily_hazard_from_window_prob("regional", "syria_crisis_given_iran_collapse")
+                if random.random() < daily_prob:
+                    syria.stability = CountryStability.CRISIS
+                    syria.crisis_start_day = state.day
+                    syria.events.append(f"Day {state.day}: Syria enters crisis (Iran collapse spillover)")
+                    state.events.append(f"Day {state.day}: REGIONAL: Syria destabilized by Iran collapse")
+
+    def _update_proxy_activations(self, state: SimulationState):
+        """Check for proxy activation in Iraq/Syria given US kinetic action."""
+        # Only trigger if US has gone kinetic
+        if state.us_kinetic_day is None:
+            return
+
+        # Iraq proxy activation
+        if not state.iraq.proxy_activated:
+            prob_obj = self.sampler._get_probability("regional", "iraq_proxy_activation_given_us_kinetic")
+            if self._window_active(state, prob_obj):
+                daily_prob = self._daily_hazard_from_window_prob("regional", "iraq_proxy_activation_given_us_kinetic")
+                if random.random() < daily_prob:
+                    state.iraq.proxy_activated = True
+                    state.iraq.events.append(f"Day {state.day}: Iraqi proxies activate against US forces")
+                    state.events.append(f"Day {state.day}: REGIONAL: Iraqi militias attack US targets")
+
+        # Syria proxy activation
+        if not state.syria.proxy_activated:
+            prob_obj = self.sampler._get_probability("regional", "syria_proxy_activation_given_us_kinetic")
+            if self._window_active(state, prob_obj):
+                daily_prob = self._daily_hazard_from_window_prob("regional", "syria_proxy_activation_given_us_kinetic")
+                if random.random() < daily_prob:
+                    state.syria.proxy_activated = True
+                    state.syria.events.append(f"Day {state.day}: Syrian proxies activate against US forces")
+                    state.events.append(f"Day {state.day}: REGIONAL: Syrian militias attack US targets")
+
+    def _update_israel_posture(self, state: SimulationState):
+        """Update Israel posture based on Iran regime weakening."""
+        # Already escalated
+        if state.israel_posture != IsraelPosture.MONITORING:
+            return
+
+        # Israel strikes given defection (signal of regime weakness)
+        if state.defection_occurred:
+            prob_obj = self.sampler._get_probability("regional", "israel_strikes_given_defection")
+            if self._window_active(state, prob_obj):
+                daily_prob = self._daily_hazard_from_window_prob("regional", "israel_strikes_given_defection")
+                if random.random() < daily_prob:
+                    state.israel_posture = IsraelPosture.STRIKES
+                    state.israel_strike_day = state.day
+                    state.events.append(f"Day {state.day}: REGIONAL: Israel conducts strikes on Iranian assets")
+
+    def _update_russia_posture(self, state: SimulationState):
+        """Update Russia posture based on Iran being threatened."""
+        # Already escalated
+        if state.russia_posture != RussiaPosture.OBSERVING:
+            return
+
+        # Russia support given Iran escalation/threat
+        if state.escalation_start_day is not None:
+            prob_obj = self.sampler._get_probability("regional", "russia_support_given_iran_threatened")
+            if self._window_active(state, prob_obj):
+                daily_prob = self._daily_hazard_from_window_prob("regional", "russia_support_given_iran_threatened")
+                if random.random() < daily_prob:
+                    state.russia_posture = RussiaPosture.SUPPORTING
+                    state.events.append(f"Day {state.day}: REGIONAL: Russia begins material support to Tehran")
+
+    def _update_gulf_realignment(self, state: SimulationState):
+        """Update Gulf realignment status given Iran collapse."""
+        # Already realigned
+        if state.gulf_realignment:
+            return
+
+        # Gulf realignment given Iran collapse
+        if state.regime_state == RegimeState.COLLAPSE:
+            prob_obj = self.sampler._get_probability("regional", "gulf_realignment_given_collapse")
+            if self._window_active(state, prob_obj):
+                daily_prob = self._daily_hazard_from_window_prob("regional", "gulf_realignment_given_collapse")
+                if random.random() < daily_prob:
+                    state.gulf_realignment = True
+                    state.events.append(f"Day {state.day}: REGIONAL: Gulf states begin strategic realignment")
+
     def _determine_final_outcome(self, state: SimulationState) -> str:
         """Determine outcome if no terminal state reached by day 90"""
         
@@ -750,7 +1190,33 @@ class IranCrisisSimulation:
         
         # Ethnic fragmentation frequency
         ethnic_rate = sum(1 for r in results if r.ethnic_uprising) / n
-        
+
+        # Regional cascade rates
+        iraq_crisis_rate = sum(1 for r in results
+            if r.iraq.stability in [CountryStability.CRISIS, CountryStability.COLLAPSE]) / n
+        syria_crisis_rate = sum(1 for r in results
+            if r.syria.stability in [CountryStability.CRISIS, CountryStability.COLLAPSE]) / n
+        israel_strikes_rate = sum(1 for r in results
+            if r.israel_posture != IsraelPosture.MONITORING) / n
+        iraq_proxy_rate = sum(1 for r in results if r.iraq.proxy_activated) / n
+        syria_proxy_rate = sum(1 for r in results if r.syria.proxy_activated) / n
+        gulf_realignment_rate = sum(1 for r in results if r.gulf_realignment) / n
+        russia_support_rate = sum(1 for r in results
+            if r.russia_posture != RussiaPosture.OBSERVING) / n
+
+        # Build economic analysis section
+        stress = self._get_economic_stress()
+        economic_analysis = {
+            "stress_level": stress.value,
+            "rial_rate_used": self._economic_data.get("rial_rate"),
+            "inflation_used": self._economic_data.get("inflation"),
+            "modifiers_applied": {
+                "protest_escalation": self._get_economic_modifier("protest_escalation"),
+                "elite_fracture": self._get_economic_modifier("elite_fracture"),
+                "security_defection": self._get_economic_modifier("security_defection"),
+            }
+        }
+
         return {
             "n_runs": n,
             "outcome_distribution": outcome_dist,
@@ -761,6 +1227,16 @@ class IranCrisisSimulation:
                 "khamenei_death": khamenei_death_rate,
                 "ethnic_uprising": ethnic_rate
             },
+            "regional_cascade_rates": {
+                "iraq_crisis": iraq_crisis_rate,
+                "syria_crisis": syria_crisis_rate,
+                "israel_strikes": israel_strikes_rate,
+                "iraq_proxy_activation": iraq_proxy_rate,
+                "syria_proxy_activation": syria_proxy_rate,
+                "gulf_realignment": gulf_realignment_rate,
+                "russia_support": russia_support_rate
+            },
+            "economic_analysis": economic_analysis,
             "sample_trajectories": [
                 {
                     "outcome": r.final_outcome,
@@ -796,7 +1272,8 @@ def main():
     parser.add_argument("--runs", type=int, default=10000, help="Number of simulation runs")
     parser.add_argument("--output", default="outputs/simulation_results.json", help="Output file path")
     parser.add_argument("--seed", type=int, help="Random seed for reproducibility")
-    
+    parser.add_argument("--abm", action="store_true", help="Use Agent-Based Model (Project Swarm) for protest dynamics")
+
     args = parser.parse_args()
     
     if args.seed:
@@ -827,8 +1304,11 @@ def main():
 
     
     # Run simulation
-    print(f"Running {args.runs} simulations...")
-    sim = IranCrisisSimulation(intel, priors_resolved)
+    if args.abm:
+        print(f"Running {args.runs} simulations with ABM (Project Swarm)...")
+    else:
+        print(f"Running {args.runs} simulations...")
+    sim = IranCrisisSimulation(intel, priors_resolved, use_abm=args.abm, seed=args.seed)
     results = sim.run_monte_carlo(args.runs)
     
     # Save results
