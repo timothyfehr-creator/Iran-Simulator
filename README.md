@@ -158,6 +158,20 @@ Frequency of critical events across all simulations:
 - Khamenei death
 - Ethnic uprising
 
+### Economic Analysis (v2.2)
+The simulation output includes economic stress assessment:
+- `stress_level`: STABLE, PRESSURED, or CRITICAL
+- `rial_rate_used`: Exchange rate from intel (IRR/USD)
+- `inflation_used`: Inflation rate from intel (%)
+- `modifiers_applied`: Probability adjustments by event type
+
+Economic stress affects event probabilities:
+- **CRITICAL** (Rial > 1.2M or inflation > 50%): +20% protest escalation, +15% defection
+- **PRESSURED** (Rial 800k-1.2M or inflation 30-50%): +10% protest escalation, +8% defection
+- **STABLE**: No modifiers
+
+Data sources: Bonbast (Rial rates), TGJU (currency), IODA (internet connectivity).
+
 ### Scenario Narratives
 Human-readable descriptions of each outcome with:
 - Probability and confidence interval
@@ -166,16 +180,100 @@ Human-readable descriptions of each outcome with:
 
 ## Sensitivity Analysis
 
-To understand which inputs most affect outcomes:
+Run automated sensitivity analysis to understand which inputs most affect outcomes:
 
-1. Re-run simulation with modified priors
-2. Compare outcome distributions
-3. Key parameters to test:
-   - `security_force_defection_given_protests_30d`
-   - `protests_sustain_30d`
-   - `kinetic_strike_given_crackdown`
-    - `protests_collapse_given_crackdown_30d`
-    - `meaningful_concessions_given_protests_30d`
+```bash
+python scripts/sensitivity_analysis.py \
+    --intel runs/RUN_YYYYMMDD/compiled_intel.json \
+    --priors data/analyst_priors.json \
+    --runs 1000 \
+    --output outputs/sensitivity_analysis.json
+```
+
+**Interpreting Results:**
+- **Tornado chart:** Shows parameters ranked by impact on outcome variance
+- **Top parameters:** Usually defection probability, protest sustainability, and crackdown effectiveness
+- **Sensitivity index:** Higher values mean small prior changes cause large outcome shifts
+
+**Key parameters to test:**
+- `security_force_defection_given_protests_30d` - Usually highest sensitivity
+- `protests_sustain_30d` - Critical for regime survival scenarios
+- `kinetic_strike_given_crackdown` - High variance due to external dependencies
+- `protests_collapse_given_crackdown_30d` - Affects regime control margin
+- `meaningful_concessions_given_protests_30d` - Triggers feedback loops
+
+## Red Team Review
+
+The Red Team Agent (`prompts/05_red_team_prompt.md`) provides structured critique of analyst priors.
+
+**When to use:**
+- After generating analyst_priors.json
+- When confidence intervals seem too narrow
+- Before finalizing simulation for decision support
+
+**What it provides:**
+- Identification of 3-5 weakest estimates
+- Historical base rate challenges
+- Alternative scenarios analysis
+- Specific revision suggestions
+
+**Usage:** Run the prompt manually with `analyst_priors.json` and `compiled_intel.json` as context.
+
+## Regional Cascade Modeling
+
+v2.1 adds bidirectional regional effects:
+
+- **Iran → Iraq/Syria:** Crisis in Iran destabilizes neighbors
+- **Iraq/Syria → Iran:** Regional instability increases regime anxiety (crackdown probability +20%)
+- **Feedback loops:**
+  - Concessions dampen protest escalation (-50%)
+  - Concessions reduce defection probability (-30%)
+
+Check `regional_cascade_rates` in simulation output for spillover probabilities
+
+## Pipeline Hardening (v2.4)
+
+Production-ready features for reliability and reproducibility:
+
+### Rolling-Window Coverage Gates
+Coverage checks now use time-based windows (36-72 hours per bucket type) rather than simple existence checks. Critical buckets (osint_thinktank, ngo_rights, regime_outlets, persian_services) must have recent data for the run to be considered reliable.
+
+### Run Manifest
+Every run produces `run_manifest.json` with:
+- Git commit hash
+- Data cutoff and ingestion window
+- SHA256 hashes of input files
+- Seed for ABM reproducibility
+- Reliability flag (`run_reliable: true/false`)
+
+### ABM Seeding
+For reproducible simulations, pass `--seed` to the simulator:
+```bash
+python src/simulation.py --intel ... --priors ... --abm --seed 42
+```
+Two runs with the same seed produce identical results.
+
+### Coverage & Health Deltas
+Diff reports now include:
+- `coverage_deltas`: Which buckets went missing/recovered between runs
+- `health_deltas`: Source health transitions (OK → DEGRADED → DOWN)
+- `contested_claims`: Conflicting claims and their resolution
+
+### Automation Guardrails
+Configure `config/ingest.yaml` to:
+- Set `on_coverage_fail: skip_simulation` to mark unreliable runs
+- Cap documents per bucket to control costs
+- Enable document caching
+
+### Cron Automation
+Use the hardened cron wrapper for daily updates:
+```bash
+# Add to crontab (runs at 6 AM UTC)
+0 6 * * * /path/to/iran_simulation/scripts/run_daily_cron.sh
+```
+Features: portable paths, lock file, graceful alerting.
+
+See `CLAUDE.md` for detailed documentation.
 
 ## Limitations
 
