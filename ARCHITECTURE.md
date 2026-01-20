@@ -1,6 +1,6 @@
 # Iran Crisis Simulator - Architecture Documentation
 
-**Version:** 2.0 (Window Semantics + Pipeline MVP)
+**Version:** 3.0 (Window Semantics + Pipeline MVP + Oracle Forecasting)
 **Date:** January 2026
 **Purpose:** Monte Carlo simulation of Iranian crisis outcomes with auditable evidence chain
 
@@ -662,6 +662,278 @@ if self._window_active(state, prob_obj):  # Checks crackdown_start_day
 
 ---
 
+## Regional Cascade System
+
+The simulation now models spillover effects from Iran to neighboring countries and external actor responses.
+
+### Multi-Country State Model
+
+```
+                    ┌─────────────┐
+                    │    IRAN     │
+                    │  (Primary)  │
+                    └──────┬──────┘
+                           │
+         ┌─────────────────┼─────────────────┐
+         │                 │                 │
+         ▼                 ▼                 ▼
+   ┌───────────┐    ┌───────────┐    ┌───────────────┐
+   │   IRAQ    │    │   SYRIA   │    │ EXTERNAL ACTORS│
+   │           │    │           │    │                │
+   │ STABLE    │    │ STABLE    │    │ Israel: MON→STR│
+   │ STRESSED  │    │ STRESSED  │    │ Russia: OBS→SUP│
+   │ CRISIS    │    │ CRISIS    │    │ Gulf realign   │
+   │ COLLAPSE  │    │ COLLAPSE  │    │                │
+   └───────────┘    └───────────┘    └────────────────┘
+```
+
+### Coupling Probabilities
+
+| Coupling | Anchor | Window | Mode |
+|----------|--------|--------|------|
+| Iraq stressed ← Iran escalation | escalation_start | 30d | 25% |
+| Iraq crisis ← Iran collapse | collapse_day | 30d | 45% |
+| Syria crisis ← Iran collapse | collapse_day | 30d | 50% |
+| Iraq proxy activation ← US kinetic | us_kinetic_day | 14d | 65% |
+| Syria proxy activation ← US kinetic | us_kinetic_day | 14d | 55% |
+| Israel strikes ← Iran defection | defection_day | 30d | 45% |
+| Russia support ← Iran threatened | escalation_start | 60d | 25% |
+| Gulf realignment ← Iran collapse | collapse_day | 30d | 70% |
+
+### Implementation Details
+
+1. **RegionalState dataclass**: Tracks each secondary country's stability, proxy activation status, and event log
+
+2. **New state enums**:
+   - `CountryStability`: STABLE → STRESSED → CRISIS → COLLAPSE
+   - `IsraelPosture`: MONITORING → STRIKES → MAJOR_OPERATION
+   - `RussiaPosture`: OBSERVING → SUPPORTING → INTERVENING
+
+3. **Update sequence**: Regional cascade runs after Iran state updates (step 8 in daily loop)
+
+4. **Output**: `regional_cascade_rates` in simulation results shows empirical frequencies
+
+### Example Output
+
+```json
+{
+  "regional_cascade_rates": {
+    "iraq_crisis": 0.02,
+    "syria_crisis": 0.025,
+    "israel_strikes": 0.008,
+    "iraq_proxy_activation": 0.011,
+    "syria_proxy_activation": 0.006,
+    "gulf_realignment": 0.018,
+    "russia_support": 0.07
+  }
+}
+```
+
+### Design Notes
+
+- **One-way coupling**: Iran → neighbors (bidirectional effects are future work)
+- **Window semantics**: All couplings use the same anchor/window_days pattern as Iran events
+- **Conditional probabilities**: Couplings only fire when the triggering Iran event occurs
+
+---
+
+## Oracle Layer: Forecasting & Scoring System (v3.0)
+
+The Oracle Layer provides observe-only forecasting, resolution, and scoring capabilities that never modify simulation logic.
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ LAYER 5: ORACLE (OBSERVE-ONLY)                                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  ┌──────────────────┐         ┌──────────────────┐                      │
+│  │  Event Catalog   │         │  Forecast Gen    │                      │
+│  │  (v3.0.0)        │────────▶│  (forecast.py)   │                      │
+│  │  18 events       │         │                  │                      │
+│  │  - 5 forecastable│         │  Outputs:        │                      │
+│  │  - 5 diagnostic  │         │  - forecasts.jsonl│                      │
+│  │  - 8 disabled    │         │                  │                      │
+│  └──────────────────┘         └────────┬─────────┘                      │
+│                                        │                                │
+│  ┌──────────────────┐                  ▼                                │
+│  │  Bins Module     │         ┌──────────────────┐                      │
+│  │  (bins.py)       │────────▶│  Resolution      │                      │
+│  │                  │         │  (resolver.py)   │                      │
+│  │  - validate_spec │         │                  │                      │
+│  │  - value_to_bin  │         │  Outputs:        │                      │
+│  └──────────────────┘         │  - resolutions.jsonl│                   │
+│                               │  - evidence/     │                      │
+│                               └────────┬─────────┘                      │
+│                                        │                                │
+│                                        ▼                                │
+│                               ┌──────────────────┐                      │
+│                               │  Scorer          │                      │
+│                               │  (scorer.py)     │                      │
+│                               │                  │                      │
+│                               │  - Brier scores  │                      │
+│                               │  - Calibration   │                      │
+│                               └──────────────────┘                      │
+│                                                                           │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Event Catalog Schema (v3.0.0)
+
+The catalog defines 18 events across multiple types:
+
+```json
+{
+  "catalog_version": "3.0.0",
+  "events": [
+    {
+      "event_id": "econ.fx_band",
+      "name": "FX black-market band",
+      "event_type": "binned_continuous",
+      "category": "econ",
+      "enabled": true,
+      "horizons_days": [1, 7, 15, 30],
+      "allowed_outcomes": ["FX_LT_800K", "FX_800K_1M", "FX_1M_1_2M", "FX_GE_1_2M", "UNKNOWN"],
+      "auto_resolve": true,
+      "requires_manual_resolution": false,
+      "forecast_source": {
+        "type": "baseline_climatology"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.economic_conditions.rial_usd_rate.market",
+        "rule": "bin_map"
+      },
+      "bin_spec": {
+        "bins": [
+          { "bin_id": "FX_LT_800K", "min": null, "max": 800000, "include_min": false, "include_max": false },
+          { "bin_id": "FX_800K_1M", "min": 800000, "max": 1000000, "include_min": true, "include_max": false },
+          { "bin_id": "FX_1M_1_2M", "min": 1000000, "max": 1200000, "include_min": true, "include_max": false },
+          { "bin_id": "FX_GE_1_2M", "min": 1200000, "max": null, "include_min": true, "include_max": true }
+        ]
+      }
+    }
+  ]
+}
+```
+
+### Event Types
+
+| Type | Description | Resolution |
+|------|-------------|------------|
+| `binary` | YES/NO outcomes | threshold rules |
+| `categorical` | Multiple discrete outcomes | enum_match rule |
+| `binned_continuous` | Numeric values mapped to bins | bin_map rule |
+
+### Bin Validation Rules
+
+The `bins.py` module enforces:
+
+1. **No overlaps:** Bins must not share any values
+2. **No gaps:** Bins must cover entire domain (or have explicit UNDERFLOW/OVERFLOW)
+3. **Boundary determinism:** `include_min`/`include_max` flags resolve ties
+4. **ID matching:** `bin_ids == (allowed_outcomes - {"UNKNOWN"})`
+
+```python
+# Validation
+errors = bins.validate_bin_spec(bin_spec)
+
+# Value mapping
+bin_id, reason = bins.value_to_bin(value, bin_spec)
+# Returns: ("FX_1M_1_2M", None) or ("UNKNOWN", "missing_value")
+```
+
+### Resolution Rules
+
+| Rule | Input | Output |
+|------|-------|--------|
+| `threshold_gte` | numeric | YES if value >= threshold |
+| `threshold_gt` | numeric | YES if value > threshold |
+| `bin_map` | numeric | bin_id from bin_spec |
+| `enum_match` | string | outcome if in allowed_outcomes |
+| `enum_in` | string | YES if value in values list |
+
+### Forecast Source Types
+
+| Type | Description | Phase |
+|------|-------------|-------|
+| `simulation_output` | Direct field from simulation | 2.x |
+| `simulation_derived` | Derived with conditional logic | 2.x |
+| `baseline_climatology` | Uniform distribution (fallback) | 3A |
+| `baseline_persistence` | Last resolved outcome | 3C |
+| `diagnostic_only` | No forecast, tracking only | 3A |
+
+### Event Filtering
+
+Events are filtered before forecast generation:
+
+```python
+def get_forecastable_events(catalog):
+    """
+    Returns events where:
+    - enabled == true (default: true)
+    - forecast_source.type != "diagnostic_only"
+    """
+```
+
+This ensures disabled events and diagnostic-only events don't generate forecasts.
+
+### Probability Distribution Validation
+
+All forecast distributions are validated before ledger append:
+
+```python
+def validate_distribution(probs, event):
+    """
+    Checks:
+    1. No NaN values
+    2. No negative values
+    3. All values in [0, 1]
+    4. Sum to 1.0 (tolerance: 1e-6)
+    5. All required outcomes present
+    6. No unexpected outcomes (UNKNOWN always allowed)
+    """
+```
+
+### Manual Resolution Workflow
+
+Events with `requires_manual_resolution: true` are:
+- Skipped by `resolve_pending()` automatic resolution
+- Left in the pending queue for manual adjudication
+- Resolved via `forecast resolve --manual` CLI command
+
+### Module Structure
+
+```
+src/forecasting/
+├── __init__.py          # Package exports (v3.0.0)
+├── catalog.py           # Event catalog loading, validation, filtering
+├── bins.py              # Bin validation and value-to-bin mapping
+├── ledger.py            # Append-only JSONL storage
+├── forecast.py          # Forecast generation, distribution validation
+├── resolver.py          # Resolution logic with bin_map/enum_match
+├── evidence.py          # Evidence snapshot storage with hashing
+├── scorer.py            # Brier/log scoring (Phase 3B)
+├── reporter.py          # Report generation
+└── cli.py               # Command-line interface
+```
+
+### Test Coverage
+
+```
+tests/
+├── test_bins.py                 # 24 tests - bin validation, value mapping
+├── test_catalog_v3.py           # 26 tests - schema, filtering, validation
+├── test_resolver_bins.py        # 18 tests - bin_map, enum_match rules
+├── test_forecast_validation.py  # 18 tests - distribution validation
+├── test_forecasting_catalog.py  # Updated for v3.0.0
+├── test_forecasting_forecast.py # Updated for baseline forecasters
+└── test_forecasting_resolver.py # Updated for event parameter
+```
+
+---
+
 ## Known Limitations
 
 ### 1. Model Simplifications
@@ -675,11 +947,7 @@ if self._window_active(state, prob_obj):  # Checks crackdown_start_day
 - Each run samples from uncertainty, but aggregate doesn't decompose aleatory vs epistemic
 - Future: Nested Monte Carlo or variance decomposition
 
-### 3. Regional Cascade Not Implemented
-- `regional_cascade_probabilities` exists in schema but ignored by simulator
-- Would require multi-country state space (Syria, Iraq, Lebanon contagion)
-
-### 4. Evidence Pipeline Not Production-Ready
+### 3. Evidence Pipeline Not Production-Ready
 - `compile_intel.py` works but no automated evidence collectors
 - Deep Research output not yet structured as `evidence_docs.jsonl`
 - Manual curation still required

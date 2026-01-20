@@ -102,6 +102,27 @@ Quick reference for all documentation files in this project.
 - 6 unit tests (all passing)
 - Window logic, anchor tracking, condition checks
 
+📁 **src/forecasting/** (Oracle Layer - v3.0)
+- `catalog.py`: Event catalog loading, validation, filtering
+- `bins.py`: Bin validation and value-to-bin mapping (346 lines)
+- `forecast.py`: Forecast generation, distribution validation
+- `resolver.py`: Resolution logic with bin_map/enum_match rules
+- `ledger.py`: Append-only JSONL storage
+- `evidence.py`: Evidence snapshot storage with hashing
+- `scorer.py`: Brier/log scoring
+
+📁 **tests/test_bins.py** (289 lines)
+- 24 tests for bin validation and value mapping
+
+📁 **tests/test_catalog_v3.py** (379 lines)
+- 26 tests for v3.0.0 schema and event filtering
+
+📁 **tests/test_forecast_validation.py** (206 lines)
+- 18 tests for distribution validation
+
+📁 **tests/test_resolver_bins.py** (284 lines)
+- 18 tests for bin_map and enum_match rules
+
 ---
 
 ## Prompts
@@ -113,6 +134,16 @@ Quick reference for all documentation files in this project.
 📁 **prompts/02_security_analyst_prompt.md**
 - Security Analyst Agent prompt
 - Use to generate `analyst_priors.json`
+- **v2.1:** Now includes ACH (Analysis of Competing Hypotheses) and pre-mortem analysis
+
+📁 **prompts/03_deep_research_source_gathering.md**
+- Deep Research evidence collection prompt
+- **v2.1:** Includes Evidence Quality Gate (grade B3 threshold)
+
+📁 **prompts/05_red_team_prompt.md** - NEW v2.1
+- Devil's advocate review of analyst priors (~12KB)
+- Challenges overconfident estimates
+- Proposes specific numeric revisions
 
 ---
 
@@ -201,11 +232,32 @@ DOCS_INDEX.md                  ~80    This file
 
 ---
 
+## New in v3.0 (Oracle Phase 3A)
+
+- ✅ **Multi-Outcome Events** - Support for binned_continuous and categorical event types
+- ✅ **Bin Validation** - `src/forecasting/bins.py` for bin spec validation and value mapping
+- ✅ **Event Catalog v3.0.0** - 18 events (5 forecastable, 5 diagnostic, 8 disabled)
+- ✅ **Baseline Forecasters** - baseline_climatology and baseline_persistence forecast sources
+- ✅ **New Resolution Rules** - bin_map for binned events, enum_match for categorical
+- ✅ **Distribution Validation** - Probability sum/key validation in `forecast.py`
+- ✅ **Event Filtering** - `get_forecastable_events()` filters by enabled flag
+- ✅ **Manual Resolution Queue** - Events with `requires_manual_resolution: true` skip auto-resolve
+
+## New in v2.1
+
+- ✅ **Red Team Agent** - Devil's advocate review of analyst priors (`prompts/05_red_team_prompt.md`)
+- ✅ **Sensitivity Analysis** - Automated parameter sensitivity testing (`scripts/sensitivity_analysis.py`)
+- ✅ **ACH Pre-Mortem** - Analysis of Competing Hypotheses in Security Analyst prompt
+- ✅ **Evidence Quality Gate** - Source grade thresholds in Deep Research prompt
+- ✅ **Feedback Loops** - Concession/defection dampening in simulation
+- ✅ **Tail Risk Labels** - Visual indicators for low-probability outcomes
+- ✅ **Regional Cascade** - Bidirectional Iran/Iraq/Syria stability modeling
+
 ## What's Not Documented (Yet)
 
-❌ Sensitivity analysis methodology (future work)
+✅ ~~Sensitivity analysis methodology~~ - Now documented (v2.1)
+✅ ~~Regional cascade implementation~~ - Now built and documented (v2.1)
 ❌ Calibration scoring (requires ground truth)
-❌ Regional cascade implementation (not yet built)
 ❌ Real-world case studies (placeholder data)
 ❌ API documentation (if building web interface)
 
@@ -246,6 +298,6 @@ DOCS_INDEX.md                  ~80    This file
 
 ---
 
-**Last Updated:** 2026-01-11
-**Status:** Complete and current
-**Next Review:** After Opus 4.5 feedback
+**Last Updated:** 2026-01-19
+**Status:** Complete and current (v3.0 Oracle Phase 3A documented)
+**Next Review:** After Phase 3B scoring implementation

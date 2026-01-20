@@ -620,9 +620,155 @@ streamlit run dashboard.py
 - Click "Run Simulation" to execute
 - Results saved to `runs/ADHOC_YYYYMMDD_HHMM/`
 
+## v3.0: Oracle Phase 3A - Catalog Expansion + Bin Validation
+
+This version extends the forecasting system with support for multi-outcome events (binned-continuous and categorical).
+
+### New Event Types
+
+The event catalog now supports three event types:
+- **binary:** YES/NO outcomes (existing)
+- **categorical:** Multiple discrete outcomes (e.g., internet status: FUNCTIONAL, PARTIAL, SEVERELY_DEGRADED, BLACKOUT)
+- **binned_continuous:** Numeric values mapped to bins (e.g., FX rate: <800k, 800k-1M, 1M-1.2M, ≥1.2M)
+
+### Bin Specification (for binned_continuous events)
+
+Events with `event_type: "binned_continuous"` require a `bin_spec`:
+
+```json
+{
+  "bin_spec": {
+    "bins": [
+      { "bin_id": "FX_LT_800K", "label": "< 800k", "min": null, "max": 800000, "include_min": false, "include_max": false },
+      { "bin_id": "FX_800K_1M", "label": "800k–1.0m", "min": 800000, "max": 1000000, "include_min": true, "include_max": false },
+      { "bin_id": "FX_1M_1_2M", "label": "1.0m–1.2m", "min": 1000000, "max": 1200000, "include_min": true, "include_max": false },
+      { "bin_id": "FX_GE_1_2M", "label": "≥ 1.2m", "min": 1200000, "max": null, "include_min": true, "include_max": true }
+    ]
+  }
+}
+```
+
+### Event Catalog v3.0.0
+
+The catalog now contains 18 events total:
+- **5 forecastable events** (enabled, non-diagnostic)
+- **5 diagnostic events** (for correlation tracking only)
+- **8 disabled events** (defined but not processed until Phase 3B scoring)
+
+**MVP Events (enabled):**
+| Event ID | Type | Resolution |
+|----------|------|------------|
+| `econ.rial_ge_1_2m` | binary | auto |
+| `econ.fx_band` | binned_continuous | auto |
+| `info.internet_level` | categorical | auto |
+| `state.internet_degraded` | binary (diagnostic) | - |
+| `protest.multi_city` | binary | manual queue |
+
+### New Schema Fields
+
+Events now support:
+- `enabled` - Whether event is processed by forecast generation (default: true)
+- `requires_manual_resolution` - Whether event requires human adjudication
+- `horizons_days` - Array of valid horizons for this event (e.g., [1, 7, 15, 30])
+- `bin_spec` - Bin definitions for binned_continuous events
+
+### Baseline Forecasters
+
+Two new forecast source types for events without simulation models:
+- `baseline_climatology` - Uniform distribution over outcomes (Phase 3A fallback)
+- `baseline_persistence` - Uses last resolved outcome (Phase 3C full implementation)
+
+### New Resolution Rules
+
+- `bin_map` - Maps numeric value to bin_id using event's bin_spec
+- `enum_match` - Resolves categorical events by matching value to allowed_outcomes
+
+### Bins Module (src/forecasting/bins.py)
+
+New module for bin validation and value-to-bin mapping:
+
+```python
+from src.forecasting import bins
+
+# Validate bin specification
+errors = bins.validate_bin_spec(event["bin_spec"])  # Returns [] if valid
+
+# Map value to bin
+bin_id, reason = bins.value_to_bin(1150000, event["bin_spec"])
+# Returns ("FX_1M_1_2M", None)
+
+bin_id, reason = bins.value_to_bin(None, event["bin_spec"])
+# Returns ("UNKNOWN", "missing_value")
+```
+
+### Event Filtering
+
+```python
+from src.forecasting import catalog
+
+cat = catalog.load_catalog()
+
+# Get only events that should be forecast (enabled + non-diagnostic)
+forecastable = catalog.get_forecastable_events(cat)  # 5 events
+
+# Get diagnostic-only events
+diagnostic = catalog.get_diagnostic_events(cat)  # 5 events
+```
+
+### Probability Validation
+
+Forecast distributions are validated before being written to the ledger:
+
+```python
+from src.forecasting import forecast
+
+errors = forecast.validate_distribution(
+    {"YES": 0.6, "NO": 0.4},
+    event
+)
+# Returns [] if valid, or list of error messages
+```
+
+Validation checks:
+- No negative probabilities
+- No NaN values
+- Sum to 1.0 (within tolerance 1e-6)
+- All required outcomes present
+- No unexpected outcomes
+
+### Testing Phase 3A
+
+```bash
+# Run all Phase 3A tests
+python -m pytest tests/test_bins.py tests/test_catalog_v3.py \
+    tests/test_resolver_bins.py tests/test_forecast_validation.py -v
+
+# Verify bin validation
+python -c "
+from src.forecasting import bins
+spec = {'bins': [
+    {'bin_id': 'LOW', 'min': None, 'max': 100, 'include_min': False, 'include_max': False},
+    {'bin_id': 'HIGH', 'min': 100, 'max': None, 'include_min': True, 'include_max': True}
+]}
+print(bins.validate_bin_spec(spec))  # []
+print(bins.value_to_bin(50, spec))   # ('LOW', None)
+print(bins.value_to_bin(100, spec))  # ('HIGH', None)
+"
+```
+
+### Phase 3A vs 3B vs 3C
+
+| Phase | Scope |
+|-------|-------|
+| **3A** (done) | Catalog schema, bin validation, baseline forecasters (uniform fallback) |
+| **3B** (future) | Multinomial Brier scoring, categorical resolution mapping |
+| **3C** (future) | Full baseline logic (persistence/climatology from ledger), ensembles |
+
 ## Common Issues
 
 1. **"Prior not found" error:** Check analyst_priors.json schema matches what simulation expects
 2. **Visualization fails:** Install matplotlib/seaborn
 3. **Results seem wrong:** Check that regime outcomes sum to 1.0 in priors
 4. **Dashboard won't start:** Install dependencies with `pip install streamlit plotly pandas`
+5. **"Invalid horizons" error:** Horizons must be in {1, 7, 15, 30}
+6. **"bin_ids not in allowed_outcomes" error:** bin_spec bin_ids must exactly match (allowed_outcomes - UNKNOWN)
