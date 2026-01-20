@@ -422,6 +422,61 @@ def resolve_event(
     return record
 
 
+def get_manual_resolution_queue(
+    catalog_path: Path = Path("config/event_catalog.json"),
+    ledger_dir: Path = ledger.LEDGER_DIR,
+    grace_days: int = 7
+) -> List[Dict[str, Any]]:
+    """
+    Get forecasts requiring manual resolution with due dates.
+
+    This is a wrapper around ledger.get_pending_manual_adjudication() that
+    enriches results with event data.
+
+    Returns list of:
+    {
+        "forecast": {...},
+        "event": {...},
+        "due_date_utc": "2025-01-26T00:00:00Z",
+        "days_overdue": 3,
+        "status": "overdue" | "due_soon" | "pending"
+    }
+
+    Args:
+        catalog_path: Path to event catalog
+        ledger_dir: Path to ledger directory
+        grace_days: Days after target_date before considered overdue
+
+    Returns:
+        List sorted by urgency (most overdue first)
+    """
+    # Load catalog
+    catalog_data = cat.load_catalog(catalog_path)
+
+    # Get pending manual adjudications from ledger
+    pending = ledger.get_pending_manual_adjudication(
+        ledger_dir=ledger_dir,
+        catalog=catalog_data,
+        grace_days=grace_days
+    )
+
+    # Enrich with full event data
+    results = []
+    for item in pending:
+        event_id = item.get("event_id")
+        event = cat.get_event(catalog_data, event_id)
+
+        results.append({
+            "forecast": item["forecast"],
+            "event": event,
+            "due_date_utc": item["due_date_utc"],
+            "days_overdue": item["days_overdue"],
+            "status": item["status"],
+        })
+
+    return results
+
+
 def resolve_pending(
     catalog_path: Path = Path("config/event_catalog.json"),
     runs_dir: Path = Path("runs"),

@@ -271,3 +271,100 @@ def get_resolution_by_forecast_id(
         lambda r: r.get("forecast_id") == forecast_id
     )
     return resolutions[0] if resolutions else None
+
+
+def get_pending_manual_adjudication(
+    ledger_dir: Path = LEDGER_DIR,
+    catalog: Optional[Dict[str, Any]] = None,
+    grace_days: int = 7
+) -> List[Dict[str, Any]]:
+    """
+    Get forecasts awaiting manual adjudication.
+
+    Returns forecasts where:
+    1. Event has requires_manual_resolution: true
+    2. target_date_utc has passed
+    3. No resolution record exists
+
+    Each result includes:
+    - forecast: The forecast record
+    - event_id: Event identifier
+    - due_date_utc: target_date + grace_days
+    - days_overdue: Negative if not yet due, positive if overdue
+    - status: "overdue" | "due_soon" | "pending"
+
+    Args:
+        ledger_dir: Directory containing ledger files
+        catalog: Event catalog (loads from config/event_catalog.json if not provided)
+        grace_days: Days after target_date before considered overdue
+
+    Returns:
+        List sorted by due_date_utc (most overdue first)
+    """
+    from datetime import datetime as dt, timezone as tz, timedelta
+
+    # Load catalog if not provided
+    if catalog is None:
+        from . import catalog as cat_module
+        catalog = cat_module.load_catalog(Path("config/event_catalog.json"))
+
+    from . import catalog as cat_module
+
+    # Get pending forecasts and identify those needing manual resolution
+    pending = get_pending_forecasts(ledger_dir)
+    now = dt.now(tz.utc)
+
+    results = []
+    for forecast in pending:
+        event_id = forecast.get("event_id")
+        if not event_id:
+            continue
+
+        event = cat_module.get_event(catalog, event_id)
+        if not event:
+            continue
+
+        # Only include events requiring manual resolution
+        if not event.get("requires_manual_resolution", False):
+            continue
+
+        # Parse target date
+        target_str = forecast.get("target_date_utc")
+        if not target_str:
+            continue
+
+        try:
+            target_str = target_str.replace('Z', '+00:00')
+            target_date = dt.fromisoformat(target_str)
+            if target_date.tzinfo is None:
+                target_date = target_date.replace(tzinfo=tz.utc)
+        except ValueError:
+            continue
+
+        # Skip if target date not yet reached
+        if target_date > now:
+            continue
+
+        # Calculate due date and overdue status
+        due_date = target_date + timedelta(days=grace_days)
+        days_overdue = (now - due_date).days
+
+        if days_overdue > 0:
+            status = "overdue"
+        elif days_overdue >= -2:  # Within 2 days of being due
+            status = "due_soon"
+        else:
+            status = "pending"
+
+        results.append({
+            "forecast": forecast,
+            "event_id": event_id,
+            "due_date_utc": due_date.isoformat(),
+            "days_overdue": days_overdue,
+            "status": status,
+        })
+
+    # Sort by days_overdue descending (most overdue first)
+    results.sort(key=lambda x: -x["days_overdue"])
+
+    return results

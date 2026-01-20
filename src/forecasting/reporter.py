@@ -285,6 +285,124 @@ def format_scores_by_type_table(scores_by_type: Dict[str, Dict[str, Any]]) -> st
     return "\n".join(lines)
 
 
+def format_baselines_table(baselines: Dict[str, Dict[str, Any]]) -> str:
+    """
+    Format baselines with fallback warnings as markdown table.
+
+    Phase 3B Red-Team Fix 3: Show fallback status prominently.
+
+    Args:
+        baselines: Baselines metadata from compute_scores()
+
+    Returns:
+        Markdown table string
+    """
+    if not baselines:
+        return "*No baseline data available*"
+
+    def fmt(val):
+        if val is None:
+            return "-"
+        return f"{val:.4f}"
+
+    lines = [
+        "## Baselines",
+        "",
+        "| Baseline | Brier | History N | Fallback |",
+        "|----------|-------|-----------|----------|",
+    ]
+
+    for baseline_name in ["climatology", "persistence"]:
+        if baseline_name not in baselines:
+            continue
+
+        baseline = baselines[baseline_name]
+        brier = baseline.get("brier_score")
+        history_n = baseline.get("history_n", 0)
+        fallback = baseline.get("fallback")
+
+        # Add warning emoji if fallback is used
+        if fallback:
+            prefix = "⚠️ "
+            fallback_str = fallback
+        else:
+            prefix = ""
+            fallback_str = "-"
+
+        lines.append(
+            f"| {prefix}{baseline_name.capitalize()} | {fmt(brier)} | {history_n} | {fallback_str} |"
+        )
+
+    return "\n".join(lines)
+
+
+def format_warnings(warnings: list) -> str:
+    """
+    Format warnings as markdown callout.
+
+    Args:
+        warnings: List of warning strings
+
+    Returns:
+        Markdown string with warnings
+    """
+    if not warnings:
+        return ""
+
+    lines = [
+        "## ⚠️ Warnings",
+        "",
+    ]
+
+    for warning in warnings:
+        lines.append(f"- {warning}")
+
+    lines.append("")
+    lines.append("*Skill scores may be unreliable when baselines use fallback.*")
+    lines.append("")
+
+    return "\n".join(lines)
+
+
+def format_accuracy_metrics(accuracy: Dict[str, Any], penalty: Dict[str, Any]) -> str:
+    """
+    Format accuracy and penalty metrics as markdown section.
+
+    Phase 3B Red-Team Fix 2: Separate accuracy from penalty.
+
+    Args:
+        accuracy: Accuracy metrics (non-UNKNOWN only)
+        penalty: Penalty metrics (includes UNKNOWN/abstain penalties)
+
+    Returns:
+        Markdown string
+    """
+    def fmt(val):
+        if val is None:
+            return "-"
+        return f"{val:.4f}"
+
+    lines = [
+        "## Accuracy Metrics (Primary)",
+        "",
+        "Scores computed on resolved forecasts with known outcomes (excludes UNKNOWN).",
+        "",
+        f"- **Primary Brier Score:** {fmt(accuracy.get('brier_score'))} (lower is better)",
+        f"- **Log Score:** {fmt(accuracy.get('log_score'))}",
+        f"- **Calibration Error:** {fmt(accuracy.get('calibration_error'))}",
+        "",
+        "## Penalty Metrics",
+        "",
+        "Separate penalties for UNKNOWN outcomes and abstentions.",
+        "",
+        f"- **Effective Brier:** {fmt(penalty.get('effective_brier'))} (includes UNKNOWN penalty)",
+        f"- **UNKNOWN/Abstain Penalty:** {fmt(penalty.get('unknown_abstain_penalty'))}",
+        "",
+    ]
+
+    return "\n".join(lines)
+
+
 def generate_scorecard_md(
     scores: Dict[str, Any],
     metadata: Optional[Dict[str, Any]] = None
@@ -441,6 +559,31 @@ def generate_scorecard_md(
             "",
         ])
 
+    # NEW Phase 3B Red-Team Fix 2: Accuracy vs Penalty metrics
+    accuracy = scores.get("accuracy", {})
+    penalty_metrics = scores.get("penalty_metrics", {})
+    if accuracy or penalty_metrics:
+        lines.extend([
+            format_accuracy_metrics(accuracy, penalty_metrics),
+            "",
+        ])
+
+    # NEW Phase 3B Red-Team Fix 3: Baselines with fallback warnings
+    baselines = scores.get("baselines", {})
+    if baselines:
+        lines.extend([
+            format_baselines_table(baselines),
+            "",
+        ])
+
+    # Warnings section (fallback alerts)
+    warnings = scores.get("warnings", [])
+    if warnings:
+        lines.extend([
+            format_warnings(warnings),
+            "",
+        ])
+
     # Interpretation
     lines.extend([
         "## Interpretation Guide",
@@ -451,6 +594,7 @@ def generate_scorecard_md(
         "- **Coverage Rate**: Fraction of due forecasts with known (YES/NO) resolutions.",
         "- **Core vs Claims Inferred**: Core scores use external data sources; claims inferred uses fallback resolution.",
         "- **Multi-Outcome Brier**: For categorical/binned events, normalized to [0,1] range (raw/2).",
+        "- **Fallback Warning**: When a baseline uses uniform fallback due to insufficient history, skill scores are unreliable.",
         "",
     ])
 

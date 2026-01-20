@@ -1176,6 +1176,161 @@ def multinomial_persistence_brier(
     return (raw_brier, normalized_brier)
 
 
+def multinomial_climatology_baseline_with_metadata(
+    resolutions: List[Dict[str, Any]],
+    outcomes: List[str],
+    event_id: str,
+    horizon_days: int,
+    min_samples: int = 20,
+    mode_filter: List[str] = None
+) -> Tuple[Dict[str, float], Dict[str, Any]]:
+    """
+    Historical frequency with metadata for fallback flagging.
+
+    Phase 3B Red-Team Fix 3: Flag when baseline uses uniform fallback.
+
+    Returns:
+        Tuple of (probabilities, metadata)
+
+        metadata = {
+            "baseline_history_n": int,  # 0 if fallback
+            "fallback": "uniform" | None,
+            "event_id": str,
+            "horizon_days": int,
+        }
+    """
+    if mode_filter is None:
+        mode_filter = ["external_auto", "external_manual"]
+
+    # Filter resolutions
+    filtered = [
+        r for r in resolutions
+        if r.get("event_id") == event_id
+        and r.get("horizon_days") == horizon_days
+        and r.get("resolved_outcome") != "UNKNOWN"
+        and resolver.get_resolution_mode(r) in mode_filter
+    ]
+
+    K = len(outcomes)
+    uniform = 1.0 / K if K > 0 else 0.0
+
+    metadata = {
+        "baseline_history_n": len(filtered),
+        "event_id": event_id,
+        "horizon_days": horizon_days,
+    }
+
+    if len(filtered) < min_samples:
+        metadata["fallback"] = "uniform"
+        return ({o: uniform for o in outcomes}, metadata)
+
+    # Count occurrences of each outcome
+    counts = {o: 0 for o in outcomes}
+    total = 0
+    for r in filtered:
+        outcome = r.get("resolved_outcome")
+        if outcome in counts:
+            counts[outcome] += 1
+            total += 1
+
+    if total == 0:
+        metadata["fallback"] = "uniform"
+        return ({o: uniform for o in outcomes}, metadata)
+
+    metadata["fallback"] = None
+    return ({o: counts[o] / total for o in outcomes}, metadata)
+
+
+def multinomial_persistence_baseline_with_metadata(
+    forecasts: List[Dict[str, Any]],
+    resolutions: List[Dict[str, Any]],
+    outcomes: List[str],
+    event_id: str,
+    horizon_days: int,
+    mode_filter: List[str] = None
+) -> Tuple[Dict[str, Dict[str, float]], Dict[str, Any]]:
+    """
+    Persistence baseline with metadata for fallback flagging.
+
+    Phase 3B Red-Team Fix 3: Flag when baseline uses uniform fallback.
+
+    Returns:
+        Tuple of (predictions, metadata)
+
+        predictions = {forecast_id: {outcome: probability}}
+        metadata = {
+            "baseline_history_n": int,  # Number of valid resolutions used
+            "fallback": "uniform" | None,  # Set if first forecasts had no prior
+            "first_forecast_fallback": bool,  # True if first forecast used uniform
+            "event_id": str,
+            "horizon_days": int,
+        }
+    """
+    if mode_filter is None:
+        mode_filter = ["external_auto", "external_manual"]
+
+    K = len(outcomes)
+    uniform = {o: 1.0 / K for o in outcomes} if K > 0 else {}
+
+    # Filter to this event/horizon
+    filtered_forecasts = [
+        f for f in forecasts
+        if f.get("event_id") == event_id and f.get("horizon_days") == horizon_days
+    ]
+
+    # Sort forecasts by target_date_utc for deterministic ordering
+    sorted_forecasts = sorted(
+        filtered_forecasts,
+        key=lambda f: f.get("target_date_utc", "")
+    )
+
+    # Build resolution lookup, filtered by mode
+    filtered_resolutions = [
+        r for r in resolutions
+        if r.get("event_id") == event_id
+        and r.get("horizon_days") == horizon_days
+        and r.get("resolved_outcome") != "UNKNOWN"
+        and resolver.get_resolution_mode(r) in mode_filter
+    ]
+    resolution_map = {r["forecast_id"]: r for r in filtered_resolutions}
+
+    metadata = {
+        "baseline_history_n": len(filtered_resolutions),
+        "event_id": event_id,
+        "horizon_days": horizon_days,
+        "first_forecast_fallback": len(sorted_forecasts) > 0,  # First always uses uniform
+    }
+
+    # Track last outcome
+    last_outcome: Optional[str] = None
+    persistence_preds: Dict[str, Dict[str, float]] = {}
+    fallback_used = False
+
+    for forecast in sorted_forecasts:
+        forecast_id = forecast["forecast_id"]
+
+        # Use last outcome or uniform if none
+        if last_outcome is None:
+            persistence_preds[forecast_id] = uniform.copy()
+            fallback_used = True
+        else:
+            # Deterministic: P=1 for last outcome, P=0 for others
+            persistence_preds[forecast_id] = {
+                o: (1.0 if o == last_outcome else 0.0) for o in outcomes
+            }
+
+        # Update last outcome if this forecast was resolved
+        if forecast_id in resolution_map:
+            resolution = resolution_map[forecast_id]
+            resolved = resolution.get("resolved_outcome")
+            if resolved in outcomes:
+                last_outcome = resolved
+
+    metadata["fallback"] = "uniform" if fallback_used else None
+
+    return (persistence_preds, metadata)
+
+
 def group_by_forecaster(
     forecasts: List[Dict[str, Any]]
 ) -> Dict[str, List[Dict[str, Any]]]:
@@ -1517,12 +1672,56 @@ def compute_scores(
         if not f.get("forecaster_id", "").startswith("oracle_baseline_")
     ]
 
-    # Add effective Brier score (primary forecaster only)
+    # NEW Phase 3B Red-Team Fix 2: Separate accuracy from penalty metrics
+    # Compute accuracy metrics (primary scores - resolved non-UNKNOWN only)
+    accuracy_metrics: Dict[str, Any] = {}
+    try:
+        # Primary Brier: only resolved, non-UNKNOWN forecasts
+        acc_brier = brier_score(primary_forecasts, resolutions)
+        accuracy_metrics["brier_score"] = round(acc_brier, 6)
+    except ScoringError:
+        accuracy_metrics["brier_score"] = None
+
+    try:
+        acc_log = log_score(primary_forecasts, resolutions)
+        accuracy_metrics["log_score"] = round(acc_log, 6)
+    except ScoringError:
+        accuracy_metrics["log_score"] = None
+
+    try:
+        acc_calib = calibration_bins(primary_forecasts, resolutions)
+        accuracy_metrics["calibration_error"] = acc_calib.get("calibration_error")
+    except Exception:
+        accuracy_metrics["calibration_error"] = None
+
+    result["accuracy"] = accuracy_metrics
+
+    # Compute penalty metrics (UNKNOWN/abstain penalties separately)
+    penalty_metrics: Dict[str, Any] = {}
+
+    # Effective Brier: includes UNKNOWN penalty (UNKNOWN treated as outcome=0.5)
     try:
         eff_brier = effective_brier_score(primary_forecasts, resolutions)
-        result["effective_brier"] = round(eff_brier, 6)
+        penalty_metrics["effective_brier"] = round(eff_brier, 6)
     except ScoringError:
-        result["effective_brier"] = None
+        penalty_metrics["effective_brier"] = None
+
+    # Compute abstention penalty (what's the Brier hit from abstaining?)
+    # This is the difference between effective Brier and primary Brier
+    if accuracy_metrics["brier_score"] is not None and penalty_metrics["effective_brier"] is not None:
+        penalty_metrics["unknown_abstain_penalty"] = round(
+            penalty_metrics["effective_brier"] - accuracy_metrics["brier_score"], 6
+        )
+    else:
+        penalty_metrics["unknown_abstain_penalty"] = None
+
+    # Combined penalty Brier is same as effective Brier (both penalties applied)
+    penalty_metrics["combined_penalty_brier"] = penalty_metrics["effective_brier"]
+
+    result["penalty_metrics"] = penalty_metrics
+
+    # Add effective Brier score (primary forecaster only) - backward compat alias
+    result["effective_brier"] = penalty_metrics["effective_brier"]
 
     # Add scores separated by resolution mode (primary forecaster only)
     # Core scores: external_auto + external_manual
@@ -1586,6 +1785,46 @@ def compute_scores(
             result["scoring_error"] = str(e)
     else:
         result["scoring_note"] = "No resolved forecasts available for scoring"
+
+    # NEW Phase 3B Red-Team Fix 3: Baselines with metadata and fallback flagging
+    warnings: List[str] = []
+
+    # Get baseline metadata for binary events (uses simpler baseline functions)
+    valid_binary_resolutions = [
+        r for r in resolutions
+        if r.get("resolved_outcome") in ["YES", "NO"]
+    ]
+    climatology_history_n = len(valid_binary_resolutions)
+    climatology_fallback = "uniform" if climatology_history_n < 20 else None
+
+    # Count valid persistence resolutions
+    persistence_history_n = climatology_history_n  # Same set for binary
+
+    baselines_metadata: Dict[str, Dict[str, Any]] = {
+        "climatology": {
+            "brier_score": result.get("climatology_brier"),
+            "history_n": climatology_history_n,
+            "fallback": climatology_fallback,
+        },
+        "persistence": {
+            "brier_score": result.get("persistence_brier"),
+            "history_n": persistence_history_n,
+            "fallback": "uniform" if persistence_history_n == 0 else None,
+        }
+    }
+
+    # Add warnings for fallback baselines
+    if climatology_fallback == "uniform":
+        warnings.append(
+            f"climatology baseline used uniform fallback (history_n={climatology_history_n})"
+        )
+    if baselines_metadata["persistence"]["fallback"] == "uniform":
+        warnings.append(
+            f"persistence baseline used uniform fallback (history_n={persistence_history_n})"
+        )
+
+    result["baselines"] = baselines_metadata
+    result["warnings"] = warnings
 
     # NEW: Scores by forecaster
     try:
