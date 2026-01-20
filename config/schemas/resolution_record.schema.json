@@ -51,8 +51,7 @@
     },
     "resolved_outcome": {
       "type": "string",
-      "description": "Resolved outcome value",
-      "enum": ["YES", "NO", "UNKNOWN"]
+      "description": "Resolved outcome value. For binary: YES/NO/UNKNOWN. For categorical/binned: any allowed_outcome from catalog."
     },
     "resolved_value": {
       "description": "Actual value observed (may be null for UNKNOWN)"

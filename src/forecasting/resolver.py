@@ -27,6 +27,29 @@ class ResolutionError(Exception):
     pass
 
 
+def validate_resolved_outcome(outcome: str, event: Dict[str, Any]) -> bool:
+    """
+    Validate resolved_outcome against event's allowed_outcomes.
+
+    Args:
+        outcome: The resolved outcome string
+        event: Event definition from catalog
+
+    Returns:
+        True if valid
+
+    Raises:
+        ResolutionError: If outcome not in allowed_outcomes
+    """
+    allowed = set(event.get("allowed_outcomes", []))
+    if outcome not in allowed:
+        raise ResolutionError(
+            f"Invalid resolved_outcome '{outcome}' for event {event.get('event_id')}. "
+            f"Allowed: {allowed}"
+        )
+    return True
+
+
 def get_resolution_mode(resolution: Dict[str, Any]) -> str:
     """
     Get resolution mode from a resolution record with backward compatibility.
@@ -328,6 +351,9 @@ def resolve_event(
         value = None
         path = None
         rule = None
+
+    # Validate resolved_outcome against catalog
+    validate_resolved_outcome(outcome, event)
 
     # Generate resolution ID
     target_date = forecast.get("target_date_utc", "")[:10].replace("-", "")

@@ -133,6 +133,158 @@ def format_mode_scores_table(core: Dict[str, Any], claims: Dict[str, Any], combi
     return "\n".join(lines)
 
 
+def format_multi_outcome_calibration_table(
+    calibration: Dict[str, Any],
+    event_id: str,
+    event_type: str,
+    forecaster_id: Optional[str] = None,
+    horizon_days: Optional[int] = None
+) -> str:
+    """
+    Format multi-outcome calibration data as markdown table.
+
+    Args:
+        calibration: Per-outcome calibration results from scorer
+        event_id: Event identifier
+        event_type: Event type (categorical/binned_continuous)
+        forecaster_id: Optional forecaster filter
+        horizon_days: Optional horizon filter
+
+    Returns:
+        Markdown table string
+    """
+    per_outcome = calibration.get("per_outcome", {})
+    if not per_outcome:
+        return "*No calibration data available*"
+
+    # Header
+    header_parts = [f"## Calibration: {event_id} ({event_type})"]
+    filter_parts = []
+    if forecaster_id:
+        filter_parts.append(f"Forecaster: {forecaster_id}")
+    if horizon_days:
+        filter_parts.append(f"Horizon: {horizon_days} days")
+    if filter_parts:
+        header_parts.append(" | ".join(filter_parts))
+    header_parts.append("")
+
+    lines = header_parts + [
+        "| Outcome | Bin | Count | Mean P | Observed | Error |",
+        "|---------|-----|-------|--------|----------|-------|",
+    ]
+
+    for outcome, outcome_data in sorted(per_outcome.items()):
+        bins = outcome_data.get("bins", [])
+        for b in bins:
+            if b["count"] == 0:
+                continue
+
+            # Format bin range (last bin includes 1.0)
+            bin_end_str = f"{b['bin_end']:.1f}" if b['bin_end'] < 1.0 else "1.0]"
+            if b['bin_end'] < 1.0:
+                bin_range = f"[{b['bin_start']:.1f}, {b['bin_end']:.1f})"
+            else:
+                bin_range = f"[{b['bin_start']:.1f}, 1.0]"
+
+            mean_f = f"{b['mean_forecast']:.3f}" if b['mean_forecast'] is not None else "-"
+            obs_f = f"{b['observed_frequency']:.3f}" if b['observed_frequency'] is not None else "-"
+            error = f"{b['absolute_error']:.3f}" if b['absolute_error'] is not None else "-"
+
+            lines.append(f"| {outcome} | {bin_range} | {b['count']} | {mean_f} | {obs_f} | {error} |")
+
+    # Aggregate error
+    agg_error = calibration.get("aggregate_calibration_error")
+    if agg_error is not None:
+        lines.append("")
+        lines.append(f"Aggregate Calibration Error: {agg_error:.3f}")
+
+    return "\n".join(lines)
+
+
+def format_forecaster_comparison_table(scores_by_forecaster: Dict[str, Dict[str, Any]]) -> str:
+    """
+    Format forecaster comparison as markdown table.
+
+    Args:
+        scores_by_forecaster: Scores grouped by forecaster_id
+
+    Returns:
+        Markdown table string
+    """
+    if not scores_by_forecaster:
+        return "*No forecaster data available*"
+
+    def fmt(val):
+        if val is None:
+            return "-"
+        if isinstance(val, float):
+            return f"{val:.4f}"
+        return str(val)
+
+    def fmt_skill(val):
+        if val is None:
+            return "-"
+        if val >= 0:
+            return f"+{val:.2f}"
+        return f"{val:.2f}"
+
+    lines = [
+        "## Forecaster Performance",
+        "",
+        "| Forecaster | Brier (norm) | Binary | Multi | Count |",
+        "|------------|--------------|--------|-------|-------|",
+    ]
+
+    for forecaster_id, scores in sorted(scores_by_forecaster.items()):
+        brier = scores.get("brier_score")
+        binary_brier = scores.get("binary_brier_score")
+        multi_brier = scores.get("multi_brier_score")
+        count = scores.get("count", 0)
+
+        lines.append(
+            f"| {forecaster_id} | {fmt(brier)} | {fmt(binary_brier)} | {fmt(multi_brier)} | {count} |"
+        )
+
+    return "\n".join(lines)
+
+
+def format_scores_by_type_table(scores_by_type: Dict[str, Dict[str, Any]]) -> str:
+    """
+    Format scores by event type as markdown table.
+
+    Args:
+        scores_by_type: Scores grouped by event type
+
+    Returns:
+        Markdown table string
+    """
+    if not scores_by_type:
+        return "*No type breakdown available*"
+
+    def fmt(val):
+        if val is None:
+            return "-"
+        return f"{val:.4f}"
+
+    lines = [
+        "## Scores by Event Type",
+        "",
+        "| Type | Brier | Log | Count |",
+        "|------|-------|-----|-------|",
+    ]
+
+    for event_type in ["binary", "categorical", "binned_continuous"]:
+        if event_type not in scores_by_type:
+            continue
+        scores = scores_by_type[event_type]
+        brier = scores.get("brier_score")
+        log = scores.get("log_score")
+        count = scores.get("count", 0)
+        lines.append(f"| {event_type} | {fmt(brier)} | {fmt(log)} | {count} |")
+
+    return "\n".join(lines)
+
+
 def generate_scorecard_md(
     scores: Dict[str, Any],
     metadata: Optional[Dict[str, Any]] = None
@@ -273,6 +425,22 @@ def generate_scorecard_md(
             "",
         ])
 
+    # NEW: Scores by forecaster
+    scores_by_forecaster = scores.get("scores_by_forecaster", {})
+    if scores_by_forecaster:
+        lines.extend([
+            format_forecaster_comparison_table(scores_by_forecaster),
+            "",
+        ])
+
+    # NEW: Scores by event type
+    scores_by_type = scores.get("scores_by_type", {})
+    if scores_by_type:
+        lines.extend([
+            format_scores_by_type_table(scores_by_type),
+            "",
+        ])
+
     # Interpretation
     lines.extend([
         "## Interpretation Guide",
@@ -282,6 +450,7 @@ def generate_scorecard_md(
         "- **Calibration Error**: How well probabilities match observed frequencies. 0 = perfect calibration.",
         "- **Coverage Rate**: Fraction of due forecasts with known (YES/NO) resolutions.",
         "- **Core vs Claims Inferred**: Core scores use external data sources; claims inferred uses fallback resolution.",
+        "- **Multi-Outcome Brier**: For categorical/binned events, normalized to [0,1] range (raw/2).",
         "",
     ])
 
