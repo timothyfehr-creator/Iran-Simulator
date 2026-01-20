@@ -1,0 +1,25 @@
+{
+  "requirement_id": "TEST-FORECAST-001",
+  "git_commit": "abc123456789def",
+  "data_cutoff_utc": "2026-01-15T23:59:59+00:00",
+  "ingest_since_utc": "2026-01-12T00:00:00+00:00",
+  "seed": 42,
+  "as_of_utc": "2026-01-15T12:00:00+00:00",
+  "n_sims": 10000,
+  "deterministic_tiebreaks": [
+    "source_grade",
+    "triangulated",
+    "confidence",
+    "latest_published_at",
+    "claim_id"
+  ],
+  "hashes": {
+    "evidence_docs.jsonl": "sha256:test_evidence_hash_1234567890",
+    "claims.jsonl": "sha256:test_claims_hash_1234567890",
+    "compiled_intel.json": "sha256:test_intel_hash_1234567890",
+    "simulation_results.json": "sha256:test_sim_hash_1234567890",
+    "priors_resolved.json": "sha256:test_priors_hash_1234567890"
+  },
+  "coverage_status": "PASS",
+  "run_reliable": true
+}

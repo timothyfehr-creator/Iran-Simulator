@@ -1,0 +1,117 @@
+{
+  "catalog_version": "2.0.0",
+  "generated_at_utc": "2026-01-19T00:00:00Z",
+  "events": [
+    {
+      "event_id": "econ.rial_ge_1_2m",
+      "name": "Rial black-market >= 1.2M IRR/USD",
+      "category": "econ",
+      "event_type": "binary",
+      "allowed_outcomes": ["YES", "NO"],
+      "description": "Black-market IRR/USD rate >= 1,200,000 in any valid run within horizon.",
+      "forecast_source": {
+        "type": "simulation_derived",
+        "field": "economic_analysis.stress_level",
+        "derivation": "if stress_level == 'critical' then P(YES)=0.95 else P(YES)=0.15"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.economic_conditions.rial_usd_rate.market",
+        "rule": "threshold_gte",
+        "threshold": 1200000
+      },
+      "allowed_sources": ["wires", "regime_outlets"],
+      "unknown_conditions": ["missing_value", "conflicting_claims_no_winner"],
+      "max_resolution_lag_days": 14,
+      "auto_resolve": true
+    },
+    {
+      "event_id": "econ.inflation_ge_50",
+      "name": "Official inflation >= 50%",
+      "category": "econ",
+      "event_type": "binary",
+      "allowed_outcomes": ["YES", "NO"],
+      "description": "Official annual inflation >= 50% in any valid run within horizon.",
+      "forecast_source": {
+        "type": "simulation_derived",
+        "field": "economic_analysis.inflation_used",
+        "derivation": "if inflation_used >= 50 then P(YES)=0.95 else P(YES)=0.10"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.economic_conditions.inflation.official_annual_percent",
+        "rule": "threshold_gte",
+        "threshold": 50
+      },
+      "allowed_sources": ["wires", "regime_outlets"],
+      "unknown_conditions": ["missing_value"],
+      "max_resolution_lag_days": 14,
+      "auto_resolve": true
+    },
+    {
+      "event_id": "event.security_defection",
+      "name": "Security force defection reported",
+      "category": "security",
+      "event_type": "binary",
+      "allowed_outcomes": ["YES", "NO"],
+      "description": "Confirmed security force defection event within horizon.",
+      "forecast_source": {
+        "type": "simulation_output",
+        "field": "key_event_rates.security_force_defection"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_situation.defections.confirmed_count",
+        "rule": "threshold_gt",
+        "threshold": 0,
+        "fallback": "claims_based"
+      },
+      "allowed_sources": ["ngos", "persian_services", "osint_think_tank"],
+      "unknown_conditions": ["only_rumor_grade_sources", "missing_path"],
+      "max_resolution_lag_days": 14
+    },
+    {
+      "event_id": "state.internet_degraded",
+      "name": "Internet blackout or severe degradation",
+      "category": "info",
+      "event_type": "binary",
+      "allowed_outcomes": ["YES", "NO"],
+      "description": "Internet status is BLACKOUT or SEVERELY_DEGRADED within horizon.",
+      "forecast_source": {
+        "type": "diagnostic_only",
+        "note": "No direct simulator forecast - track for correlation analysis"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.information_environment.internet_status.current",
+        "rule": "enum_in",
+        "values": ["BLACKOUT", "SEVERELY_DEGRADED"]
+      },
+      "allowed_sources": ["internet_monitoring", "ngos", "persian_services"],
+      "unknown_conditions": ["missing_status", "conflicting_statuses"],
+      "max_resolution_lag_days": 7,
+      "auto_resolve": true
+    },
+    {
+      "event_id": "state.protests_escalating",
+      "name": "Protests are escalating",
+      "category": "protest",
+      "event_type": "binary",
+      "allowed_outcomes": ["YES", "NO"],
+      "description": "Protest intensity trend is ESCALATING within horizon.",
+      "forecast_source": {
+        "type": "diagnostic_only",
+        "note": "No direct simulator forecast - track for correlation analysis"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.protest_metrics.current_snapshot.intensity_trend",
+        "rule": "enum_equals",
+        "value": "ESCALATING"
+      },
+      "allowed_sources": ["osint_think_tank", "ngos", "persian_services"],
+      "unknown_conditions": ["missing_trend_field"],
+      "max_resolution_lag_days": 7
+    }
+  ]
+}

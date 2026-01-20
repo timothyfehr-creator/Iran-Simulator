@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iran-simulation/schemas/resolution_record.schema.json",
+  "title": "Resolution Record",
+  "description": "Schema for Oracle Layer resolution records stored in JSONL ledger",
+  "type": "object",
+  "required": [
+    "record_type",
+    "resolution_id",
+    "forecast_id",
+    "event_id",
+    "horizon_days",
+    "target_date_utc",
+    "resolved_outcome",
+    "resolved_at_utc",
+    "resolved_by",
+    "evidence",
+    "resolution_mode",
+    "reason_code"
+  ],
+  "properties": {
+    "record_type": {
+      "type": "string",
+      "const": "resolution",
+      "description": "Record type identifier"
+    },
+    "resolution_id": {
+      "type": "string",
+      "description": "Unique resolution identifier",
+      "pattern": "^res_\\d{8}_[a-z][a-z0-9_.]*_\\d+d(_v\\d+)?$"
+    },
+    "forecast_id": {
+      "type": "string",
+      "description": "Reference to forecast being resolved",
+      "pattern": "^fcst_\\d{8}_[A-Za-z0-9_]+_[a-z][a-z0-9_.]*_\\d+d$"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Reference to event in catalog",
+      "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+    },
+    "horizon_days": {
+      "type": "integer",
+      "description": "Original forecast horizon",
+      "enum": [1, 7, 15, 30]
+    },
+    "target_date_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Original target date"
+    },
+    "resolved_outcome": {
+      "type": "string",
+      "description": "Resolved outcome value",
+      "enum": ["YES", "NO", "UNKNOWN"]
+    },
+    "resolved_value": {
+      "description": "Actual value observed (may be null for UNKNOWN)"
+    },
+    "resolved_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when resolution was determined"
+    },
+    "resolved_by": {
+      "type": "string",
+      "description": "Identifier of resolution system"
+    },
+    "resolution_mode": {
+      "type": "string",
+      "description": "How the resolution was determined",
+      "enum": ["external_auto", "external_manual", "claims_inferred"]
+    },
+    "reason_code": {
+      "type": "string",
+      "description": "Rule or reason code for the resolution (e.g., threshold_gte:1200000)"
+    },
+    "adjudicator_id": {
+      "type": "string",
+      "description": "Identifier of human adjudicator (required for external_manual mode)"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "description": "Repository-relative paths to evidence snapshots",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_hashes": {
+      "type": "array",
+      "description": "SHA256 hashes of evidence files",
+      "items": {
+        "type": "string",
+        "pattern": "^sha256:[a-f0-9]{64}$"
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Evidence supporting resolution",
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "description": "Run used for resolution"
+        },
+        "manifest_id": {
+          "type": "string",
+          "description": "Hash reference to resolution run manifest"
+        },
+        "path_used": {
+          "type": ["string", "null"],
+          "description": "Data path used for resolution"
+        },
+        "rule_applied": {
+          "type": ["string", "null"],
+          "description": "Resolution rule applied"
+        }
+      }
+    },
+    "unknown_reason": {
+      "type": ["string", "null"],
+      "description": "Reason if resolved_outcome is UNKNOWN"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "resolution_mode": { "const": "external_manual" }
+        },
+        "required": ["resolution_mode"]
+      },
+      "then": {
+        "required": ["adjudicator_id"]
+      }
+    }
+  ]
+}

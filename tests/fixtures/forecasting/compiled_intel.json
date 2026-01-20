@@ -1,0 +1,52 @@
+{
+  "_schema_version": "1.0",
+  "metadata": {
+    "requirement_id": "TEST-FORECAST-001",
+    "generated_date": "2026-01-15",
+    "data_cutoff": "2026-01-15T23:59:59+00:00"
+  },
+  "current_state": {
+    "economic_conditions": {
+      "rial_usd_rate": {
+        "market": 1350000,
+        "sell": 1355000,
+        "buy": 1345000,
+        "date": "January 15, 2026",
+        "source": "bonbast"
+      },
+      "inflation": {
+        "official_annual_percent": 42
+      }
+    },
+    "information_environment": {
+      "internet_status": {
+        "current": "PARTIAL"
+      }
+    },
+    "protest_metrics": {
+      "current_snapshot": {
+        "intensity_trend": "ESCALATING",
+        "provinces_affected": {
+          "value": 25,
+          "of_total": 31
+        }
+      }
+    }
+  },
+  "current_situation": {
+    "defections": {
+      "confirmed_count": 0
+    },
+    "regime_response": {
+      "crackdown_severity": "SEVERE"
+    }
+  },
+  "compiled_fields": {
+    "current_state.economic_conditions.rial_usd_rate.market": 1350000,
+    "current_state.economic_conditions.inflation.official_annual_percent": 42,
+    "current_state.information_environment.internet_status.current": "PARTIAL",
+    "current_state.protest_metrics.current_snapshot.intensity_trend": "ESCALATING",
+    "current_situation.defections.confirmed_count": 0,
+    "current_situation.regime_response.crackdown_severity": "SEVERE"
+  }
+}

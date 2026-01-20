@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iran-simulation/schemas/event_catalog.schema.json",
+  "title": "Event Catalog",
+  "description": "Schema for Oracle Layer event catalog defining forecastable and diagnostic events",
+  "type": "object",
+  "required": ["catalog_version", "events"],
+  "properties": {
+    "catalog_version": {
+      "type": "string",
+      "description": "Semantic version of the catalog schema (X.Y.Z format)",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "generated_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when catalog was generated"
+    },
+    "events": {
+      "type": "array",
+      "description": "List of event definitions",
+      "items": {
+        "$ref": "#/$defs/event"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "event": {
+      "type": "object",
+      "required": [
+        "event_id",
+        "name",
+        "category",
+        "event_type",
+        "allowed_outcomes",
+        "description",
+        "forecast_source",
+        "resolution_source"
+      ],
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "description": "Unique identifier for the event",
+          "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable event name"
+        },
+        "category": {
+          "type": "string",
+          "description": "Event category",
+          "enum": ["econ", "security", "info", "protest", "regional", "external"]
+        },
+        "event_type": {
+          "type": "string",
+          "description": "Type of event outcome",
+          "enum": ["binary", "categorical", "continuous"]
+        },
+        "allowed_outcomes": {
+          "type": "array",
+          "description": "Valid outcome values",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of what the event measures"
+        },
+        "forecast_source": {
+          "$ref": "#/$defs/forecast_source"
+        },
+        "resolution_source": {
+          "$ref": "#/$defs/resolution_source"
+        },
+        "allowed_sources": {
+          "type": "array",
+          "description": "Valid source buckets for resolution evidence",
+          "items": {
+            "type": "string",
+            "enum": ["wires", "ngos", "regime_outlets", "persian_services", "osint_think_tank", "internet_monitoring"]
+          }
+        },
+        "unknown_conditions": {
+          "type": "array",
+          "description": "Conditions that result in UNKNOWN resolution",
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_resolution_lag_days": {
+          "type": "integer",
+          "description": "Maximum days after target date to accept resolution data",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "auto_resolve": {
+          "type": "boolean",
+          "description": "If true, event can be auto-resolved using external data without manual adjudication",
+          "default": false
+        },
+        "effective_from_utc": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when this event definition became effective (for new events only)"
+        }
+      }
+    },
+    "forecast_source": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Source type for forecast probability",
+          "enum": ["simulation_output", "simulation_derived", "diagnostic_only"]
+        },
+        "field": {
+          "type": "string",
+          "description": "Dot-separated path to simulation field"
+        },
+        "derivation": {
+          "type": "string",
+          "description": "Rule for deriving probability from field value"
+        },
+        "note": {
+          "type": "string",
+          "description": "Explanation for diagnostic-only events"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "simulation_output" } }
+          },
+          "then": {
+            "required": ["field"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "simulation_derived" } }
+          },
+          "then": {
+            "required": ["field", "derivation"]
+          }
+        }
+      ]
+    },
+    "resolution_source": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Source type for resolution",
+          "enum": ["compiled_intel", "claims_based"]
+        },
+        "path": {
+          "type": "string",
+          "description": "Dot-separated path in compiled_intel.json"
+        },
+        "rule": {
+          "type": "string",
+          "description": "Resolution rule to apply",
+          "enum": ["threshold_gte", "threshold_gt", "threshold_lte", "threshold_lt", "enum_equals", "enum_in"]
+        },
+        "threshold": {
+          "type": "number",
+          "description": "Numeric threshold for comparison rules"
+        },
+        "value": {
+          "type": "string",
+          "description": "Target value for enum_equals rule"
+        },
+        "values": {
+          "type": "array",
+          "description": "Target values for enum_in rule",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fallback": {
+          "type": "string",
+          "description": "Fallback resolution method if primary fails",
+          "enum": ["claims_based"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "compiled_intel" } }
+          },
+          "then": {
+            "required": ["path", "rule"]
+          }
+        }
+      ]
+    }
+  }
+}

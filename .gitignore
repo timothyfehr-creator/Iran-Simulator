@@ -39,6 +39,14 @@ bundle_*.json
 *.env
 .env.*
 
+# Forecasting outputs (Oracle Layer)
+forecasting/ledger/*
+forecasting/reports/*
+forecasting/evidence/
+# Keep .gitkeep files tracked
+!forecasting/ledger/.gitkeep
+!forecasting/reports/.gitkeep
+
 # Exceptions - keep these tracked
 !.env.example
 !tests/fixtures/*.json

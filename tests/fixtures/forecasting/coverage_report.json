@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "buckets_ok": ["osint_think_tank", "ngo_rights", "regime_outlets", "persian_services"],
+  "buckets_missing": [],
+  "quality_gates": {
+    "min_docs_passed": true,
+    "farsi_source_present": true,
+    "buckets_ok": 4
+  }
+}

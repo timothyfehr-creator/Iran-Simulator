@@ -1,0 +1,48 @@
+{
+  "n_runs": 10000,
+  "outcome_distribution": {
+    "REGIME_SURVIVES_STATUS_QUO": {
+      "count": 7500,
+      "probability": 0.75
+    },
+    "MANAGED_TRANSITION": {
+      "count": 1000,
+      "probability": 0.10
+    },
+    "REGIME_SURVIVES_WITH_CONCESSIONS": {
+      "count": 800,
+      "probability": 0.08
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "count": 500,
+      "probability": 0.05
+    },
+    "ETHNIC_FRAGMENTATION": {
+      "count": 200,
+      "probability": 0.02
+    }
+  },
+  "key_event_rates": {
+    "us_intervention": 0.85,
+    "security_force_defection": 0.08,
+    "khamenei_death": 0.07,
+    "ethnic_uprising": 0.09
+  },
+  "regional_cascade_rates": {
+    "iraq_crisis": 0.02,
+    "syria_crisis": 0.01,
+    "israel_strikes": 0.03,
+    "gulf_realignment": 0.01,
+    "russia_support": 0.08
+  },
+  "economic_analysis": {
+    "stress_level": "critical",
+    "rial_rate_used": 1350000,
+    "inflation_used": 42,
+    "modifiers_applied": {
+      "protest_escalation": 1.2,
+      "elite_fracture": 1.3,
+      "security_defection": 1.15
+    }
+  }
+}

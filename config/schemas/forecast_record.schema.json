@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iran-simulation/schemas/forecast_record.schema.json",
+  "title": "Forecast Record",
+  "description": "Schema for Oracle Layer forecast records stored in JSONL ledger",
+  "type": "object",
+  "required": [
+    "record_type",
+    "forecast_id",
+    "event_id",
+    "horizon_days",
+    "as_of_utc",
+    "target_date_utc",
+    "run_id",
+    "data_cutoff_utc",
+    "manifest_id",
+    "forecaster_id",
+    "forecaster_version",
+    "distribution_type",
+    "probabilities",
+    "abstain"
+  ],
+  "properties": {
+    "record_type": {
+      "type": "string",
+      "const": "forecast",
+      "description": "Record type identifier"
+    },
+    "forecast_id": {
+      "type": "string",
+      "description": "Unique forecast identifier",
+      "pattern": "^fcst_\\d{8}_[A-Za-z0-9_]+_[a-z][a-z0-9_.]*_\\d+d$"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Reference to event in catalog",
+      "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+    },
+    "horizon_days": {
+      "type": "integer",
+      "description": "Forecast horizon in days",
+      "enum": [1, 7, 15, 30]
+    },
+    "as_of_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when forecast was generated"
+    },
+    "target_date_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date by which event should occur"
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Source run identifier"
+    },
+    "data_cutoff_utc": {
+      "type": ["string", "null"],
+      "description": "Data cutoff date from source run"
+    },
+    "manifest_id": {
+      "type": "string",
+      "description": "Hash reference to source manifest"
+    },
+    "artifact_hashes": {
+      "type": "object",
+      "description": "SHA256 hashes of source artifacts",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "seed": {
+      "type": ["integer", "null"],
+      "description": "Random seed used in simulation"
+    },
+    "n_sims": {
+      "type": ["integer", "null"],
+      "description": "Number of simulation runs"
+    },
+    "forecaster_id": {
+      "type": "string",
+      "description": "Identifier of forecasting system"
+    },
+    "forecaster_version": {
+      "type": "string",
+      "description": "Version of forecasting system"
+    },
+    "distribution_type": {
+      "type": "string",
+      "description": "Type of probability distribution",
+      "enum": ["binary", "categorical", "continuous"]
+    },
+    "probabilities": {
+      "type": "object",
+      "description": "Probability distribution over outcomes",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    },
+    "forecast_source_field": {
+      "type": ["string", "null"],
+      "description": "Simulation field used for probability derivation"
+    },
+    "raw_simulation_value": {
+      "description": "Raw value from simulation before conversion"
+    },
+    "horizon_conversion_applied": {
+      "type": "boolean",
+      "description": "Whether hazard rate conversion was applied"
+    },
+    "abstain": {
+      "type": "boolean",
+      "description": "True if forecaster abstained from prediction"
+    },
+    "abstain_reason": {
+      "type": ["string", "null"],
+      "description": "Reason for abstaining"
+    }
+  }
+}
