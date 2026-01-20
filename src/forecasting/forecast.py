@@ -7,6 +7,7 @@ and compiled intelligence from valid runs.
 
 import json
 import math
+import logging
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
@@ -23,14 +24,114 @@ from ..run_utils import (
     get_run_reliability,
 )
 
+logger = logging.getLogger(__name__)
 
 # Valid forecast horizons in days
 VALID_HORIZONS = {1, 7, 15, 30}
+
+# Tolerance for probability sum validation
+PROBABILITY_SUM_TOLERANCE = 1e-6
 
 
 class ForecastError(Exception):
     """Raised when forecast generation fails."""
     pass
+
+
+def validate_distribution(probs: Dict[str, float], event: Dict[str, Any]) -> List[str]:
+    """
+    Validate probability distribution against event definition.
+
+    Checks:
+    1. All values are valid floats (no NaN, no negative)
+    2. All values in range [0.0, 1.0]
+    3. Sum to 1.0 (within tolerance 1e-6)
+    4. Keys must be subset of allowed_outcomes (UNKNOWN always allowed)
+    5. All allowed_outcomes (except UNKNOWN) must be present
+
+    Args:
+        probs: Dictionary mapping outcomes to probabilities
+        event: Event definition with allowed_outcomes
+
+    Returns:
+        List of validation errors (empty if valid)
+    """
+    errors = []
+    allowed_outcomes = set(event.get("allowed_outcomes", []))
+
+    # Check each probability value
+    for outcome, prob in probs.items():
+        # Check for NaN
+        if prob != prob:  # NaN check
+            errors.append(f"probability for {outcome} is NaN")
+            continue
+
+        # Check for negative values
+        if prob < 0:
+            errors.append(f"probability for {outcome} is negative: {prob}")
+            continue
+
+        # Check range [0, 1]
+        if prob > 1:
+            errors.append(f"probability for {outcome} exceeds 1.0: {prob}")
+            continue
+
+        # Check if outcome is allowed (UNKNOWN is always allowed)
+        if outcome != "UNKNOWN" and outcome not in allowed_outcomes:
+            errors.append(f"unexpected outcome '{outcome}' not in allowed_outcomes")
+
+    # Check sum equals 1.0
+    total = sum(probs.values())
+    if abs(total - 1.0) > PROBABILITY_SUM_TOLERANCE:
+        errors.append(f"probabilities sum to {total}, expected 1.0")
+
+    # Check all required outcomes are present (except UNKNOWN)
+    required_outcomes = allowed_outcomes - {"UNKNOWN"}
+    present_outcomes = set(probs.keys())
+    missing = required_outcomes - present_outcomes
+    if missing:
+        errors.append(f"missing required outcome(s): {missing}")
+
+    return errors
+
+
+def generate_baseline_distribution(
+    event: Dict[str, Any],
+    forecast_source_type: str
+) -> Dict[str, float]:
+    """
+    Generate baseline probability distribution for MVP events.
+
+    Phase 3A: Uniform fallback only (no ledger history lookup).
+    Full persistence/climatology logic deferred to Phase 3C.
+
+    Args:
+        event: Event definition with allowed_outcomes
+        forecast_source_type: "baseline_persistence" or "baseline_climatology"
+
+    Returns:
+        Uniform distribution: {outcome: 1/K for outcome in allowed_outcomes}
+        where K is the number of non-UNKNOWN outcomes
+    """
+    outcomes = event.get("allowed_outcomes", [])
+    # Exclude UNKNOWN from uniform distribution
+    non_unknown = [o for o in outcomes if o != "UNKNOWN"]
+    k = len(non_unknown)
+
+    if k == 0:
+        return {"UNKNOWN": 1.0}
+
+    # Calculate uniform probability
+    prob = round(1.0 / k, 6)
+    dist = {o: prob for o in non_unknown}
+
+    # Adjust for rounding to ensure sum == 1.0
+    total = sum(dist.values())
+    if total != 1.0:
+        first_key = non_unknown[0]
+        dist[first_key] = round(dist[first_key] + (1.0 - total), 6)
+
+    return dist
 
 
 def hazard_rate_conversion(p_90: float, horizon_days: int) -> float:
@@ -353,6 +454,7 @@ def generate_forecast_record(
     artifact_hashes = manifest.get("hashes", {})
 
     record = {
+        "record_type": "forecast",
         "forecast_id": forecast_id,
         "event_id": event_id,
         "horizon_days": horizon_days,
@@ -387,7 +489,14 @@ def generate_forecasts(
     dry_run: bool = False
 ) -> List[Dict[str, Any]]:
     """
-    Generate forecasts for all catalog events.
+    Generate forecasts for all forecastable catalog events.
+
+    Uses get_forecastable_events() to filter events by:
+    - enabled == true (or missing, defaults to true)
+    - forecast_source.type != "diagnostic_only"
+
+    For baseline forecast source types (baseline_persistence, baseline_climatology),
+    generates uniform distributions as a Phase 3A fallback.
 
     Args:
         catalog_path: Path to event catalog
@@ -425,18 +534,128 @@ def generate_forecasts(
         if invalid:
             raise ForecastError(f"Invalid horizons: {invalid}. Valid: {VALID_HORIZONS}")
 
-    # Generate forecasts
+    # Generate forecasts - use get_forecastable_events() to filter
     as_of_utc = datetime.now(timezone.utc)
     records = []
 
-    for event in catalog_data["events"]:
-        for horizon in horizons:
-            record = generate_forecast_record(
-                event, run_dir, artifacts, horizon, as_of_utc
-            )
+    for event in cat.get_forecastable_events(catalog_data):
+        source_type = event.get("forecast_source", {}).get("type")
+
+        # diagnostic_only events are already filtered out by get_forecastable_events
+        # but double-check
+        if source_type == "diagnostic_only":
+            continue
+
+        # Get event-specific horizons if defined, otherwise use global
+        event_horizons = event.get("horizons_days", horizons)
+        # Ensure horizons is valid list
+        if not isinstance(event_horizons, list):
+            event_horizons = horizons
+
+        for horizon in event_horizons:
+            # Skip if horizon not in global valid set
+            if horizon not in VALID_HORIZONS:
+                logger.warning(f"Event {event['event_id']}: skipping invalid horizon {horizon}")
+                continue
+
+            # Generate forecast record with appropriate source handling
+            if source_type in ("baseline_persistence", "baseline_climatology"):
+                # Use minimal baseline (uniform) in Phase 3A
+                record = generate_baseline_forecast_record(
+                    event, run_dir, artifacts, horizon, as_of_utc, source_type
+                )
+            else:
+                # Use existing simulation-based logic
+                record = generate_forecast_record(
+                    event, run_dir, artifacts, horizon, as_of_utc
+                )
+
+            # Validate distribution before appending
+            probs = record.get("probabilities", {})
+            errors = validate_distribution(probs, event)
+            if errors:
+                logger.warning(
+                    f"Event {event['event_id']} horizon {horizon}d: "
+                    f"distribution validation failed: {errors}"
+                )
+                continue
+
             records.append(record)
 
             if not dry_run:
                 ledger.append_forecast(record, ledger_dir)
 
     return records
+
+
+def generate_baseline_forecast_record(
+    event: Dict[str, Any],
+    run_dir: Path,
+    artifacts: Dict[str, Any],
+    horizon_days: int,
+    as_of_utc: datetime,
+    source_type: str
+) -> Dict[str, Any]:
+    """
+    Generate a forecast record for baseline events (persistence/climatology).
+
+    Phase 3A: Uses uniform distribution as fallback.
+    Full baseline logic deferred to Phase 3C.
+
+    Args:
+        event: Event definition from catalog
+        run_dir: Path to source run directory
+        artifacts: Loaded run artifacts
+        horizon_days: Forecast horizon in days
+        as_of_utc: Timestamp for forecast creation
+        source_type: "baseline_persistence" or "baseline_climatology"
+
+    Returns:
+        Complete forecast record dictionary
+    """
+    event_id = event["event_id"]
+    run_id = run_dir.name
+    manifest = artifacts["manifest"]
+
+    # Compute manifest_id from run_manifest.json contents
+    manifest_path = run_dir / "run_manifest.json"
+    manifest_id = compute_manifest_id(manifest_path)
+
+    # Generate uniform baseline distribution
+    probabilities = generate_baseline_distribution(event, source_type)
+
+    # Calculate target date
+    target_date = as_of_utc + timedelta(days=horizon_days)
+
+    # Build forecast record
+    as_of_date = as_of_utc.strftime("%Y%m%d")
+    forecast_id = generate_forecast_id(as_of_date, run_id, event_id, horizon_days)
+
+    # Extract artifact hashes from manifest
+    artifact_hashes = manifest.get("hashes", {})
+
+    record = {
+        "record_type": "forecast",
+        "forecast_id": forecast_id,
+        "event_id": event_id,
+        "horizon_days": horizon_days,
+        "as_of_utc": as_of_utc.isoformat(),
+        "target_date_utc": target_date.isoformat(),
+        "run_id": run_id,
+        "data_cutoff_utc": manifest.get("data_cutoff_utc"),
+        "manifest_id": manifest_id,
+        "artifact_hashes": artifact_hashes,
+        "seed": manifest.get("seed"),
+        "n_sims": None,  # No simulation for baseline
+        "forecaster_id": f"oracle_baseline_{source_type.replace('baseline_', '')}",
+        "forecaster_version": "1.0",
+        "distribution_type": event["event_type"],
+        "probabilities": probabilities,
+        "forecast_source_field": None,
+        "raw_simulation_value": None,
+        "horizon_conversion_applied": False,
+        "abstain": False,
+        "abstain_reason": None,
+    }
+
+    return record

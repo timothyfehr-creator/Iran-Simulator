@@ -89,7 +89,7 @@
     "distribution_type": {
       "type": "string",
       "description": "Type of probability distribution",
-      "enum": ["binary", "categorical", "continuous"]
+      "enum": ["binary", "categorical", "continuous", "binned_continuous"]
     },
     "probabilities": {
       "type": "object",

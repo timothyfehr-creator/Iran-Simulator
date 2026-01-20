@@ -162,61 +162,66 @@ class TestExtractCompiledValue:
 class TestApplyResolutionRule:
     """Tests for resolution rule application."""
 
-    def test_threshold_gte_yes(self):
+    @pytest.fixture
+    def dummy_event(self):
+        """Minimal event definition for rule tests."""
+        return {"event_id": "test.dummy", "allowed_outcomes": ["YES", "NO"]}
+
+    def test_threshold_gte_yes(self, dummy_event):
         """Test threshold_gte rule resolving to YES."""
         outcome, reason = resolver.apply_resolution_rule(
-            1500000, "threshold_gte", {"threshold": 1200000}
+            1500000, "threshold_gte", {"threshold": 1200000}, dummy_event
         )
         assert outcome == "YES"
         assert reason is None
 
-    def test_threshold_gte_no(self):
+    def test_threshold_gte_no(self, dummy_event):
         """Test threshold_gte rule resolving to NO."""
         outcome, reason = resolver.apply_resolution_rule(
-            1000000, "threshold_gte", {"threshold": 1200000}
+            1000000, "threshold_gte", {"threshold": 1200000}, dummy_event
         )
         assert outcome == "NO"
         assert reason is None
 
-    def test_threshold_gt_boundary(self):
+    def test_threshold_gt_boundary(self, dummy_event):
         """Test threshold_gt at exact boundary."""
         outcome, reason = resolver.apply_resolution_rule(
-            100, "threshold_gt", {"threshold": 100}
+            100, "threshold_gt", {"threshold": 100}, dummy_event
         )
         assert outcome == "NO"  # gt, not gte
 
-    def test_enum_equals_yes(self):
+    def test_enum_equals_yes(self, dummy_event):
         """Test enum_equals rule resolving to YES."""
         outcome, reason = resolver.apply_resolution_rule(
-            "ESCALATING", "enum_equals", {"value": "ESCALATING"}
+            "ESCALATING", "enum_equals", {"value": "ESCALATING"}, dummy_event
         )
         assert outcome == "YES"
 
-    def test_enum_equals_case_insensitive(self):
+    def test_enum_equals_case_insensitive(self, dummy_event):
         """Test enum_equals is case-insensitive."""
         outcome, reason = resolver.apply_resolution_rule(
-            "escalating", "enum_equals", {"value": "ESCALATING"}
+            "escalating", "enum_equals", {"value": "ESCALATING"}, dummy_event
         )
         assert outcome == "YES"
 
-    def test_enum_in_yes(self):
+    def test_enum_in_yes(self, dummy_event):
         """Test enum_in rule resolving to YES."""
         outcome, reason = resolver.apply_resolution_rule(
-            "BLACKOUT", "enum_in", {"values": ["BLACKOUT", "SEVERELY_DEGRADED"]}
+            "BLACKOUT", "enum_in", {"values": ["BLACKOUT", "SEVERELY_DEGRADED"]}, dummy_event
         )
         assert outcome == "YES"
 
-    def test_enum_in_no(self):
+    def test_enum_in_no(self, dummy_event):
         """Test enum_in rule resolving to NO."""
         outcome, reason = resolver.apply_resolution_rule(
-            "PARTIAL", "enum_in", {"values": ["BLACKOUT", "SEVERELY_DEGRADED"]}
+            "PARTIAL", "enum_in", {"values": ["BLACKOUT", "SEVERELY_DEGRADED"]}, dummy_event
         )
         assert outcome == "NO"
 
-    def test_missing_value(self):
+    def test_missing_value(self, dummy_event):
         """Test UNKNOWN outcome for missing value."""
         outcome, reason = resolver.apply_resolution_rule(
-            None, "threshold_gte", {"threshold": 100}
+            None, "threshold_gte", {"threshold": 100}, dummy_event
         )
         assert outcome == "UNKNOWN"
         assert reason == "missing_value"

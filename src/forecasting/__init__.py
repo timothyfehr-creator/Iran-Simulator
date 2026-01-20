@@ -6,6 +6,7 @@ that never modify simulation logic.
 
 Modules:
     catalog - Event catalog loading and validation
+    bins - Bin validation and value-to-bin mapping for binned events
     ledger - Append-only JSONL storage for forecasts and resolutions
     forecast - Forecast generation from simulation outputs
     resolver - Resolution logic using future runs
@@ -16,6 +17,7 @@ Modules:
 """
 
 from . import catalog
+from . import bins
 from . import ledger
 from . import forecast
 from . import resolver
@@ -24,4 +26,4 @@ from . import scorer
 from . import reporter
 from . import cli
 
-__version__ = "2.0.0"
+__version__ = "3.0.0"

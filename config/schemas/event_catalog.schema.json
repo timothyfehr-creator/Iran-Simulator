@@ -51,12 +51,12 @@
         "category": {
           "type": "string",
           "description": "Event category",
-          "enum": ["econ", "security", "info", "protest", "regional", "external"]
+          "enum": ["econ", "security", "info", "protest", "regional", "external", "energy"]
         },
         "event_type": {
           "type": "string",
           "description": "Type of event outcome",
-          "enum": ["binary", "categorical", "continuous"]
+          "enum": ["binary", "categorical", "continuous", "binned_continuous"]
         },
         "allowed_outcomes": {
           "type": "array",
@@ -70,11 +70,33 @@
           "type": "string",
           "description": "Detailed description of what the event measures"
         },
+        "enabled": {
+          "type": "boolean",
+          "description": "If false, event is defined but not processed by forecast generation",
+          "default": true
+        },
+        "requires_manual_resolution": {
+          "type": "boolean",
+          "description": "If true, event requires manual adjudication and is skipped by auto-resolve",
+          "default": false
+        },
+        "horizons_days": {
+          "type": "array",
+          "description": "Forecast horizons in days for this event",
+          "items": {
+            "type": "integer",
+            "enum": [1, 7, 15, 30]
+          },
+          "minItems": 1
+        },
         "forecast_source": {
           "$ref": "#/$defs/forecast_source"
         },
         "resolution_source": {
           "$ref": "#/$defs/resolution_source"
+        },
+        "bin_spec": {
+          "$ref": "#/$defs/bin_spec"
         },
         "allowed_sources": {
           "type": "array",
@@ -107,7 +129,17 @@
           "format": "date-time",
           "description": "ISO 8601 timestamp when this event definition became effective (for new events only)"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "event_type": { "const": "binned_continuous" } }
+          },
+          "then": {
+            "required": ["bin_spec"]
+          }
+        }
+      ]
     },
     "forecast_source": {
       "type": "object",
@@ -116,7 +148,13 @@
         "type": {
           "type": "string",
           "description": "Source type for forecast probability",
-          "enum": ["simulation_output", "simulation_derived", "diagnostic_only"]
+          "enum": [
+            "simulation_output",
+            "simulation_derived",
+            "baseline_persistence",
+            "baseline_climatology",
+            "diagnostic_only"
+          ]
         },
         "field": {
           "type": "string",
@@ -128,7 +166,7 @@
         },
         "note": {
           "type": "string",
-          "description": "Explanation for diagnostic-only events"
+          "description": "Explanation for diagnostic-only or baseline events"
         }
       },
       "allOf": [
@@ -166,7 +204,11 @@
         "rule": {
           "type": "string",
           "description": "Resolution rule to apply",
-          "enum": ["threshold_gte", "threshold_gt", "threshold_lte", "threshold_lt", "enum_equals", "enum_in"]
+          "enum": [
+            "threshold_gte", "threshold_gt", "threshold_lte", "threshold_lt",
+            "enum_equals", "enum_in",
+            "bin_map", "enum_match"
+          ]
         },
         "threshold": {
           "type": "number",
@@ -199,6 +241,51 @@
           }
         }
       ]
+    },
+    "bin_spec": {
+      "type": "object",
+      "description": "Specification for binned continuous events",
+      "required": ["bins"],
+      "properties": {
+        "bins": {
+          "type": "array",
+          "description": "List of bin definitions",
+          "items": {
+            "type": "object",
+            "required": ["bin_id", "label"],
+            "properties": {
+              "bin_id": {
+                "type": "string",
+                "description": "Unique identifier for the bin (uppercase with underscores)",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "label": {
+                "type": "string",
+                "description": "Human-readable label for the bin"
+              },
+              "min": {
+                "type": ["number", "null"],
+                "description": "Minimum value for bin (null for unbounded lower)"
+              },
+              "max": {
+                "type": ["number", "null"],
+                "description": "Maximum value for bin (null for unbounded upper)"
+              },
+              "include_min": {
+                "type": "boolean",
+                "description": "Whether the minimum boundary is inclusive",
+                "default": true
+              },
+              "include_max": {
+                "type": "boolean",
+                "description": "Whether the maximum boundary is inclusive",
+                "default": false
+              }
+            }
+          },
+          "minItems": 2
+        }
+      }
     }
   }
 }

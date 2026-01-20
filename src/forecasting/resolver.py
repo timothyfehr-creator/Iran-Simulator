@@ -13,6 +13,7 @@ from typing import Dict, List, Optional, Any, Tuple
 from . import catalog as cat
 from . import ledger
 from . import evidence
+from . import bins
 from .ledger import compute_manifest_id
 from ..run_utils import (
     list_runs_sorted,
@@ -157,7 +158,8 @@ def extract_compiled_value(
 def apply_resolution_rule(
     value: Any,
     rule: str,
-    rule_params: Dict[str, Any]
+    rule_params: Dict[str, Any],
+    event: Dict[str, Any]
 ) -> Tuple[str, Optional[str]]:
     """
     Apply resolution rule to determine outcome.
@@ -169,15 +171,18 @@ def apply_resolution_rule(
     - threshold_lt: value < threshold -> YES
     - enum_equals: value == target value -> YES
     - enum_in: value in list of values -> YES
+    - bin_map: maps numeric value to bin_id using event's bin_spec
+    - enum_match: resolved_outcome = value if in allowed_outcomes
 
     Args:
         value: Value to check
         rule: Rule type
         rule_params: Additional parameters (threshold, values, etc.)
+        event: Full event definition (for allowed_outcomes, bin_spec)
 
     Returns:
         Tuple of (outcome, unknown_reason)
-        outcome is "YES", "NO", or "UNKNOWN"
+        outcome is "YES", "NO", bin_id, categorical value, or "UNKNOWN"
     """
     if value is None:
         return "UNKNOWN", "missing_value"
@@ -207,6 +212,29 @@ def apply_resolution_rule(
             values = rule_params.get("values", [])
             str_value = str(value).upper()
             return ("YES" if str_value in [str(v).upper() for v in values] else "NO", None)
+
+        elif rule == "bin_map":
+            # Map numeric value to bin_id using event's bin_spec
+            bin_spec = event.get("bin_spec")
+            if not bin_spec:
+                return "UNKNOWN", "missing_bin_spec"
+            bin_id, reason = bins.value_to_bin(value, bin_spec)
+            return bin_id, reason
+
+        elif rule == "enum_match":
+            # resolved_outcome = value if in allowed_outcomes
+            allowed = event.get("allowed_outcomes", [])
+            str_value = str(value).upper() if value else None
+
+            if str_value is None:
+                return "UNKNOWN", "missing_value"
+
+            # Check if value matches any allowed outcome (case-insensitive)
+            for outcome in allowed:
+                if str(outcome).upper() == str_value:
+                    return outcome, None
+
+            return "UNKNOWN", "value_not_in_outcomes"
 
         else:
             return "UNKNOWN", f"unsupported_rule:{rule}"
@@ -293,7 +321,7 @@ def resolve_event(
                 "value": resolution_source.get("value"),
                 "values": resolution_source.get("values", []),
             }
-            outcome, unknown_reason = apply_resolution_rule(value, rule, rule_params)
+            outcome, unknown_reason = apply_resolution_rule(value, rule, rule_params, event)
     else:
         outcome = "UNKNOWN"
         unknown_reason = f"unsupported_source_type:{source_type}"
@@ -378,6 +406,9 @@ def resolve_pending(
     """
     Resolve all pending forecasts that have reached their target date.
 
+    Events with requires_manual_resolution: true are skipped and left
+    in the pending queue for manual adjudication.
+
     Args:
         catalog_path: Path to event catalog
         runs_dir: Path to runs directory
@@ -416,6 +447,11 @@ def resolve_pending(
         event_id = forecast.get("event_id")
         event = cat.get_event(catalog_data, event_id)
         if event is None:
+            continue
+
+        # Skip events requiring manual resolution
+        # These stay in the pending queue for manual adjudication
+        if event.get("requires_manual_resolution", False):
             continue
 
         # Find resolution run

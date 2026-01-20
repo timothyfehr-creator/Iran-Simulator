@@ -1,6 +1,6 @@
 {
-  "catalog_version": "2.0.0",
-  "generated_at_utc": "2026-01-19T00:00:00Z",
+  "catalog_version": "3.0.0",
+  "generated_at_utc": "2026-01-20T00:00:00Z",
   "events": [
     {
       "event_id": "econ.rial_ge_1_2m",
@@ -112,6 +112,361 @@
       "allowed_sources": ["osint_think_tank", "ngos", "persian_services"],
       "unknown_conditions": ["missing_trend_field"],
       "max_resolution_lag_days": 7
+    },
+
+    {
+      "event_id": "econ.fx_band",
+      "name": "FX black-market band",
+      "event_type": "binned_continuous",
+      "category": "econ",
+      "enabled": true,
+      "horizons_days": [1, 7, 15, 30],
+      "allowed_outcomes": ["FX_LT_800K", "FX_800K_1M", "FX_1M_1_2M", "FX_GE_1_2M", "UNKNOWN"],
+      "description": "Median IRR/USD over trailing 24h mapped to bins.",
+      "auto_resolve": true,
+      "requires_manual_resolution": false,
+      "forecast_source": {
+        "type": "baseline_climatology",
+        "note": "Use climatology until simulation produces binned distributions"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.economic_conditions.rial_usd_rate.market",
+        "rule": "bin_map"
+      },
+      "bin_spec": {
+        "bins": [
+          { "bin_id": "FX_LT_800K", "label": "< 800k", "min": null, "max": 800000, "include_min": false, "include_max": false },
+          { "bin_id": "FX_800K_1M", "label": "800k–1.0m", "min": 800000, "max": 1000000, "include_min": true, "include_max": false },
+          { "bin_id": "FX_1M_1_2M", "label": "1.0m–1.2m", "min": 1000000, "max": 1200000, "include_min": true, "include_max": false },
+          { "bin_id": "FX_GE_1_2M", "label": "≥ 1.2m", "min": 1200000, "max": null, "include_min": true, "include_max": true }
+        ]
+      },
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "info.internet_level",
+      "name": "National internet status",
+      "event_type": "categorical",
+      "category": "info",
+      "enabled": true,
+      "horizons_days": [1, 7, 15, 30],
+      "allowed_outcomes": ["FUNCTIONAL", "PARTIAL", "SEVERELY_DEGRADED", "BLACKOUT", "UNKNOWN"],
+      "description": "Most severe internet status observed in trailing 24h.",
+      "auto_resolve": true,
+      "requires_manual_resolution": false,
+      "forecast_source": {
+        "type": "baseline_persistence",
+        "note": "Use persistence until simulation produces categorical distributions"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.information_environment.internet_status.current",
+        "rule": "enum_match"
+      },
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "protest.multi_city",
+      "name": "Multi-city protests",
+      "event_type": "binary",
+      "category": "protest",
+      "enabled": true,
+      "horizons_days": [1, 7, 15, 30],
+      "allowed_outcomes": ["YES", "NO", "UNKNOWN"],
+      "description": "≥10 distinct cities with protests in trailing 7 days.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "diagnostic_only",
+        "note": "Track for correlation; manual resolution required"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.protest_metrics.multi_city_count",
+        "rule": "threshold_gte",
+        "threshold": 10,
+        "fallback": "claims_based"
+      },
+      "allowed_sources": ["osint_think_tank", "ngos", "persian_services"],
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "econ.inflation_band",
+      "name": "Inflation severity band",
+      "event_type": "binned_continuous",
+      "category": "econ",
+      "enabled": false,
+      "horizons_days": [7, 15, 30],
+      "allowed_outcomes": ["INF_LT_30", "INF_30_50", "INF_50_80", "INF_GE_80", "UNKNOWN"],
+      "description": "Official annual inflation rate mapped to severity bands.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "baseline_climatology",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.economic_conditions.inflation.official_annual_percent",
+        "rule": "bin_map"
+      },
+      "bin_spec": {
+        "bins": [
+          { "bin_id": "INF_LT_30", "label": "< 30%", "min": null, "max": 30, "include_min": false, "include_max": false },
+          { "bin_id": "INF_30_50", "label": "30–50%", "min": 30, "max": 50, "include_min": true, "include_max": false },
+          { "bin_id": "INF_50_80", "label": "50–80%", "min": 50, "max": 80, "include_min": true, "include_max": false },
+          { "bin_id": "INF_GE_80", "label": "≥ 80%", "min": 80, "max": null, "include_min": true, "include_max": true }
+        ]
+      },
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "econ.bank_stress",
+      "name": "Banking system stress level",
+      "event_type": "categorical",
+      "category": "econ",
+      "enabled": false,
+      "horizons_days": [7, 15, 30],
+      "allowed_outcomes": ["NORMAL", "ELEVATED", "CRITICAL", "UNKNOWN"],
+      "description": "Banking system stress indicator based on withdrawal limits and failures.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "baseline_climatology",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.economic_conditions.banking.stress_level",
+        "rule": "enum_match"
+      },
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "protest.freq_band",
+      "name": "Protest frequency band",
+      "event_type": "binned_continuous",
+      "category": "protest",
+      "enabled": false,
+      "horizons_days": [7, 15, 30],
+      "allowed_outcomes": ["FREQ_ISOLATED", "FREQ_SCATTERED", "FREQ_WIDESPREAD", "FREQ_MASS", "UNKNOWN"],
+      "description": "Number of protest events per week mapped to frequency bands.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "baseline_climatology",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.protest_metrics.weekly_event_count",
+        "rule": "bin_map"
+      },
+      "bin_spec": {
+        "bins": [
+          { "bin_id": "FREQ_ISOLATED", "label": "< 5 events", "min": null, "max": 5, "include_min": false, "include_max": false },
+          { "bin_id": "FREQ_SCATTERED", "label": "5–20 events", "min": 5, "max": 20, "include_min": true, "include_max": false },
+          { "bin_id": "FREQ_WIDESPREAD", "label": "20–50 events", "min": 20, "max": 50, "include_min": true, "include_max": false },
+          { "bin_id": "FREQ_MASS", "label": "≥ 50 events", "min": 50, "max": null, "include_min": true, "include_max": true }
+        ]
+      },
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "protest.trend_level",
+      "name": "Protest intensity trend",
+      "event_type": "categorical",
+      "category": "protest",
+      "enabled": false,
+      "horizons_days": [7, 15, 30],
+      "allowed_outcomes": ["DECLINING", "STABLE", "GROWING", "ESCALATING", "UNKNOWN"],
+      "description": "Week-over-week protest intensity trend categorization.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "baseline_persistence",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.protest_metrics.current_snapshot.intensity_trend",
+        "rule": "enum_match"
+      },
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "security.arrest_wave",
+      "name": "Mass arrest wave",
+      "event_type": "binary",
+      "category": "security",
+      "enabled": false,
+      "horizons_days": [1, 7, 15, 30],
+      "allowed_outcomes": ["YES", "NO", "UNKNOWN"],
+      "description": "≥50 confirmed arrests in a single coordinated action within horizon.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "diagnostic_only",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.security_response.arrests.largest_single_action",
+        "rule": "threshold_gte",
+        "threshold": 50,
+        "fallback": "claims_based"
+      },
+      "allowed_sources": ["ngos", "persian_services", "osint_think_tank"],
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "security.lethal_band",
+      "name": "Lethal force severity band",
+      "event_type": "binned_continuous",
+      "category": "security",
+      "enabled": false,
+      "horizons_days": [7, 15, 30],
+      "allowed_outcomes": ["LETHAL_NONE", "LETHAL_LIMITED", "LETHAL_MODERATE", "LETHAL_SEVERE", "UNKNOWN"],
+      "description": "Confirmed protest-related deaths per week mapped to severity bands.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "baseline_climatology",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.security_response.lethal_force.weekly_deaths",
+        "rule": "bin_map"
+      },
+      "bin_spec": {
+        "bins": [
+          { "bin_id": "LETHAL_NONE", "label": "0 deaths", "min": null, "max": 1, "include_min": false, "include_max": false },
+          { "bin_id": "LETHAL_LIMITED", "label": "1–5 deaths", "min": 1, "max": 5, "include_min": true, "include_max": true },
+          { "bin_id": "LETHAL_MODERATE", "label": "6–20 deaths", "min": 5, "max": 20, "include_min": false, "include_max": true },
+          { "bin_id": "LETHAL_SEVERE", "label": "> 20 deaths", "min": 20, "max": null, "include_min": false, "include_max": true }
+        ]
+      },
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "info.platform_blocks",
+      "name": "Platform blocking status",
+      "event_type": "categorical",
+      "category": "info",
+      "enabled": false,
+      "horizons_days": [1, 7, 15, 30],
+      "allowed_outcomes": ["MINIMAL", "PARTIAL", "EXTENSIVE", "TOTAL", "UNKNOWN"],
+      "description": "Level of social media and communication platform blocking.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "baseline_persistence",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.information_environment.platform_blocking.level",
+        "rule": "enum_match"
+      },
+      "allowed_sources": ["internet_monitoring", "ngos"],
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "external.strike_level",
+      "name": "External military strike threat level",
+      "event_type": "categorical",
+      "category": "external",
+      "enabled": false,
+      "horizons_days": [7, 15, 30],
+      "allowed_outcomes": ["MINIMAL", "ELEVATED", "HIGH", "IMMINENT", "UNKNOWN"],
+      "description": "Assessment of external military strike probability based on intelligence.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "diagnostic_only",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.external_factors.strike_threat.level",
+        "rule": "enum_match"
+      },
+      "allowed_sources": ["osint_think_tank", "wires"],
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "external.maritime_band",
+      "name": "Maritime tension band",
+      "event_type": "binned_continuous",
+      "category": "external",
+      "enabled": false,
+      "horizons_days": [7, 15, 30],
+      "allowed_outcomes": ["MARITIME_CALM", "MARITIME_TENSE", "MARITIME_CRISIS", "MARITIME_CONFLICT", "UNKNOWN"],
+      "description": "Gulf maritime incidents per week mapped to tension bands.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "baseline_climatology",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.external_factors.maritime.weekly_incidents",
+        "rule": "bin_map"
+      },
+      "bin_spec": {
+        "bins": [
+          { "bin_id": "MARITIME_CALM", "label": "0 incidents", "min": null, "max": 1, "include_min": false, "include_max": false },
+          { "bin_id": "MARITIME_TENSE", "label": "1–3 incidents", "min": 1, "max": 3, "include_min": true, "include_max": true },
+          { "bin_id": "MARITIME_CRISIS", "label": "4–10 incidents", "min": 3, "max": 10, "include_min": false, "include_max": true },
+          { "bin_id": "MARITIME_CONFLICT", "label": "> 10 incidents", "min": 10, "max": null, "include_min": false, "include_max": true }
+        ]
+      },
+      "effective_from_utc": "2026-01-20T00:00:00Z"
+    },
+
+    {
+      "event_id": "energy.export_band",
+      "name": "Oil export volume band",
+      "event_type": "binned_continuous",
+      "category": "energy",
+      "enabled": false,
+      "horizons_days": [15, 30],
+      "allowed_outcomes": ["EXPORT_MINIMAL", "EXPORT_REDUCED", "EXPORT_NORMAL", "EXPORT_ELEVATED", "UNKNOWN"],
+      "description": "Daily oil export volume in million barrels mapped to bands.",
+      "auto_resolve": false,
+      "requires_manual_resolution": true,
+      "forecast_source": {
+        "type": "baseline_climatology",
+        "note": "Disabled until Phase 3B scoring"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.economic_conditions.energy.daily_export_mbd",
+        "rule": "bin_map"
+      },
+      "bin_spec": {
+        "bins": [
+          { "bin_id": "EXPORT_MINIMAL", "label": "< 0.5 mbd", "min": null, "max": 0.5, "include_min": false, "include_max": false },
+          { "bin_id": "EXPORT_REDUCED", "label": "0.5–1.0 mbd", "min": 0.5, "max": 1.0, "include_min": true, "include_max": false },
+          { "bin_id": "EXPORT_NORMAL", "label": "1.0–1.5 mbd", "min": 1.0, "max": 1.5, "include_min": true, "include_max": false },
+          { "bin_id": "EXPORT_ELEVATED", "label": "≥ 1.5 mbd", "min": 1.5, "max": null, "include_min": true, "include_max": true }
+        ]
+      },
+      "effective_from_utc": "2026-01-20T00:00:00Z"
     }
   ]
 }

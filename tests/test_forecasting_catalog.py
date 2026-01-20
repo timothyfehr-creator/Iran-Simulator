@@ -138,7 +138,8 @@ class TestListEvents:
         cat = catalog.load_catalog(Path("config/event_catalog.json"))
         events = catalog.list_events(cat)
 
-        assert len(events) == 5
+        # v3.0.0 has 18 events (5 original + 13 new)
+        assert len(events) == 18
         assert all("event_id" in e for e in events)
 
     def test_list_events_by_category(self):
@@ -146,7 +147,8 @@ class TestListEvents:
         cat = catalog.load_catalog(Path("config/event_catalog.json"))
         econ_events = catalog.list_events(cat, category="econ")
 
-        assert len(econ_events) == 2
+        # v3.0.0 has 5 econ events (2 original + 3 new)
+        assert len(econ_events) == 5
         assert all(e["category"] == "econ" for e in econ_events)
 
 
@@ -158,17 +160,21 @@ class TestEventFiltering:
         cat = catalog.load_catalog(Path("config/event_catalog.json"))
         forecastable = catalog.get_forecastable_events(cat)
 
-        # Should exclude diagnostic_only events
-        assert len(forecastable) == 3
+        # Should exclude:
+        # - diagnostic_only events
+        # - disabled events (enabled: false)
+        # Original 3 forecastable + 2 new MVP enabled baseline events = 5
+        assert len(forecastable) == 5
         for e in forecastable:
             assert e["forecast_source"]["type"] != "diagnostic_only"
+            assert e.get("enabled", True) is True
 
     def test_get_diagnostic_events(self):
         """Test getting only diagnostic events."""
         cat = catalog.load_catalog(Path("config/event_catalog.json"))
         diagnostic = catalog.get_diagnostic_events(cat)
 
-        # Should only include diagnostic_only events
-        assert len(diagnostic) == 2
+        # v3.0.0 has 5 diagnostic events (2 original + 3 new including disabled ones)
+        assert len(diagnostic) == 5
         for e in diagnostic:
             assert e["forecast_source"]["type"] == "diagnostic_only"
