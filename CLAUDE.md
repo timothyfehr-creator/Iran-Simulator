@@ -523,6 +523,34 @@ outputs/outcome_distribution.png
 outputs/iran_protest_map.svg
 outputs/event_rates.png
 outputs/scenario_narratives.md
+
+# Oracle Forecasting System (Phase 3)
+config/event_catalog.json              # Event definitions (18 events)
+config/ensemble_config.json            # Ensemble forecaster config
+config/schemas/
+  event_catalog.schema.json            # Catalog schema
+  forecast_record.schema.json          # Forecast record schema (incl. ensemble_inputs)
+  ensemble_config.schema.json          # Ensemble config schema
+
+forecasting/
+  ledger/
+    forecasts.jsonl                    # Append-only forecast ledger
+    resolutions.jsonl                  # Resolution records
+  reports/
+    scorecard.json                     # JSON format report
+    scorecard.md                       # Markdown report with leaderboard
+
+src/forecasting/
+  __init__.py
+  bins.py                              # Bin validation/mapping
+  catalog.py                           # Event catalog loading
+  cli.py                               # CLI (log, resolve, report)
+  ensembles.py                         # Ensemble generation
+  forecast.py                          # Forecast generation
+  ledger.py                            # Ledger operations
+  reporter.py                          # Report generation + leaderboard
+  resolver.py                          # Auto-resolution
+  scorer.py                            # Scoring + leaderboard data
 ```
 
 ## Baseline Knowledge Workflow
@@ -761,8 +789,210 @@ print(bins.value_to_bin(100, spec))  # ('HIGH', None)
 | Phase | Scope |
 |-------|-------|
 | **3A** (done) | Catalog schema, bin validation, baseline forecasters (uniform fallback) |
-| **3B** (future) | Multinomial Brier scoring, categorical resolution mapping |
-| **3C** (future) | Full baseline logic (persistence/climatology from ledger), ensembles |
+| **3B** (done) | Multinomial Brier scoring, categorical resolution mapping, Red-Team fixes |
+| **3C** (done) | Static ensembles, leaderboard reporting, ensemble config validation |
+
+## v3.1: Oracle Phase 3B - Multi-Outcome Scoring
+
+Phase 3B implements proper scoring for categorical and binned-continuous events.
+
+### Multinomial Brier Score
+
+Extended Brier scoring for k-outcome events:
+
+```python
+from src.forecasting import scorer
+
+# Raw multinomial Brier: Σ(p_i - o_i)² for all outcomes
+# Normalized: raw / 2 → maps to [0, 1] like binary Brier
+raw, normalized = scorer.multinomial_brier_score(forecasts, resolutions, outcomes)
+```
+
+### Scores by Resolution Mode
+
+Phase 3B separates scoring by resolution source:
+- **Core scores:** `external_auto` + `external_manual` resolutions only
+- **Claims inferred:** Separate section for fallback resolutions
+- **Combined:** Reference only (not primary metric)
+
+### Accuracy vs Penalty Metrics
+
+- **Primary Brier:** Computed on resolved forecasts with known outcomes (excludes UNKNOWN)
+- **Effective Brier:** Includes UNKNOWN/abstain penalties (UNKNOWN → uniform, abstain → p=0.5)
+
+### Baseline Fallback Warnings
+
+When baselines use uniform fallback due to insufficient history:
+- Report shows ⚠️ warning emoji
+- Skill scores flagged as unreliable
+- `baseline_history_n` and `baseline_fallback` fields in output
+
+## v3.2: Oracle Phase 3C - Static Ensembles + Leaderboards
+
+Phase 3C adds ensemble forecasters and comprehensive leaderboard reporting.
+
+### Static Ensemble Forecasters
+
+Combine multiple base forecasters with configurable weights:
+
+```json
+{
+  "config_version": "1.0.0",
+  "ensembles": [
+    {
+      "ensemble_id": "oracle_ensemble_static_v1",
+      "enabled": true,
+      "members": [
+        {"forecaster_id": "oracle_v1", "weight": 0.6},
+        {"forecaster_id": "oracle_baseline_climatology", "weight": 0.2},
+        {"forecaster_id": "oracle_baseline_persistence", "weight": 0.2}
+      ],
+      "apply_to_event_types": ["binary", "categorical", "binned_continuous"],
+      "min_members_required": 2,
+      "missing_member_policy": "renormalize",
+      "effective_from_utc": "2026-02-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+### Ensemble Config (`config/ensemble_config.json`)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ensemble_id` | string | Unique ID (pattern: `oracle_ensemble_[a-z0-9_]+`) |
+| `members` | array | List of {forecaster_id, weight} pairs |
+| `apply_to_event_types` | array | Event types to process |
+| `apply_to_event_ids` | array? | Optional: restrict to specific events |
+| `min_members_required` | int | Minimum members to emit ensemble |
+| `missing_member_policy` | enum | "renormalize" or "skip" |
+| `effective_from_utc` | string | ISO timestamp when ensemble becomes active |
+
+### Key Design Decisions
+
+- **D1: Run-scoped IDs** - `forecast_id` includes `run_id` to prevent cross-run collisions
+- **D2: Same-run enforcement** - Only combines forecasts from identical `run_id` (with 60s `as_of_utc` tolerance)
+- **D3: UNKNOWN handling** - Dropped and renormalized before combining
+- **D5: Per-slice coverage** - Computed per (forecaster_id, event_type, horizon_days)
+- **D6: Baseline aggregation** - MIN for history_n, ANY for fallback flag
+
+### Missing Member Policies
+
+| Policy | Behavior |
+|--------|----------|
+| `renormalize` | Redistribute weights among available members |
+| `skip` | Don't emit ensemble if below min_members_required |
+
+### Ensemble Inputs Metadata
+
+Every ensemble forecast includes provenance:
+
+```json
+{
+  "ensemble_inputs": {
+    "config_version": "1.0.0",
+    "members_used": ["oracle_v1", "oracle_baseline_climatology"],
+    "weights_used": [0.75, 0.25],
+    "members_missing": ["oracle_baseline_persistence"],
+    "policy_applied": "renormalize"
+  }
+}
+```
+
+### Leaderboard Reporting
+
+Forecaster comparison grouped by (forecaster_id × event_type × horizon):
+
+```
+## Forecaster Leaderboard
+
+### Binary Events - 7 Day Horizon
+
+| Forecaster | Primary Brier | Log | Coverage | Eff. Penalty | N | Fallback |
+|------------|---------------|-----|----------|--------------|---|----------|
+| oracle_ensemble_static_v1 | 0.138 | -0.29 | 92% | 0.154 | 47 | - |
+| oracle_v1 | 0.142 | -0.31 | 92% | 0.158 | 47 | - |
+| oracle_baseline_climatology | ⚠️ 0.215 | -0.48 | 92% | 0.215 | 47 | uniform |
+```
+
+### CLI Usage
+
+```bash
+# Generate forecasts with ensembles
+python -m src.forecasting.cli log --with-ensembles
+
+# Dry run (no writes)
+python -m src.forecasting.cli log --with-ensembles --dry-run
+
+# Generate report with leaderboard
+python -m src.forecasting.cli report --format md
+```
+
+### Ensembles Module (src/forecasting/ensembles.py)
+
+```python
+from src.forecasting import ensembles
+
+# Load and validate config
+config = ensembles.load_ensemble_config()
+errors = ensembles.validate_ensemble_config(config)
+
+# Drop UNKNOWN and renormalize
+probs = ensembles.drop_unknown_and_renormalize({"YES": 0.4, "NO": 0.4, "UNKNOWN": 0.2})
+# Returns {"YES": 0.5, "NO": 0.5}
+
+# Combine distributions
+combined = ensembles.combine_distributions(
+    members=[{"YES": 0.8, "NO": 0.2}, {"YES": 0.4, "NO": 0.6}],
+    weights=[0.5, 0.5],
+    outcomes=["YES", "NO"]
+)
+# Returns {"YES": 0.6, "NO": 0.4}
+
+# Generate ensemble forecasts
+records = ensembles.generate_ensemble_forecasts(
+    base_forecasts=base_forecasts,
+    catalog=catalog,
+    config=config,
+    run_id="RUN_20260201_daily",
+    dry_run=False
+)
+```
+
+### Testing Phase 3C
+
+```bash
+# Run all Phase 3C tests
+python -m pytest tests/test_ensemble_config.py tests/test_ensemble_generation.py \
+    tests/test_leaderboard.py -v
+
+# Validate ensemble config
+python -c "
+from src.forecasting import ensembles
+config = ensembles.load_ensemble_config()
+errors = ensembles.validate_ensemble_config(config)
+assert not errors, f'Errors: {errors}'
+print('Config valid')
+"
+
+# Verify ensemble records in ledger
+python -c "
+from src.forecasting import ledger
+forecasts = ledger.get_forecasts()
+ens = [f for f in forecasts if 'ensemble' in f.get('forecaster_id', '')]
+print(f'Ensemble forecasts: {len(ens)}')
+"
+```
+
+### File Locations (Phase 3C)
+
+```
+config/ensemble_config.json                    # Ensemble definitions
+config/schemas/ensemble_config.schema.json     # JSON Schema for config
+config/schemas/forecast_record.schema.json     # Updated with ensemble_inputs
+src/forecasting/ensembles.py                   # Ensemble generation module
+forecasting/reports/scorecard.md               # Report with leaderboard
+```
 
 ## Common Issues
 
@@ -772,3 +1002,6 @@ print(bins.value_to_bin(100, spec))  # ('HIGH', None)
 4. **Dashboard won't start:** Install dependencies with `pip install streamlit plotly pandas`
 5. **"Invalid horizons" error:** Horizons must be in {1, 7, 15, 30}
 6. **"bin_ids not in allowed_outcomes" error:** bin_spec bin_ids must exactly match (allowed_outcomes - UNKNOWN)
+7. **"Ensemble config validation failed":** Check weights sum to 1.0, ensemble_id matches pattern `oracle_ensemble_[a-z0-9_]+`
+8. **"No ensemble forecasts generated":** Check `effective_from_utc` is before forecast `as_of_utc`, and event types match
+9. **Leaderboard empty:** Ensure resolutions exist with `resolution_mode` in `["external_auto", "external_manual"]`
