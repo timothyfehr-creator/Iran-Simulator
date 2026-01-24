@@ -5,6 +5,7 @@ Daily crisis intel update coordinator.
 Orchestrates the full pipeline:
 1. Import evidence bundle
 2. Compile intel
+2.5. Enrich with live economic data (Bonbast Rial rates)
 3. Run simulation
 4. Generate reports
 5. Compare to previous run (diff)
@@ -29,6 +30,25 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, List
+import shutil
+
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
+# Import coverage and alerts modules
+from src.ingest.coverage import write_coverage_report
+from src.ingest.alerts import write_alerts, should_exit_nonzero
+
+# Import ingest config loader for guardrails
+from src.ingest.base_fetcher import load_ingest_config
+
+# Import run manifest module
+from src.run_manifest import generate_run_manifest, write_run_manifest
 
 # Setup logging
 logging.basicConfig(
@@ -100,11 +120,19 @@ def run_pipeline_stage(stage: str, **kwargs) -> bool:
             ]
 
         elif stage == 'compile':
+            # Use compile_intel_v2 for deterministic merge with documented tiebreak order
             cmd = [
-                'python3', '-m', 'src.pipeline.compile_intel',
+                'python3', '-m', 'src.pipeline.compile_intel_v2',
                 '--claims', os.path.join(kwargs['run_dir'], 'claims_deep_research.jsonl'),
                 '--template', 'data/iran_crisis_intel.json',
                 '--outdir', kwargs['run_dir']
+            ]
+
+        elif stage == 'enrich_economic':
+            cmd = [
+                'python3', 'scripts/enrich_economic_data.py',
+                '--intel', kwargs['intel_path'],
+                '--no-backup'  # Don't create backup in automated pipeline runs
             ]
 
         elif stage == 'simulate':
@@ -114,6 +142,7 @@ def run_pipeline_stage(stage: str, **kwargs) -> bool:
                 '--priors', 'data/analyst_priors.json',
                 '--runs', str(kwargs.get('runs', 10000)),
                 '--seed', str(kwargs.get('seed', 42)),
+                '--abm',  # Use multi-agent ABM (Project Swarm) for protest dynamics
                 '--output', os.path.join(kwargs['run_dir'], 'simulation_results.json')
             ]
 
@@ -257,15 +286,27 @@ def create_bundle_from_ingest(ingest_dir: str, cutoff: str, candidate_claims_pat
     Returns:
         Path to created bundle
     """
-    from datetime import datetime, timezone
+    from datetime import datetime, timezone, timedelta
     import json
 
+    now = datetime.now(timezone.utc)
+    cutoff_dt = datetime.fromisoformat(cutoff.replace('Z', '+00:00'))
+
     bundle_data = {
-        "metadata": {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-            "source": "auto_ingest",
+        "run_manifest": {
+            "requirement_id": f"AUTO-{cutoff_dt.strftime('%Y%m%d')}",
+            "generated_at_utc": now.isoformat(),
             "data_cutoff_utc": cutoff,
-            "description": "Auto-fetched evidence from multiple sources"
+            "date_range_covered": {
+                "start": (cutoff_dt - timedelta(days=2)).strftime('%Y-%m-%d'),
+                "end": cutoff_dt.strftime('%Y-%m-%d')
+            },
+            "languages_used": ["en", "fa"],
+            "known_collection_limits": [
+                "Auto-fetched from RSS/web sources only",
+                "Some sources may have been blocked or unavailable"
+            ],
+            "collection_notes": "Automated ingestion from configured sources (see source_index)"
         },
         "evidence_docs": [],
         "candidate_claims": []
@@ -311,6 +352,10 @@ def main():
     parser.add_argument('--runs', type=int, default=10000, help="Simulation runs (default: 10000)")
     parser.add_argument('--seed', type=int, default=42, help="Random seed (default: 42)")
     parser.add_argument('--no-simulate', action='store_true', help="Skip simulation (compile only)")
+    parser.add_argument('--strict-coverage', action='store_true',
+                        help="Exit with error if coverage status is FAIL")
+    parser.add_argument('--warn-coverage', action='store_true',
+                        help="Exit with error if coverage status is WARN or FAIL")
 
     args = parser.parse_args()
 
@@ -342,8 +387,12 @@ def main():
         from src.ingest.coordinator import IngestionCoordinator
 
         coordinator = IngestionCoordinator()
-        since = datetime.now(timezone.utc) - timedelta(hours=24)  # Last 24h
-        docs = coordinator.fetch_all(since=since)
+        # Use 96h window to catch NGO reports (they publish less frequently)
+        since = datetime.now(timezone.utc) - timedelta(hours=96)
+        docs, fetch_summary = coordinator.fetch_all(since=since)
+
+        logger.info(f"Fetch summary: {fetch_summary['sources_succeeded']} succeeded, "
+                   f"{fetch_summary['sources_failed']} failed, {fetch_summary['sources_skipped']} skipped")
 
         # Write evidence
         ingest_dir = 'ingest/auto_fetched'
@@ -353,6 +402,38 @@ def main():
         source_index = coordinator.generate_source_index()
         with open(os.path.join(ingest_dir, 'source_index.json'), 'w') as f:
             json.dump(source_index, f, indent=2)
+
+        # Evaluate coverage
+        ingest_run_id = f"INGEST_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M')}"
+        coverage_report = coordinator.evaluate_coverage(docs, run_id=ingest_run_id)
+        write_coverage_report(coverage_report, os.path.join(ingest_dir, 'coverage_report.json'))
+        logger.info(f"Coverage: {coverage_report.status} - {coverage_report.status_reason}")
+
+        # Log health summary
+        if coverage_report.health_summary:
+            logger.info(f"Source health: {coverage_report.health_summary.get('overall_status', 'OK')}")
+            if coverage_report.health_summary.get('down_sources'):
+                logger.warning(f"DOWN sources: {coverage_report.health_summary['down_sources']}")
+            if coverage_report.health_summary.get('degraded_sources'):
+                logger.warning(f"DEGRADED sources: {coverage_report.health_summary['degraded_sources']}")
+
+        # Generate alerts
+        alert_report = coordinator.generate_alerts(
+            coverage_report=coverage_report,
+            fetch_errors=fetch_summary.get("errors", {}),
+            runs_dir="runs",
+            run_id=ingest_run_id
+        )
+        write_alerts(alert_report, os.path.join(ingest_dir, 'alerts.json'))
+        logger.info(f"Alerts: {alert_report.summary}")
+
+        # Coverage gates
+        if args.strict_coverage and should_exit_nonzero(alert_report):
+            logger.error(f"Pipeline FAILED: coverage status is {alert_report.status}")
+            sys.exit(1)
+        if args.warn_coverage and alert_report.status in ["WARN", "FAIL"]:
+            logger.error(f"Pipeline FAILED: coverage status is {alert_report.status}")
+            sys.exit(1)
 
         # Step 2: Extract claims (if API key available)
         candidate_claims_path = None
@@ -412,6 +493,16 @@ def main():
         logger.error("Import stage failed")
         sys.exit(1)
 
+    # Copy coverage/alerts from ingest to run directory (auto-ingest mode only)
+    if args.auto_ingest:
+        ingest_dir = 'ingest/auto_fetched'
+        for fname in ['coverage_report.json', 'alerts.json']:
+            src = os.path.join(ingest_dir, fname)
+            dst = os.path.join(run_dir, fname)
+            if os.path.exists(src):
+                shutil.copy(src, dst)
+                logger.info(f"Copied {fname} to run directory")
+
     # Stage 2: Compile
     logger.info("\n=== STAGE 2: Compile Intel ===")
     if not run_pipeline_stage('compile', run_dir=run_dir):
@@ -425,8 +516,33 @@ def main():
         for w in warnings:
             logger.warning(f"  - {w}")
 
-    # Stage 3: Simulate (unless skipped)
-    if not args.no_simulate:
+    # Stage 2.5: Enrich with economic data
+    logger.info("\n=== STAGE 2.5: Economic Enrichment ===")
+    intel_path = os.path.join(run_dir, 'compiled_intel.json')
+    if not run_pipeline_stage('enrich_economic', intel_path=intel_path):
+        logger.warning("Economic enrichment failed (non-fatal, continuing with defaults)")
+
+    # Load coverage report to determine if we should skip simulation
+    coverage_path = os.path.join(run_dir, 'coverage_report.json')
+    coverage_status = "UNKNOWN"
+    coverage_report_data = None
+    skip_simulation_due_to_coverage = False
+
+    if os.path.exists(coverage_path):
+        with open(coverage_path, 'r') as f:
+            coverage_report_data = json.load(f)
+            coverage_status = coverage_report_data.get('status', 'UNKNOWN')
+
+    # Check config for on_coverage_fail behavior
+    ingest_config = load_ingest_config()
+    on_coverage_fail = ingest_config.get('on_coverage_fail', 'skip_simulation')
+
+    if coverage_status == 'FAIL' and on_coverage_fail == 'skip_simulation':
+        logger.warning(f"Coverage status is FAIL - skipping simulation per config (on_coverage_fail={on_coverage_fail})")
+        skip_simulation_due_to_coverage = True
+
+    # Stage 3: Simulate (unless skipped or coverage FAIL)
+    if not args.no_simulate and not skip_simulation_due_to_coverage:
         logger.info("\n=== STAGE 3: Simulation ===")
         if not run_pipeline_stage('simulate', run_dir=run_dir, runs=args.runs, seed=args.seed):
             logger.error("Simulation stage failed")
@@ -438,7 +554,53 @@ def main():
             logger.error("Report stage failed")
             sys.exit(1)
 
-        # Stage 5: Diff (if previous run exists)
+    # Determine ingest_since_utc
+    from datetime import timedelta
+    ingest_since = None
+
+    if args.auto_ingest:
+        # For auto-ingest, use actual 96h window that was passed to fetch
+        ingest_since = (datetime.now(timezone.utc) - timedelta(hours=96)).isoformat()
+    else:
+        # For bundle runs, try to derive from bundle run_manifest.date_range_covered.start
+        try:
+            with open(bundle_path, 'r') as f:
+                bundle_data = json.load(f)
+            date_range = bundle_data.get('run_manifest', {}).get('date_range_covered', {})
+            if date_range.get('start'):
+                ingest_since = date_range['start'] + 'T00:00:00Z'
+        except Exception:
+            pass
+
+        # Fallback to cutoff - 96h
+        if not ingest_since:
+            ingest_since = (cutoff_date - timedelta(hours=96)).isoformat()
+
+    # Generate run manifest with hashes
+    logger.info("\n=== Generating Run Manifest ===")
+    try:
+        manifest = generate_run_manifest(
+            run_dir=run_dir,
+            data_cutoff_utc=cutoff,
+            ingest_since_utc=ingest_since,
+            seed=args.seed,
+            coverage_status=coverage_status,
+            coverage_report=coverage_report_data,
+            run_id=run_id,
+            as_of_utc=datetime.now(timezone.utc).isoformat(),
+            n_sims=args.runs if (not args.no_simulate and not skip_simulation_due_to_coverage) else None
+        )
+        manifest_path = write_run_manifest(manifest, run_dir)
+        logger.info(f"✓ Wrote run manifest: {manifest_path}")
+        logger.info(f"  Git commit: {manifest.git_commit[:8]}...")
+        logger.info(f"  Run reliable: {manifest.run_reliable}")
+        if manifest.unreliable_reason:
+            logger.warning(f"  Unreliable reason: {manifest.unreliable_reason}")
+    except Exception as e:
+        logger.warning(f"Failed to generate run manifest: {e}")
+
+    # Stage 5: Diff (if previous run exists and simulation ran)
+    if not args.no_simulate and not skip_simulation_due_to_coverage:
         logger.info("\n=== STAGE 5: Generate Diff ===")
         previous_run = find_previous_run(run_id)
         if previous_run:
@@ -457,8 +619,10 @@ def main():
                     logger.warning("Diff markdown generation failed (non-fatal)")
         else:
             logger.info("No previous run found, skipping diff")
-    else:
+    elif args.no_simulate:
         logger.info("\n=== Simulation skipped (--no-simulate) ===")
+    elif skip_simulation_due_to_coverage:
+        logger.info("\n=== Simulation skipped (coverage FAIL) ===")
 
     logger.info(f"\n✓ Daily update complete: {run_id}")
     logger.info(f"  Output directory: {run_dir}")
