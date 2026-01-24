@@ -1,0 +1,19 @@
+{
+  "config_version": "1.0.0",
+  "ensembles": [
+    {
+      "ensemble_id": "oracle_ensemble_static_v1",
+      "enabled": true,
+      "members": [
+        {"forecaster_id": "oracle_v1", "weight": 0.6},
+        {"forecaster_id": "oracle_baseline_climatology", "weight": 0.2},
+        {"forecaster_id": "oracle_baseline_persistence", "weight": 0.2}
+      ],
+      "apply_to_event_types": ["binary", "categorical", "binned_continuous"],
+      "apply_to_event_ids": null,
+      "min_members_required": 2,
+      "missing_member_policy": "renormalize",
+      "effective_from_utc": "2026-02-01T00:00:00Z"
+    }
+  ]
+}

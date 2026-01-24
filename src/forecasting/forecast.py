@@ -16,6 +16,7 @@ import re
 
 from . import catalog as cat
 from . import ledger
+from . import ensembles
 from .ledger import compute_manifest_id
 from ..run_utils import (
     list_runs_sorted,
@@ -486,7 +487,9 @@ def generate_forecasts(
     run_dir: Optional[Path] = None,
     horizons: Optional[List[int]] = None,
     ledger_dir: Path = ledger.LEDGER_DIR,
-    dry_run: bool = False
+    dry_run: bool = False,
+    with_ensembles: bool = False,
+    ensemble_config_path: Path = Path("config/ensemble_config.json")
 ) -> List[Dict[str, Any]]:
     """
     Generate forecasts for all forecastable catalog events.
@@ -505,9 +508,11 @@ def generate_forecasts(
         horizons: List of horizons to generate (default: all valid)
         ledger_dir: Path to ledger directory
         dry_run: If True, don't write to ledger
+        with_ensembles: If True, generate ensemble forecasts after base forecasts
+        ensemble_config_path: Path to ensemble configuration file
 
     Returns:
-        List of generated forecast records
+        List of generated forecast records (includes ensemble forecasts if with_ensembles=True)
 
     Raises:
         ForecastError: If no valid run found or generation fails
@@ -584,6 +589,34 @@ def generate_forecasts(
 
             if not dry_run:
                 ledger.append_forecast(record, ledger_dir)
+
+    # Generate ensemble forecasts if requested
+    if with_ensembles:
+        try:
+            # Load ensemble config
+            ensemble_config = ensembles.load_ensemble_config(ensemble_config_path)
+
+            # Get run_id from the run directory
+            current_run_id = run_dir.name
+
+            # Generate ensembles from base forecasts
+            ensemble_records = ensembles.generate_ensemble_forecasts(
+                base_forecasts=records,
+                catalog=catalog_data,
+                config=ensemble_config,
+                run_id=current_run_id,
+                ledger_dir=ledger_dir,
+                dry_run=dry_run
+            )
+
+            # Add ensemble records to output
+            records.extend(ensemble_records)
+
+            logger.info(f"Generated {len(ensemble_records)} ensemble forecast(s)")
+
+        except (FileNotFoundError, ensembles.EnsembleError) as e:
+            logger.warning(f"Ensemble generation failed: {e}")
+            # Continue without ensembles - don't fail the whole operation
 
     return records
 

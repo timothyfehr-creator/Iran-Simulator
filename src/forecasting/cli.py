@@ -32,9 +32,17 @@ def cmd_log(args: argparse.Namespace) -> int:
             horizons=horizons,
             ledger_dir=Path(args.ledger_dir),
             dry_run=args.dry_run,
+            with_ensembles=args.with_ensembles,
         )
 
-        print(f"Generated {len(records)} forecast(s)")
+        # Count base vs ensemble forecasts
+        base_count = sum(1 for r in records if "ensemble" not in r.get("forecaster_id", ""))
+        ensemble_count = len(records) - base_count
+
+        if ensemble_count > 0:
+            print(f"Generated {base_count} base forecast(s) + {ensemble_count} ensemble forecast(s)")
+        else:
+            print(f"Generated {len(records)} forecast(s)")
 
         if args.verbose:
             for r in records:
@@ -288,6 +296,8 @@ def main(argv: Optional[list] = None) -> int:
     log_parser.add_argument("--run-dir", help="Specific run directory (auto-selects if omitted)")
     log_parser.add_argument("--horizon", type=int, choices=[1, 7, 15, 30], help="Specific horizon")
     log_parser.add_argument("--dry-run", action="store_true", help="Don't write to ledger")
+    log_parser.add_argument("--with-ensembles", action="store_true",
+                           help="Generate ensemble forecasts after base forecasts")
     log_parser.set_defaults(func=cmd_log)
 
     # resolve command

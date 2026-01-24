@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iran-simulation/schemas/ensemble_config.schema.json",
+  "title": "Ensemble Config",
+  "description": "Schema for static ensemble forecaster configuration",
+  "type": "object",
+  "required": ["config_version", "ensembles"],
+  "properties": {
+    "config_version": {
+      "type": "string",
+      "description": "SemVer version of the config format (e.g., 1.0.0)",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "ensembles": {
+      "type": "array",
+      "description": "List of ensemble definitions",
+      "items": {
+        "$ref": "#/$defs/ensemble"
+      }
+    }
+  },
+  "$defs": {
+    "ensemble": {
+      "type": "object",
+      "required": [
+        "ensemble_id",
+        "enabled",
+        "members",
+        "apply_to_event_types",
+        "min_members_required",
+        "missing_member_policy",
+        "effective_from_utc"
+      ],
+      "properties": {
+        "ensemble_id": {
+          "type": "string",
+          "description": "Unique identifier for this ensemble (becomes forecaster_id)",
+          "pattern": "^oracle_ensemble_[a-z0-9_]+$"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether to generate this ensemble"
+        },
+        "members": {
+          "type": "array",
+          "description": "List of member forecasters with weights",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/member"
+          }
+        },
+        "apply_to_event_types": {
+          "type": "array",
+          "description": "Event types this ensemble applies to",
+          "items": {
+            "type": "string",
+            "enum": ["binary", "categorical", "binned_continuous"]
+          },
+          "minItems": 1
+        },
+        "apply_to_event_ids": {
+          "type": ["array", "null"],
+          "description": "Optional: restrict to specific event IDs. If null/absent, applies to all events matching event_types.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "min_members_required": {
+          "type": "integer",
+          "description": "Minimum number of members required to emit ensemble",
+          "minimum": 1
+        },
+        "missing_member_policy": {
+          "type": "string",
+          "description": "How to handle missing members",
+          "enum": ["renormalize", "skip"]
+        },
+        "effective_from_utc": {
+          "type": "string",
+          "description": "ISO timestamp from which this ensemble is effective",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "member": {
+      "type": "object",
+      "required": ["forecaster_id", "weight"],
+      "properties": {
+        "forecaster_id": {
+          "type": "string",
+          "description": "Forecaster identifier to include in ensemble"
+        },
+        "weight": {
+          "type": "number",
+          "description": "Weight for this member (all weights must sum to 1.0)",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

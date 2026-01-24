@@ -118,6 +118,43 @@
     "abstain_reason": {
       "type": ["string", "null"],
       "description": "Reason for abstaining"
+    },
+    "ensemble_inputs": {
+      "type": "object",
+      "description": "Metadata for ensemble forecasts (only present for ensemble forecasters)",
+      "properties": {
+        "config_version": {
+          "type": "string",
+          "description": "Version of ensemble config used"
+        },
+        "members_used": {
+          "type": "array",
+          "description": "List of forecaster_ids that contributed to this ensemble",
+          "items": {
+            "type": "string"
+          }
+        },
+        "weights_used": {
+          "type": "array",
+          "description": "Weights applied to each member (same order as members_used)",
+          "items": {
+            "type": "number"
+          }
+        },
+        "members_missing": {
+          "type": "array",
+          "description": "List of forecaster_ids that were expected but missing",
+          "items": {
+            "type": "string"
+          }
+        },
+        "policy_applied": {
+          "type": "string",
+          "description": "Missing member policy that was applied",
+          "enum": ["renormalize", "skip", "none"]
+        }
+      },
+      "required": ["config_version", "members_used", "weights_used"]
     }
   }
 }

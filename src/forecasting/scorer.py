@@ -1844,6 +1844,14 @@ def compute_scores(
         forecasts, resolutions, catalog, mode_filter
     )
 
+    # NEW Phase 3C: Leaderboard data
+    try:
+        result["leaderboard_data"] = compute_leaderboard_data(
+            forecasts, resolutions, catalog, mode_filter
+        )
+    except Exception:
+        result["leaderboard_data"] = []
+
     return result
 
 
@@ -2146,6 +2154,213 @@ def compute_scores_for_mode(
         "log_score": round(ls, 6) if ls is not None else None,
         "count": valid_count,
     }
+
+
+def compute_leaderboard_data(
+    forecasts: List[Dict[str, Any]],
+    resolutions: List[Dict[str, Any]],
+    catalog: Dict[str, Any],
+    mode_filter: List[str] = None
+) -> List[Dict[str, Any]]:
+    """
+    Compute leaderboard data grouped by (forecaster_id, event_type, horizon_days).
+
+    Decision D5: Coverage computed per-slice, not globally.
+    Decision D6: For baselines, use MIN for history_n, ANY for fallback.
+    TWEAK 6: Exclude claims_inferred from leaderboard stats.
+
+    Args:
+        forecasts: List of forecast records
+        resolutions: List of resolution records
+        catalog: Event catalog dictionary
+        mode_filter: Resolution modes to include (default: external_auto + external_manual)
+
+    Returns:
+        List of leaderboard entries, one per (forecaster_id, event_type, horizon_days)
+    """
+    from . import catalog as cat_module
+    from datetime import datetime, timezone
+
+    if mode_filter is None:
+        mode_filter = ["external_auto", "external_manual"]
+
+    # Filter resolutions by mode (TWEAK 6)
+    filtered_resolutions = [
+        r for r in resolutions
+        if resolver.get_resolution_mode(r) in mode_filter
+    ]
+    resolution_map = {r["forecast_id"]: r for r in filtered_resolutions}
+
+    now = datetime.now(timezone.utc)
+
+    # Group forecasts by (forecaster_id, event_type, horizon_days)
+    groups: Dict[Tuple[str, str, int], List[Dict[str, Any]]] = {}
+
+    for f in forecasts:
+        forecaster_id = f.get("forecaster_id", "unknown")
+        event_id = f.get("event_id")
+        horizon_days = f.get("horizon_days")
+
+        if not event_id or not horizon_days:
+            continue
+
+        # Get event_type from catalog
+        event = cat_module.get_event(catalog, event_id)
+        if not event:
+            continue
+        event_type = event.get("event_type", "binary")
+
+        key = (forecaster_id, event_type, horizon_days)
+        groups.setdefault(key, []).append(f)
+
+    leaderboard_entries = []
+
+    for (forecaster_id, event_type, horizon_days), group_forecasts in groups.items():
+        # Compute per-slice coverage (D5)
+        # Count forecasts due (target_date <= now)
+        forecasts_due = 0
+        resolved_non_unknown = 0
+        abstained = 0
+
+        for f in group_forecasts:
+            target_str = f.get("target_date_utc", "")
+            if not target_str:
+                continue
+
+            try:
+                target_str = target_str.replace('Z', '+00:00')
+                target_date = datetime.fromisoformat(target_str)
+                if target_date.tzinfo is None:
+                    target_date = target_date.replace(tzinfo=timezone.utc)
+            except (ValueError, AttributeError):
+                continue
+
+            if target_date > now:
+                continue
+
+            forecasts_due += 1
+
+            if f.get("abstain"):
+                abstained += 1
+                continue
+
+            resolution = resolution_map.get(f["forecast_id"])
+            if resolution and resolution.get("resolved_outcome") != "UNKNOWN":
+                resolved_non_unknown += 1
+
+        # Skip if no forecasts due
+        if forecasts_due == 0:
+            continue
+
+        coverage_rate = resolved_non_unknown / forecasts_due if forecasts_due > 0 else 0.0
+
+        # Compute Brier scores
+        primary_brier = None
+        effective_brier = None
+        log_score_val = None
+
+        # Get outcomes for this slice
+        # Use a representative event from catalog
+        sample_event_id = group_forecasts[0].get("event_id") if group_forecasts else None
+        outcomes = None
+        if sample_event_id:
+            try:
+                outcomes = get_outcomes_from_catalog(catalog, sample_event_id)
+            except ScoringError:
+                pass
+
+        if event_type == "binary":
+            # Binary scoring
+            try:
+                primary_brier = _brier_score_binary(group_forecasts, filtered_resolutions)
+            except ScoringError:
+                pass
+
+            try:
+                effective_brier = effective_brier_score(group_forecasts, filtered_resolutions)
+            except ScoringError:
+                pass
+
+            try:
+                log_score_val = _log_score_binary(group_forecasts, filtered_resolutions)
+            except ScoringError:
+                pass
+
+        elif outcomes:
+            # Multi-outcome scoring
+            try:
+                raw, norm = multinomial_brier_score(group_forecasts, filtered_resolutions, outcomes)
+                primary_brier = norm
+            except ScoringError:
+                pass
+
+            try:
+                raw, norm = effective_multinomial_brier_score(
+                    group_forecasts, filtered_resolutions, outcomes
+                )
+                effective_brier = norm
+            except ScoringError:
+                pass
+
+            try:
+                log_score_val = multinomial_log_score(
+                    group_forecasts, filtered_resolutions, outcomes
+                )
+            except ScoringError:
+                pass
+
+        # Baseline metadata (D6)
+        baseline_history_n = None
+        baseline_fallback = None
+
+        if forecaster_id.startswith("oracle_baseline_"):
+            # Check all forecasts in slice for fallback status
+            # MIN for history_n, ANY for fallback
+            history_ns = []
+            has_fallback = False
+
+            for f in group_forecasts:
+                # Baseline forecasts don't have explicit history_n in record
+                # For now, check if distribution is uniform (fallback indicator)
+                probs = f.get("probabilities", {})
+                non_unknown = [p for k, p in probs.items() if k != "UNKNOWN"]
+                if non_unknown:
+                    # Check if uniform
+                    expected = 1.0 / len(non_unknown) if non_unknown else 0
+                    is_uniform = all(abs(p - expected) < 0.001 for p in non_unknown)
+                    if is_uniform:
+                        has_fallback = True
+                        history_ns.append(0)
+                    else:
+                        history_ns.append(20)  # Assume sufficient if not uniform
+
+            baseline_history_n = min(history_ns) if history_ns else 0
+            baseline_fallback = "uniform" if has_fallback else None
+
+        entry = {
+            "forecaster_id": forecaster_id,
+            "event_type": event_type,
+            "horizon_days": horizon_days,
+            "primary_brier": round(primary_brier, 6) if primary_brier is not None else None,
+            "log_score": round(log_score_val, 6) if log_score_val is not None else None,
+            "coverage_rate": round(coverage_rate, 4),
+            "effective_penalty": round(effective_brier, 6) if effective_brier is not None else None,
+            "resolved_n": resolved_non_unknown,
+            "forecasts_due": forecasts_due,
+            "baseline_history_n": baseline_history_n,
+            "baseline_fallback": baseline_fallback,
+        }
+
+        leaderboard_entries.append(entry)
+
+    # Sort by (event_type, horizon_days, primary_brier)
+    leaderboard_entries.sort(key=lambda x: (
+        x["event_type"],
+        x["horizon_days"],
+        x["primary_brier"] or float('inf')
+    ))
+
+    return leaderboard_entries
 
 
 def compute_event_scores(

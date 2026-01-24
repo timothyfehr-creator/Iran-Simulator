@@ -364,6 +364,146 @@ def format_warnings(warnings: list) -> str:
     return "\n".join(lines)
 
 
+def generate_leaderboard(
+    leaderboard_data: List[Dict[str, Any]],
+    by_horizon: bool = True
+) -> str:
+    """
+    Generate leaderboard markdown from computed leaderboard data.
+
+    Decision D5: Coverage computed per (forecaster_id, event_type, horizon_days) tuple.
+
+    Args:
+        leaderboard_data: List of leaderboard entries from compute_leaderboard_data()
+        by_horizon: If True, include horizon in grouping
+
+    Returns:
+        Markdown string with leaderboard tables
+    """
+    if not leaderboard_data:
+        return "## Forecaster Leaderboard\n\n*No data available*\n"
+
+    lines = ["## Forecaster Leaderboard", ""]
+
+    # Group by event_type
+    event_types = sorted(set(d.get("event_type", "binary") for d in leaderboard_data))
+
+    for event_type in event_types:
+        type_entries = [d for d in leaderboard_data if d.get("event_type") == event_type]
+
+        if by_horizon:
+            # Group by horizon
+            horizons = sorted(set(d.get("horizon_days", 0) for d in type_entries))
+
+            for horizon in horizons:
+                horizon_entries = [d for d in type_entries if d.get("horizon_days") == horizon]
+
+                if horizon_entries:
+                    lines.append(f"### {event_type.replace('_', ' ').title()} Events - {horizon} Day Horizon")
+                    lines.append("")
+                    lines.append(format_leaderboard_table(horizon_entries))
+                    lines.append("")
+        else:
+            # Aggregate across horizons
+            if type_entries:
+                lines.append(f"### {event_type.replace('_', ' ').title()} Events")
+                lines.append("")
+                lines.append(format_leaderboard_table(type_entries))
+                lines.append("")
+
+    return "\n".join(lines)
+
+
+def format_leaderboard_table(
+    entries: List[Dict[str, Any]],
+    include_fallback: bool = True
+) -> str:
+    """
+    Format leaderboard entries as markdown table.
+
+    Decision D5: Coverage rate is per-slice, not global.
+    Decision D6: Baseline fallback uses MIN for history_n, ANY for fallback.
+    TWEAK 5: Non-baseline forecasters show "-" for Fallback column.
+
+    Args:
+        entries: List of leaderboard entries
+        include_fallback: Whether to include fallback column
+
+    Returns:
+        Markdown table string
+    """
+    if not entries:
+        return "*No entries*"
+
+    def fmt(val, decimals=3):
+        if val is None:
+            return "-"
+        if isinstance(val, float):
+            return f"{val:.{decimals}f}"
+        return str(val)
+
+    def fmt_pct(val):
+        if val is None:
+            return "-"
+        return f"{val:.0%}"
+
+    # Sort by primary_brier (ascending - lower is better)
+    sorted_entries = sorted(
+        entries,
+        key=lambda x: (x.get("primary_brier") or float('inf'))
+    )
+
+    # Build header
+    header = "| Forecaster | Primary Brier | Log | Coverage | Eff. Penalty | N |"
+    divider = "|------------|---------------|-----|----------|--------------|---|"
+
+    if include_fallback:
+        header += " Fallback |"
+        divider += "----------|"
+
+    lines = [header, divider]
+
+    for entry in sorted_entries:
+        forecaster_id = entry.get("forecaster_id", "unknown")
+        primary_brier = entry.get("primary_brier")
+        log_score = entry.get("log_score")
+        coverage_rate = entry.get("coverage_rate")
+        effective_penalty = entry.get("effective_penalty")
+        resolved_n = entry.get("resolved_n", 0)
+        baseline_fallback = entry.get("baseline_fallback")
+        baseline_history_n = entry.get("baseline_history_n")
+
+        # TWEAK 5: Non-baseline forecasters show "-" for Fallback
+        is_baseline = forecaster_id.startswith("oracle_baseline_")
+
+        # Add warning emoji for baselines with fallback
+        brier_str = fmt(primary_brier)
+        if is_baseline and baseline_fallback:
+            brier_str = f"⚠️ {brier_str}"
+
+        row = f"| {forecaster_id} | {brier_str} | {fmt(log_score, 2)} | {fmt_pct(coverage_rate)} | {fmt(effective_penalty)} | {resolved_n} |"
+
+        if include_fallback:
+            if is_baseline:
+                fallback_str = baseline_fallback or "-"
+            else:
+                fallback_str = "-"
+            row += f" {fallback_str} |"
+
+        lines.append(row)
+
+    # Add footnote for warnings
+    has_warnings = any(
+        e.get("baseline_fallback") and e.get("forecaster_id", "").startswith("oracle_baseline_")
+        for e in entries
+    )
+    if has_warnings:
+        lines.append("")
+        lines.append("⚠️ Baseline has insufficient history. Skill comparison unreliable.")
+
+    return "\n".join(lines)
+
+
 def format_accuracy_metrics(accuracy: Dict[str, Any], penalty: Dict[str, Any]) -> str:
     """
     Format accuracy and penalty metrics as markdown section.
@@ -584,6 +724,14 @@ def generate_scorecard_md(
             "",
         ])
 
+    # NEW: Leaderboard section
+    leaderboard_data = scores.get("leaderboard_data", [])
+    if leaderboard_data:
+        lines.extend([
+            generate_leaderboard(leaderboard_data, by_horizon=True),
+            "",
+        ])
+
     # Interpretation
     lines.extend([
         "## Interpretation Guide",
@@ -595,6 +743,7 @@ def generate_scorecard_md(
         "- **Core vs Claims Inferred**: Core scores use external data sources; claims inferred uses fallback resolution.",
         "- **Multi-Outcome Brier**: For categorical/binned events, normalized to [0,1] range (raw/2).",
         "- **Fallback Warning**: When a baseline uses uniform fallback due to insufficient history, skill scores are unreliable.",
+        "- **Primary vs Effective Brier**: Primary excludes UNKNOWN; Effective penalizes UNKNOWN/abstain.",
         "",
     ])
 
