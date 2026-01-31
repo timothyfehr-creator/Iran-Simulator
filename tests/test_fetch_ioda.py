@@ -62,12 +62,13 @@ class TestIODAFetcher:
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "data": [
-                {
-                    "timestamp": 1705500000,
-                    "value": 85,
-                    "baseline": 100,
-                    "datasources": ["bgp", "active-probing", "darknet"]
-                }
+                [
+                    {
+                        "datasource": "gtr-norm",
+                        "values": [0.85],
+                        "until": 1705500000,
+                    }
+                ]
             ]
         }
         mock_response.raise_for_status = MagicMock()
@@ -97,13 +98,22 @@ class TestIODAFetcher:
 
     @patch('requests.get')
     def test_fetch_multiple_signals(self, mock_get, config):
-        """Test fetch with multiple signals - should use most recent."""
+        """Test fetch with multiple datasources - should prefer gtr-norm."""
         mock_response = MagicMock()
         mock_response.json.return_value = {
             "data": [
-                {"timestamp": 1705400000, "value": 90, "baseline": 100},
-                {"timestamp": 1705500000, "value": 70, "baseline": 100},  # Most recent
-                {"timestamp": 1705450000, "value": 80, "baseline": 100},
+                [
+                    {
+                        "datasource": "bgp",
+                        "values": [90],
+                        "until": 1705500000,
+                    },
+                    {
+                        "datasource": "gtr-norm",
+                        "values": [0.70],
+                        "until": 1705500000,
+                    },
+                ]
             ]
         }
         mock_response.raise_for_status = MagicMock()
@@ -114,7 +124,7 @@ class TestIODAFetcher:
 
         assert error is None
         assert len(docs) == 1
-        # Should use the signal with timestamp 1705500000 (value=70)
+        # Should use gtr-norm datasource (0.70 * 100 = 70.0)
         assert docs[0]["structured_data"]["connectivity_index"] == 70.0
 
     @patch('requests.get')
@@ -136,7 +146,15 @@ class TestIODAFetcher:
         with patch('requests.get') as mock_get:
             mock_response = MagicMock()
             mock_response.json.return_value = {
-                "data": [{"timestamp": 1705500000, "value": 85, "baseline": 100}]
+                "data": [
+                    [
+                        {
+                            "datasource": "gtr-norm",
+                            "values": [0.85],
+                            "until": 1705500000,
+                        }
+                    ]
+                ]
             }
             mock_response.raise_for_status = MagicMock()
             mock_get.return_value = mock_response

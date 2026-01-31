@@ -68,7 +68,8 @@ class TestImportBundle(unittest.TestCase):
             }
         ]
         # Should not raise
-        doc_ids = validate_evidence_docs(evidence_docs)
+        result = validate_evidence_docs(evidence_docs)
+        doc_ids = result[0] if isinstance(result, tuple) else result
         self.assertEqual(doc_ids, {"doc_001"})
 
     def test_validate_candidate_claims_duplicate_claim_id(self):

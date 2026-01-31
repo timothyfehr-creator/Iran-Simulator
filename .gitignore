@@ -72,3 +72,4 @@ TASKLIST_*.md
 QA_GATES_SPEC_*.md
 IMPLEMENTATION_SUMMARY.md
 merge_isw_bundle.py
+frontend/.vite/

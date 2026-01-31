@@ -234,6 +234,7 @@ class TestResolveEvent:
         """Test resolving an event with available data."""
         event = {
             "event_id": "econ.rial_ge_1_2m",
+            "allowed_outcomes": ["YES", "NO", "UNKNOWN"],
             "resolution_source": {
                 "type": "compiled_intel",
                 "path": "current_state.economic_conditions.rial_usd_rate.market",
@@ -259,6 +260,7 @@ class TestResolveEvent:
         """Test that auto_resolve + compiled_intel + missing path -> external_auto with UNKNOWN."""
         event = {
             "event_id": "test.missing_path",
+            "allowed_outcomes": ["YES", "NO", "UNKNOWN"],
             "auto_resolve": True,
             "resolution_source": {
                 "type": "compiled_intel",
@@ -289,6 +291,7 @@ class TestResolveEvent:
         """Test that auto_resolve with claims_based fallback -> claims_inferred."""
         event = {
             "event_id": "test.claims_fallback",
+            "allowed_outcomes": ["YES", "NO", "UNKNOWN"],
             "auto_resolve": True,
             "resolution_source": {
                 "type": "compiled_intel",
