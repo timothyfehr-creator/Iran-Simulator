@@ -19,9 +19,10 @@ describe('ControlPanel', () => {
   it('renders all sliders', () => {
     render(<ControlPanel />);
 
-    expect(screen.getByLabelText(/analyst confidence/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/defection probability/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/protest growth factor/i)).toBeInTheDocument();
+    // New slider labels (using aria-label)
+    expect(screen.getByLabelText(/security force loyalty percentage/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/protest momentum percentage/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/analyst confidence percentage/i)).toBeInTheDocument();
   });
 
   it('renders run simulation button', () => {
@@ -30,22 +31,26 @@ describe('ControlPanel', () => {
     expect(screen.getByRole('button', { name: /run simulation/i })).toBeInTheDocument();
   });
 
-  it('updates confidence slider value', () => {
+  it('updates security force loyalty slider value', () => {
     render(<ControlPanel />);
 
-    const slider = screen.getByLabelText(/analyst confidence/i);
-    fireEvent.change(slider, { target: { value: '85' } });
+    const slider = screen.getByLabelText(/security force loyalty percentage/i);
+    fireEvent.change(slider, { target: { value: '30' } });
 
-    expect(useSimulationStore.getState().controls.analystConfidence).toBe(85);
+    // Security force loyalty maps to defectionProbability: (100 - value) / 1000
+    // At 30% loyalty, defection = (100 - 30) / 1000 = 0.07
+    expect(useSimulationStore.getState().controls.defectionProbability).toBeCloseTo(0.07, 2);
   });
 
-  it('updates defection probability slider value', () => {
+  it('updates protest momentum slider value', () => {
     render(<ControlPanel />);
 
-    const slider = screen.getByLabelText(/defection probability/i);
-    fireEvent.change(slider, { target: { value: '10' } });
+    const slider = screen.getByLabelText(/protest momentum percentage/i);
+    fireEvent.change(slider, { target: { value: '80' } });
 
-    expect(useSimulationStore.getState().controls.defectionProbability).toBeCloseTo(0.1);
+    // Protest momentum maps to protestGrowthFactor: 1 + (value/100)
+    // At 80%, growth factor = 1 + (80/100) = 1.8
+    expect(useSimulationStore.getState().controls.protestGrowthFactor).toBeCloseTo(1.8, 1);
   });
 
   it('calls runSimulation on button click', async () => {
@@ -65,7 +70,9 @@ describe('ControlPanel', () => {
 
     render(<ControlPanel />);
 
-    expect(screen.getByRole('button')).toBeDisabled();
+    // Find the run simulation button specifically (not info buttons)
+    const runButton = screen.getByRole('button', { name: /running simulation/i });
+    expect(runButton).toBeDisabled();
     expect(screen.getByText(/running/i)).toBeInTheDocument();
   });
 });

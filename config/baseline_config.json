@@ -1,0 +1,25 @@
+{
+  "config_version": "1.0.0",
+  "defaults": {
+    "min_history_n": 20,
+    "window_days": 180,
+    "smoothing_alpha": 1.0,
+    "include_unknown": false,
+    "unknown_alpha": 0.1,
+    "recency_halflife_days": null,
+    "persistence_stickiness": 0.7,
+    "max_staleness_days": 30,
+    "staleness_decay": "linear",
+    "resolution_modes": ["external_auto", "external_manual"]
+  },
+  "overrides": {
+    "econ.fx_band": {
+      "window_days": 365,
+      "min_history_n": 30
+    },
+    "info.internet_level": {
+      "persistence_stickiness": 0.9,
+      "max_staleness_days": 7
+    }
+  }
+}

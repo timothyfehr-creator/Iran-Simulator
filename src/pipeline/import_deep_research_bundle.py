@@ -272,7 +272,7 @@ def import_bundle(bundle_path: str, out_dir: str) -> None:
 
     # Validate
     print(f"Validating {len(evidence_docs)} evidence docs...")
-    valid_doc_ids = validate_evidence_docs(evidence_docs)
+    valid_doc_ids, kept_docs, doc_warnings = validate_evidence_docs(evidence_docs, data_cutoff_utc)
 
     print(f"Validating {len(candidate_claims)} candidate claims...")
     print(f"  - Checking path registry and normalizing enums...")
@@ -284,12 +284,14 @@ def import_bundle(bundle_path: str, out_dir: str) -> None:
     # Create output directory
     os.makedirs(out_dir, exist_ok=True)
 
-    # Write evidence_docs.jsonl
+    # Write evidence_docs.jsonl (only kept docs that pass cutoff validation)
     evidence_path = os.path.join(out_dir, "evidence_docs.jsonl")
     with open(evidence_path, "w", encoding="utf-8") as f:
-        for doc in evidence_docs:
+        for doc in kept_docs:
             f.write(json.dumps(doc) + "\n")
-    print(f"Wrote {len(evidence_docs)} evidence docs to {evidence_path}")
+    print(f"Wrote {len(kept_docs)} evidence docs to {evidence_path}")
+    if doc_warnings:
+        print(f"  ({len(doc_warnings)} docs dropped due to cutoff or timestamp issues)")
 
     # Write claims_deep_research.jsonl
     claims_path = os.path.join(out_dir, "claims_deep_research.jsonl")

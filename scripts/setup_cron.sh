@@ -1,8 +1,8 @@
 #!/bin/bash
-# Setup cron job for daily Iran crisis updates
+# Install cron job for daily Iran simulation updates
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+CRON_SCRIPT="$PROJECT_DIR/scripts/run_daily_cron.sh"
 
 echo "Iran Crisis Simulator - Daily Update Cron Setup"
 echo "================================================"
@@ -10,52 +10,62 @@ echo ""
 echo "Project directory: $PROJECT_DIR"
 echo ""
 
-# Cron entry (runs at 6 PM daily)
-CRON_CMD="0 18 * * * cd $PROJECT_DIR && python3 scripts/daily_update.py --auto >> logs/daily_update.log 2>&1"
+# Make wrapper script executable
+chmod +x "$CRON_SCRIPT"
 
-# Check if entry exists
-crontab -l 2>/dev/null | grep -q "daily_update.py"
+# Default to 6 PM UTC (adjust as needed)
+CRON_HOUR="${CRON_HOUR:-18}"
+CRON_MINUTE="${CRON_MINUTE:-0}"
 
-if [ $? -eq 0 ]; then
-    echo "⚠️  Cron job already exists"
-    echo ""
-    echo "To update, edit your crontab:"
-    echo "  crontab -e"
-    echo ""
-    echo "Replace with:"
-    echo "  $CRON_CMD"
-    echo ""
-else
-    # Confirm before installing
-    echo "This will install a cron job that runs daily at 6 PM UTC:"
-    echo "  $CRON_CMD"
-    echo ""
-    read -p "Install cron job? (y/N) " -n 1 -r
-    echo ""
+# Create cron entry
+CRON_LINE="$CRON_MINUTE $CRON_HOUR * * * $CRON_SCRIPT"
 
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        # Ensure logs directory exists
-        mkdir -p "$PROJECT_DIR/logs"
+# Ensure logs directory exists
+mkdir -p "$PROJECT_DIR/logs"
 
-        # Add to crontab
-        (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
-
-        echo ""
-        echo "✓ Daily update cron job installed"
-        echo ""
-        echo "Schedule: 6 PM UTC daily"
-        echo "Logs: $PROJECT_DIR/logs/daily_update.log"
-        echo ""
-        echo "To view cron jobs:"
-        echo "  crontab -l"
-        echo ""
-        echo "To remove this cron job:"
-        echo "  crontab -e"
-        echo "  (Delete the line containing 'daily_update.py')"
-        echo ""
-    else
-        echo ""
-        echo "Installation cancelled"
-        echo ""
+# Check if already installed
+if crontab -l 2>/dev/null | grep -q "run_daily_cron.sh"; then
+    echo "Cron job already installed. Current entry:"
+    crontab -l | grep "run_daily_cron.sh"
+    echo ""
+    read -p "Replace with new entry? [y/N] " -n 1 -r
+    echo ""
+    if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+        echo "Aborted."
+        exit 0
     fi
+    # Remove old entry
+    crontab -l | grep -v "run_daily_cron.sh" | crontab -
 fi
+
+# Also remove old daily_update.py entries if present
+if crontab -l 2>/dev/null | grep -q "daily_update.py"; then
+    echo "Found old daily_update.py entry, removing..."
+    crontab -l | grep -v "daily_update.py" | crontab -
+fi
+
+# Add new entry
+(crontab -l 2>/dev/null; echo "$CRON_LINE") | crontab -
+
+echo ""
+echo "Cron job installed:"
+echo "  Schedule: Daily at ${CRON_HOUR}:$(printf '%02d' $CRON_MINUTE) UTC"
+echo "  Script: $CRON_SCRIPT"
+echo "  Logs: $PROJECT_DIR/logs/daily_update.log"
+echo ""
+echo "Features:"
+echo "  - Lock file prevents concurrent runs"
+echo "  - Coverage gates exit nonzero on FAIL"
+echo "  - Email alerts (if DAILY_UPDATE_EMAIL is set)"
+echo ""
+echo "To set email alerts:"
+echo "  export DAILY_UPDATE_EMAIL=your@email.com"
+echo ""
+echo "To customize schedule:"
+echo "  CRON_HOUR=6 CRON_MINUTE=30 bash scripts/setup_cron.sh"
+echo ""
+echo "To view installed jobs:"
+echo "  crontab -l"
+echo ""
+echo "To remove:"
+echo "  crontab -l | grep -v run_daily_cron.sh | crontab -"

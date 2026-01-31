@@ -41,6 +41,17 @@ from pipeline.qa import qa_compiled_intel
 from pipeline.import_deep_research_bundle_v2 import import_bundle
 
 
+# Deterministic tiebreak policy for reproducibility
+# This is the exact order used when selecting winner from competing claims
+DETERMINISTIC_TIEBREAK_POLICY = [
+    "source_grade",      # A1 > A2 > B1 > B2 > C1 > C2 > C3 > D4
+    "triangulated",      # True > False
+    "confidence",        # HIGH > MODERATE > LOW
+    "latest_published_at",  # Newer wins (ISO timestamp comparison)
+    "claim_id"           # Lexicographic (stable final tiebreak)
+]
+
+
 def _grade_score(source_grade: str) -> int:
     """
     Convert combined grade like 'A1', 'B2' to a score where higher is better.

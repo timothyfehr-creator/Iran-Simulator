@@ -1,0 +1,37 @@
+# Ingestion Guardrails Configuration
+# Controls cost, caching, and error handling for automated evidence collection
+
+# Per-bucket document caps - keep most recent by published_at
+max_docs_per_bucket: 200
+
+# Retry configuration for fetchers
+retry:
+  max_retries: 3
+  initial_backoff_seconds: 2
+  backoff_multiplier: 2
+
+# Document cache configuration
+cache:
+  enabled: true
+  path: runs/_meta/doc_cache.json
+  # Cache key is hash of: url + published_at + title
+  # This avoids reprocessing identical documents
+
+# Behavior on coverage failures
+on_coverage_fail: skip_simulation
+# Options:
+#   - skip_simulation: Skip simulation stage, mark run unreliable
+#   - warn_only: Log warning but continue
+#   - fail_fast: Exit pipeline immediately
+
+# Timeout configuration (seconds)
+timeouts:
+  fetch_timeout: 30
+  total_source_timeout: 120
+
+# Rate limiting
+rate_limits:
+  # Delay between fetcher calls (seconds)
+  inter_source_delay: 1
+  # Max concurrent fetchers (if async)
+  max_concurrent: 3

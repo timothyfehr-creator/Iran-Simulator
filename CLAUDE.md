@@ -527,21 +527,25 @@ outputs/scenario_narratives.md
 # Oracle Forecasting System (Phase 3)
 config/event_catalog.json              # Event definitions (18 events)
 config/ensemble_config.json            # Ensemble forecaster config
+config/baseline_config.json            # Baseline forecaster config (Phase 3D-2)
 config/schemas/
   event_catalog.schema.json            # Catalog schema
-  forecast_record.schema.json          # Forecast record schema (incl. ensemble_inputs)
+  forecast_record.schema.json          # Forecast record schema (incl. ensemble_inputs + baseline metadata)
   ensemble_config.schema.json          # Ensemble config schema
+  baseline_config.schema.json          # Baseline config schema (Phase 3D-2)
 
 forecasting/
   ledger/
     forecasts.jsonl                    # Append-only forecast ledger
     resolutions.jsonl                  # Resolution records
+    corrections.jsonl                  # Correction records
   reports/
     scorecard.json                     # JSON format report
     scorecard.md                       # Markdown report with leaderboard
 
 src/forecasting/
   __init__.py
+  baseline_history.py                  # History-based baselines (Phase 3D-2)
   bins.py                              # Bin validation/mapping
   catalog.py                           # Event catalog loading
   cli.py                               # CLI (log, resolve, report)
@@ -703,8 +707,8 @@ Events now support:
 ### Baseline Forecasters
 
 Two new forecast source types for events without simulation models:
-- `baseline_climatology` - Uniform distribution over outcomes (Phase 3A fallback)
-- `baseline_persistence` - Uses last resolved outcome (Phase 3C full implementation)
+- `baseline_climatology` - Dirichlet-smoothed historical frequencies (Phase 3D-2; uniform fallback if insufficient history)
+- `baseline_persistence` - Stickiness + staleness decay on last resolved outcome (Phase 3D-2; falls back to climatology when stale)
 
 ### New Resolution Rules
 
@@ -784,13 +788,14 @@ print(bins.value_to_bin(100, spec))  # ('HIGH', None)
 "
 ```
 
-### Phase 3A vs 3B vs 3C
+### Phase 3A vs 3B vs 3C vs 3D-2
 
 | Phase | Scope |
 |-------|-------|
 | **3A** (done) | Catalog schema, bin validation, baseline forecasters (uniform fallback) |
 | **3B** (done) | Multinomial Brier scoring, categorical resolution mapping, Red-Team fixes |
 | **3C** (done) | Static ensembles, leaderboard reporting, ensemble config validation |
+| **3D-2** (done) | Real baseline forecasters: history-based climatology + persistence, no-lookahead, correction handling |
 
 ## v3.1: Oracle Phase 3B - Multi-Outcome Scoring
 
@@ -994,6 +999,160 @@ src/forecasting/ensembles.py                   # Ensemble generation module
 forecasting/reports/scorecard.md               # Report with leaderboard
 ```
 
+## v3.3: Oracle Phase 3D-2 - Real Baseline Forecasters
+
+Phase 3D-2 replaces uniform fallback baselines with real, auditable history-based baselines.
+
+### Baseline Algorithms
+
+**Climatology (Dirichlet/Laplace Smoothing):**
+```
+p_k = (count_k + alpha) / (N + K * alpha)
+
+where:
+  count_k = number of times outcome k occurred
+  N = total history count
+  K = number of possible outcomes (excluding UNKNOWN)
+  alpha = smoothing parameter (default 1.0, prevents zero probabilities)
+```
+
+**Persistence (Stickiness + Staleness Decay):**
+```
+p = p_stick * one_hot(last_outcome) + (1 - p_stick) * climatology
+
+where:
+  p_stick = base_stickiness * decay_factor
+  decay_factor = 1 - (staleness_days / max_staleness_days)  [linear]
+              OR 0.5 ^ (staleness_days / halflife)          [exponential]
+```
+
+When staleness >= max_staleness_days, persistence fully reverts to climatology.
+
+### No-Lookahead Enforcement
+
+History index enforces strict temporal ordering:
+- Only resolutions with `resolved_at_utc <= as_of_utc` are used
+- Only `resolution_mode` in config (default: external_auto, external_manual)
+- Latest correction wins for each resolution_id
+- UNKNOWN outcomes excluded from training (unless configured)
+
+### Baseline Configuration (`config/baseline_config.json`)
+
+```json
+{
+  "config_version": "1.0.0",
+  "defaults": {
+    "min_history_n": 20,
+    "window_days": 180,
+    "smoothing_alpha": 1.0,
+    "persistence_stickiness": 0.7,
+    "max_staleness_days": 30,
+    "staleness_decay": "linear",
+    "resolution_modes": ["external_auto", "external_manual"]
+  },
+  "overrides": {
+    "econ.fx_band": { "window_days": 365, "min_history_n": 30 },
+    "info.internet_level": { "persistence_stickiness": 0.9, "max_staleness_days": 7 }
+  }
+}
+```
+
+### Baseline Metadata in Forecast Records
+
+Baseline forecast records now include audit metadata:
+```json
+{
+  "baseline_history_n": 47,
+  "baseline_fallback": null,
+  "baseline_staleness_days": 3,
+  "baseline_last_verified_at": "2026-01-18T12:00:00Z",
+  "baseline_config_version": "1.0.0",
+  "baseline_resolution_modes": ["external_auto", "external_manual"],
+  "baseline_excluded_counts_by_reason": {
+    "unknown_outcome": 5,
+    "mode_claims_inferred": 12
+  }
+}
+```
+
+- `baseline_fallback`: null if history used, "uniform" if insufficient history
+- `baseline_history_n`: Count of valid historical resolutions
+- `baseline_excluded_counts_by_reason`: Audit trail of why resolutions were excluded
+
+### History Index Module (`src/forecasting/baseline_history.py`)
+
+```python
+from src.forecasting import baseline_history
+
+# Load config
+config = baseline_history.load_baseline_config()
+
+# Build index (enforces no-lookahead)
+index = baseline_history.build_history_index(as_of_utc, ledger_dir, config)
+
+# Get history for specific event/horizon
+entry = index.get_entry("econ.fx_band", 7)
+print(f"History N: {entry.history_n}, Last: {entry.last_resolved_outcome}")
+
+# Compute distributions
+clim_probs, metadata = baseline_history.compute_climatology_distribution(
+    entry, ["YES", "NO"], event_config
+)
+persist_probs, metadata = baseline_history.compute_persistence_distribution(
+    entry, ["YES", "NO"], event_config
+)
+```
+
+### Leaderboard Updates
+
+The leaderboard now shows baseline metadata columns:
+```
+| Forecaster | Primary Brier | Log | Coverage | N | History N | Staleness | Fallback |
+|------------|---------------|-----|----------|---|-----------|-----------|----------|
+| oracle_ensemble_static_v1 | 0.138 | -0.29 | 92% | 47 | - | - | - |
+| oracle_baseline_climatology | 0.180 | -0.38 | 92% | 47 | 47 | - | - |
+| oracle_baseline_persistence | ⚠️ 0.215 | -0.48 | 92% | 47 | 3 | 25d | uniform |
+```
+
+### Scorer Alignment
+
+The scorer now uses the same Dirichlet-smoothed algorithms from `baseline_history.py` for computing baseline benchmarks, ensuring consistency between forecast generation and scoring evaluation.
+
+### Testing Phase 3D-2
+
+```bash
+# Run all Phase 3D-2 tests
+source .venv/bin/activate
+python -m pytest tests/test_baseline_history.py -v
+python -m pytest tests/test_baseline_climatology.py -v
+python -m pytest tests/test_baseline_persistence.py -v
+python -m pytest tests/test_baseline_integration.py -v
+
+# Verify baseline config loads
+python -c "
+from src.forecasting import baseline_history
+config = baseline_history.load_baseline_config()
+print(f'Config version: {config[\"config_version\"]}')
+"
+
+# Run all tests (no regressions)
+python -m pytest tests/test_baseline_*.py tests/test_forecasting_scorer.py \
+    tests/test_ensemble_generation.py -v
+```
+
+### File Locations (Phase 3D-2)
+
+```
+config/baseline_config.json                      # Baseline configuration
+config/schemas/baseline_config.schema.json       # JSON Schema for baseline config
+config/schemas/forecast_record.schema.json       # Updated with baseline metadata fields
+src/forecasting/baseline_history.py              # History index + climatology + persistence
+tests/test_baseline_history.py                   # Lookahead, mode filtering, correction tests
+tests/test_baseline_climatology.py               # Dirichlet smoothing tests
+tests/test_baseline_persistence.py               # Stickiness + staleness decay tests
+tests/test_baseline_integration.py               # Forecast generation integration tests
+```
+
 ## Common Issues
 
 1. **"Prior not found" error:** Check analyst_priors.json schema matches what simulation expects
@@ -1005,3 +1164,5 @@ forecasting/reports/scorecard.md               # Report with leaderboard
 7. **"Ensemble config validation failed":** Check weights sum to 1.0, ensemble_id matches pattern `oracle_ensemble_[a-z0-9_]+`
 8. **"No ensemble forecasts generated":** Check `effective_from_utc` is before forecast `as_of_utc`, and event types match
 9. **Leaderboard empty:** Ensure resolutions exist with `resolution_mode` in `["external_auto", "external_manual"]`
+10. **Baseline always uniform:** Check `min_history_n` in `config/baseline_config.json` — lower it if few resolutions exist yet
+11. **Persistence same as climatology:** Check `baseline_staleness_days` — if >= `max_staleness_days`, persistence fully decays to climatology

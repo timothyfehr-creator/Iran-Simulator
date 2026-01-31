@@ -58,18 +58,49 @@ def create_outcome_chart(results: dict, output_path: str):
     
     bars = ax.bar(range(len(labels)), probs, color=bar_colors, edgecolor='black', linewidth=0.5)
     ax.errorbar(range(len(labels)), probs, yerr=errors, fmt='none', color='black', capsize=5)
-    
+
+    # TAIL RISK ANNOTATIONS: Highlight low-probability, high-impact outcomes
+    # These require contingency planning despite low probability
+    TAIL_RISK_THRESHOLD = 0.10  # Outcomes below 10% probability
+    HIGH_IMPACT_OUTCOMES = {"REGIME_COLLAPSE_CHAOTIC", "ETHNIC_FRAGMENTATION"}
+
+    tail_risk_indices = []
+    for i, (outcome_tuple, prob) in enumerate(zip(sorted_outcomes, probs)):
+        outcome_name = outcome_tuple[0]
+        is_high_impact = outcome_name in HIGH_IMPACT_OUTCOMES
+        is_low_prob = prob < TAIL_RISK_THRESHOLD
+
+        if is_high_impact and is_low_prob:
+            # Mark as tail risk: red border + hatching
+            bars[i].set_edgecolor('#c0392b')
+            bars[i].set_linewidth(2.5)
+            bars[i].set_hatch('//')
+            tail_risk_indices.append(i)
+
     ax.set_xticks(range(len(labels)))
     ax.set_xticklabels(labels, fontsize=10)
     ax.set_ylabel("Probability", fontsize=12)
     ax.set_title("Iran Crisis: 90-Day Outcome Distribution\n(Monte Carlo Simulation)", fontsize=14)
-    
+
     # Add probability labels on bars
-    for bar, prob in zip(bars, probs):
+    for i, (bar, prob) in enumerate(zip(bars, probs)):
+        label_text = f'{prob:.1%}'
+        if i in tail_risk_indices:
+            label_text = f'{prob:.1%}\nTAIL RISK'
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
-                f'{prob:.1%}', ha='center', va='bottom', fontsize=10)
-    
-    ax.set_ylim(0, max(probs) * 1.2)
+                label_text, ha='center', va='bottom', fontsize=9,
+                color='#c0392b' if i in tail_risk_indices else 'black',
+                fontweight='bold' if i in tail_risk_indices else 'normal')
+
+    ax.set_ylim(0, max(probs) * 1.25)  # Extra space for tail risk labels
+
+    # Add tail risk legend if any tail risks exist
+    if tail_risk_indices:
+        from matplotlib.patches import Patch
+        tail_risk_patch = Patch(facecolor='white', edgecolor='#c0392b',
+                                linewidth=2.5, hatch='//',
+                                label='Tail Risk: Low probability,\nhigh-impact (plan contingencies)')
+        ax.legend(handles=[tail_risk_patch], loc='upper right', fontsize=8)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     

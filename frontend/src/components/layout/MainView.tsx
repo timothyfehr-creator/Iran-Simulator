@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPlaceholder } from '../visualization/MapPlaceholder';
+import { RegionalMap } from '../visualization/RegionalMap';
 import { OutcomeChart } from '../visualization/OutcomeChart';
 import { ExecutiveSummary } from '../visualization/ExecutiveSummary';
 import { CausalExplorer } from '../visualization/CausalExplorer';
@@ -72,14 +72,7 @@ export function MainView() {
             </div>
           )}
 
-          {activeTab === 'map' && (
-            <div className="panel p-4 h-full">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">
-                Regional Overview
-              </h2>
-              <MapPlaceholder />
-            </div>
-          )}
+          {activeTab === 'map' && <RegionalMap />}
 
           {activeTab === 'causal' && (
             <CausalExplorer />

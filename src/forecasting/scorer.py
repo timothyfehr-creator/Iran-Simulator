@@ -13,6 +13,7 @@ from pathlib import Path
 
 from . import ledger
 from . import resolver
+from . import baseline_history
 
 
 class ScoringError(Exception):
@@ -880,21 +881,103 @@ def per_outcome_calibration(
     }
 
 
+def _build_history_entry_from_resolutions(
+    resolutions: List[Dict[str, Any]],
+    event_id: str,
+    horizon_days: int,
+    mode_filter: List[str] = None
+) -> baseline_history.HistoryEntry:
+    """
+    Build a HistoryEntry from resolution records for scoring.
+
+    This allows the scorer to use the same algorithms as the forecaster.
+
+    Args:
+        resolutions: All resolution records
+        event_id: Filter to this event
+        horizon_days: Filter to this horizon
+        mode_filter: Resolution modes to include
+
+    Returns:
+        HistoryEntry populated from resolutions
+    """
+    if mode_filter is None:
+        mode_filter = ["external_auto", "external_manual"]
+
+    entry = baseline_history.HistoryEntry(event_id=event_id, horizon_days=horizon_days)
+
+    # Filter and count resolutions
+    counts: Dict[str, int] = {}
+    excluded: Dict[str, int] = {}
+    last_outcome = None
+    last_verified_at = None
+
+    # Sort for deterministic last outcome
+    sorted_resolutions = sorted(
+        resolutions,
+        key=lambda r: r.get("resolved_at_utc", "")
+    )
+
+    for res in sorted_resolutions:
+        if res.get("event_id") != event_id:
+            continue
+        if res.get("horizon_days") != horizon_days:
+            continue
+
+        # Check resolution mode
+        mode = resolver.get_resolution_mode(res)
+        if mode not in mode_filter:
+            excluded[f"mode_{mode}"] = excluded.get(f"mode_{mode}", 0) + 1
+            continue
+
+        outcome = res.get("resolved_outcome")
+        if outcome is None:
+            excluded["missing_outcome"] = excluded.get("missing_outcome", 0) + 1
+            continue
+
+        # Exclude UNKNOWN
+        if outcome == "UNKNOWN":
+            excluded["unknown_outcome"] = excluded.get("unknown_outcome", 0) + 1
+            continue
+
+        # Count this resolution
+        counts[outcome] = counts.get(outcome, 0) + 1
+
+        # Track last outcome
+        last_outcome = outcome
+        resolved_at_str = res.get("resolved_at_utc")
+        if resolved_at_str:
+            last_verified_at = baseline_history.parse_datetime(resolved_at_str)
+
+    entry.counts_by_outcome = counts
+    entry.history_n = sum(counts.values())
+    entry.last_resolved_outcome = last_outcome
+    entry.last_verified_at = last_verified_at
+    entry.staleness_days = 0  # Scorer doesn't use staleness
+    entry.excluded_counts_by_reason = excluded
+
+    return entry
+
+
 def multinomial_climatology_baseline(
     resolutions: List[Dict[str, Any]],
     outcomes: List[str],
     event_id: str,
     horizon_days: int,
     min_samples: int = 20,
-    mode_filter: List[str] = None
+    mode_filter: List[str] = None,
+    smoothing_alpha: float = 1.0
 ) -> Dict[str, float]:
     """
     Historical frequency of each outcome for specific event/horizon.
+
+    Uses Dirichlet/Laplace smoothing for consistency with forecast generation.
 
     CRITICAL:
     - Only uses resolutions with resolution_mode in mode_filter
     - EXCLUDES resolutions with resolved_outcome == "UNKNOWN"
     - Falls back to uniform (1/K each) if N < min_samples
+    - Uses Dirichlet smoothing to prevent zero probabilities
 
     Args:
         resolutions: All resolution records
@@ -903,6 +986,7 @@ def multinomial_climatology_baseline(
         horizon_days: Filter to this horizon
         min_samples: Minimum before using historical freq
         mode_filter: Only include these resolution modes
+        smoothing_alpha: Dirichlet smoothing parameter (default 1.0)
 
     Returns:
         Dictionary mapping outcome -> probability
@@ -910,34 +994,19 @@ def multinomial_climatology_baseline(
     if mode_filter is None:
         mode_filter = ["external_auto", "external_manual"]
 
-    # Filter resolutions
-    filtered = [
-        r for r in resolutions
-        if r.get("event_id") == event_id
-        and r.get("horizon_days") == horizon_days
-        and r.get("resolved_outcome") != "UNKNOWN"
-        and resolver.get_resolution_mode(r) in mode_filter
-    ]
+    # Build history entry
+    entry = _build_history_entry_from_resolutions(
+        resolutions, event_id, horizon_days, mode_filter
+    )
 
-    K = len(outcomes)
-    uniform = 1.0 / K if K > 0 else 0.0
+    # Use shared climatology computation
+    config = {
+        "min_history_n": min_samples,
+        "smoothing_alpha": smoothing_alpha,
+    }
+    probs, _ = baseline_history.compute_climatology_distribution(entry, outcomes, config)
 
-    if len(filtered) < min_samples:
-        return {o: uniform for o in outcomes}
-
-    # Count occurrences of each outcome
-    counts = {o: 0 for o in outcomes}
-    total = 0
-    for r in filtered:
-        outcome = r.get("resolved_outcome")
-        if outcome in counts:
-            counts[outcome] += 1
-            total += 1
-
-    if total == 0:
-        return {o: uniform for o in outcomes}
-
-    return {o: counts[o] / total for o in outcomes}
+    return probs
 
 
 def multinomial_climatology_brier(
@@ -1182,63 +1251,53 @@ def multinomial_climatology_baseline_with_metadata(
     event_id: str,
     horizon_days: int,
     min_samples: int = 20,
-    mode_filter: List[str] = None
+    mode_filter: List[str] = None,
+    smoothing_alpha: float = 1.0
 ) -> Tuple[Dict[str, float], Dict[str, Any]]:
     """
     Historical frequency with metadata for fallback flagging.
 
+    Uses Dirichlet/Laplace smoothing for consistency with forecast generation.
     Phase 3B Red-Team Fix 3: Flag when baseline uses uniform fallback.
 
     Returns:
         Tuple of (probabilities, metadata)
 
         metadata = {
-            "baseline_history_n": int,  # 0 if fallback
+            "baseline_history_n": int,  # Count of valid resolutions
             "fallback": "uniform" | None,
             "event_id": str,
             "horizon_days": int,
+            "excluded_counts_by_reason": dict,  # Audit trail
         }
     """
     if mode_filter is None:
         mode_filter = ["external_auto", "external_manual"]
 
-    # Filter resolutions
-    filtered = [
-        r for r in resolutions
-        if r.get("event_id") == event_id
-        and r.get("horizon_days") == horizon_days
-        and r.get("resolved_outcome") != "UNKNOWN"
-        and resolver.get_resolution_mode(r) in mode_filter
-    ]
+    # Build history entry
+    entry = _build_history_entry_from_resolutions(
+        resolutions, event_id, horizon_days, mode_filter
+    )
 
-    K = len(outcomes)
-    uniform = 1.0 / K if K > 0 else 0.0
+    # Use shared climatology computation
+    config = {
+        "min_history_n": min_samples,
+        "smoothing_alpha": smoothing_alpha,
+    }
+    probs, baseline_metadata = baseline_history.compute_climatology_distribution(
+        entry, outcomes, config
+    )
 
+    # Build scorer metadata format
     metadata = {
-        "baseline_history_n": len(filtered),
+        "baseline_history_n": entry.history_n,
         "event_id": event_id,
         "horizon_days": horizon_days,
+        "fallback": baseline_metadata.get("baseline_fallback"),
+        "excluded_counts_by_reason": entry.excluded_counts_by_reason,
     }
 
-    if len(filtered) < min_samples:
-        metadata["fallback"] = "uniform"
-        return ({o: uniform for o in outcomes}, metadata)
-
-    # Count occurrences of each outcome
-    counts = {o: 0 for o in outcomes}
-    total = 0
-    for r in filtered:
-        outcome = r.get("resolved_outcome")
-        if outcome in counts:
-            counts[outcome] += 1
-            total += 1
-
-    if total == 0:
-        metadata["fallback"] = "uniform"
-        return ({o: uniform for o in outcomes}, metadata)
-
-    metadata["fallback"] = None
-    return ({o: counts[o] / total for o in outcomes}, metadata)
+    return (probs, metadata)
 
 
 def multinomial_persistence_baseline_with_metadata(

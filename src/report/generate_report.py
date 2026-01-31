@@ -237,11 +237,13 @@ def create_tornado_chart(data: Dict[str, Any]) -> str:
     # Extract claims with multiple candidates as proxy for sensitivity
     sensitive_paths = []
     for note in merge_notes:
-        if note.get('candidates', 1) > 1:
+        candidates = note.get('candidates', 1)
+        # Handle both list and int formats for candidates
+        candidate_count = len(candidates) if isinstance(candidates, list) else candidates
+        if candidate_count > 1:
             path = note.get('path', '')
-            candidates = note.get('candidates', 0)
-            if path and candidates > 1:
-                sensitive_paths.append((path, candidates))
+            if path:
+                sensitive_paths.append((path, candidate_count))
 
     # Sort by candidate count and take top 10
     sensitive_paths.sort(key=lambda x: x[1], reverse=True)

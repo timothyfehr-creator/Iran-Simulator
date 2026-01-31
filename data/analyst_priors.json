@@ -491,74 +491,170 @@
     }
   },
   "regional_cascade_probabilities": {
-    "israel_strikes_given_weakening": {
+    "_comment": "Regional cascade: Iran crisis spillover to Iraq/Syria and external actor responses",
+
+    "iraq_stressed_given_iran_crisis": {
       "probability": {
-        "point": 0.45,
-        "low": 0.25,
-        "high": 0.65,
+        "low": 0.15,
+        "mode": 0.25,
+        "high": 0.40,
         "dist": "beta_pert",
-        "window_days": 90,
-        "mode": 0.45
+        "time_basis": "window",
+        "anchor": "escalation_start",
+        "window_days": 30
       },
       "reasoning": {
-        "base_rate_anchor": "PLACEHOLDER",
-        "evidence_for_higher": [],
-        "evidence_for_lower": [],
-        "analogies_considered": [],
+        "base_rate_anchor": "baseline.external_actors: Iran-backed militias control significant Iraqi territory",
+        "evidence_for_higher": ["Iran crisis disrupts militia funding/coordination"],
+        "evidence_for_lower": ["Iraqi government has some autonomous capacity"],
+        "analogies_considered": ["Syria 2011 spillover to Iraq"],
         "confidence_in_estimate": "LOW"
       }
     },
-    "proxy_activation_given_us_intervention": {
+    "iraq_crisis_given_iran_collapse": {
       "probability": {
-        "point": 0.6,
-        "low": 0.4,
-        "high": 0.8,
+        "low": 0.30,
+        "mode": 0.45,
+        "high": 0.60,
         "dist": "beta_pert",
-        "window_days": 90,
-        "mode": 0.6
+        "time_basis": "window",
+        "anchor": "collapse_day",
+        "window_days": 30
       },
       "reasoning": {
-        "base_rate_anchor": "PLACEHOLDER",
-        "evidence_for_higher": [],
-        "evidence_for_lower": [],
-        "analogies_considered": [],
+        "base_rate_anchor": "baseline.external_actors: Iraq heavily dependent on Iranian proxy networks",
+        "evidence_for_higher": ["Power vacuum creates militia infighting", "Loss of IRGC coordination"],
+        "evidence_for_lower": ["US presence provides some stability"],
+        "analogies_considered": ["Iraq 2014 ISIS surge after Syria collapse"],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "syria_crisis_given_iran_collapse": {
+      "probability": {
+        "low": 0.35,
+        "mode": 0.50,
+        "high": 0.65,
+        "dist": "beta_pert",
+        "time_basis": "window",
+        "anchor": "collapse_day",
+        "window_days": 30
+      },
+      "reasoning": {
+        "base_rate_anchor": "baseline.external_actors: Assad regime critically dependent on Iranian support",
+        "evidence_for_higher": ["Loss of IRGC/Hezbollah support", "Economic collapse"],
+        "evidence_for_lower": ["Russian support may partially compensate"],
+        "analogies_considered": ["Syria post-2011 fragmentation"],
+        "confidence_in_estimate": "LOW"
+      }
+    },
+    "iraq_proxy_activation_given_us_kinetic": {
+      "probability": {
+        "low": 0.50,
+        "mode": 0.65,
+        "high": 0.80,
+        "dist": "beta_pert",
+        "time_basis": "window",
+        "anchor": "us_kinetic_day",
+        "window_days": 14
+      },
+      "reasoning": {
+        "base_rate_anchor": "Historical pattern: Iraqi militias attack US after strikes on Iran",
+        "evidence_for_higher": ["Kataib Hezbollah, AAH have shown willingness to attack US"],
+        "evidence_for_lower": ["Restraint orders from Tehran possible"],
+        "analogies_considered": ["January 2020 post-Soleimani attacks"],
+        "confidence_in_estimate": "MODERATE"
+      }
+    },
+    "syria_proxy_activation_given_us_kinetic": {
+      "probability": {
+        "low": 0.40,
+        "mode": 0.55,
+        "high": 0.70,
+        "dist": "beta_pert",
+        "time_basis": "window",
+        "anchor": "us_kinetic_day",
+        "window_days": 14
+      },
+      "reasoning": {
+        "base_rate_anchor": "baseline.external_actors: Syrian proxies less capable than Iraqi",
+        "evidence_for_higher": ["Hezbollah involvement possible"],
+        "evidence_for_lower": ["Fewer US targets in Syria than Iraq"],
+        "analogies_considered": ["Syrian militia responses to US strikes 2017-2023"],
+        "confidence_in_estimate": "MODERATE"
+      }
+    },
+    "israel_strikes_given_defection": {
+      "probability": {
+        "low": 0.30,
+        "mode": 0.45,
+        "high": 0.60,
+        "dist": "beta_pert",
+        "time_basis": "window",
+        "anchor": "defection_day",
+        "window_days": 30
+      },
+      "reasoning": {
+        "base_rate_anchor": "baseline.external_actors.israel: Views regime weakening as opportunity",
+        "evidence_for_higher": ["Defection signals regime vulnerability", "Window to strike nuclear sites"],
+        "evidence_for_lower": ["May wait for clearer regime collapse"],
+        "analogies_considered": ["Israel strikes during Syrian civil war chaos"],
+        "confidence_in_estimate": "MODERATE"
+      }
+    },
+    "russia_support_given_iran_threatened": {
+      "probability": {
+        "low": 0.15,
+        "mode": 0.25,
+        "high": 0.40,
+        "dist": "beta_pert",
+        "time_basis": "window",
+        "anchor": "escalation_start",
+        "window_days": 60
+      },
+      "reasoning": {
+        "base_rate_anchor": "baseline.external_actors.russia: Strategic partner but avoids entrapment",
+        "evidence_for_higher": ["Needs Iran for drone supply", "Wants to check US"],
+        "evidence_for_lower": ["Distracted by Ukraine", "Limited expeditionary capacity"],
+        "analogies_considered": ["Russia limited support to Syria 2015"],
         "confidence_in_estimate": "LOW"
       }
     },
     "gulf_realignment_given_collapse": {
       "probability": {
-        "point": 0.7,
-        "low": 0.5,
+        "low": 0.50,
+        "mode": 0.70,
         "high": 0.85,
         "dist": "beta_pert",
-        "window_days": 90,
-        "mode": 0.7
+        "time_basis": "window",
+        "anchor": "collapse_day",
+        "window_days": 30
       },
       "reasoning": {
-        "base_rate_anchor": "PLACEHOLDER",
-        "evidence_for_higher": [],
-        "evidence_for_lower": [],
-        "analogies_considered": [],
-        "confidence_in_estimate": "LOW"
-      }
-    },
-    "russia_support_given_threatened": {
-      "probability": {
-        "point": 0.3,
-        "low": 0.15,
-        "high": 0.5,
-        "dist": "beta_pert",
-        "window_days": 90,
-        "mode": 0.3
-      },
-      "reasoning": {
-        "base_rate_anchor": "PLACEHOLDER - Russia distracted by Ukraine",
-        "evidence_for_higher": [],
-        "evidence_for_lower": [],
-        "analogies_considered": [],
+        "base_rate_anchor": "baseline.external_actors: Gulf states opportunistic",
+        "evidence_for_higher": ["Iran collapse removes main threat", "Opens new alignments"],
+        "evidence_for_lower": ["Fear of chaos on doorstep"],
+        "analogies_considered": ["Gulf response to Iraq 2003"],
         "confidence_in_estimate": "LOW"
       }
     }
+  },
+  "economic_thresholds": {
+    "_comment": "Thresholds for EconomicStress state machine classification",
+    "rial_critical_threshold": 1200000,
+    "rial_pressured_threshold": 800000,
+    "inflation_critical_threshold": 50,
+    "inflation_pressured_threshold": 30
+  },
+  "economic_modifiers": {
+    "_comment": "Probability multipliers applied when economic stress is elevated",
+    "critical_protest_escalation_multiplier": 1.20,
+    "critical_elite_fracture_multiplier": 1.30,
+    "critical_security_defection_multiplier": 1.15,
+    "critical_regime_concession_multiplier": 1.10,
+    "pressured_protest_escalation_multiplier": 1.10,
+    "pressured_elite_fracture_multiplier": 1.15,
+    "pressured_security_defection_multiplier": 1.08,
+    "pressured_regime_concession_multiplier": 1.05
   },
   "sensitivity_flags": {
     "highest_uncertainty_estimates": [],

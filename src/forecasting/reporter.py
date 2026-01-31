@@ -416,7 +416,8 @@ def generate_leaderboard(
 
 def format_leaderboard_table(
     entries: List[Dict[str, Any]],
-    include_fallback: bool = True
+    include_fallback: bool = True,
+    include_baseline_metadata: bool = True
 ) -> str:
     """
     Format leaderboard entries as markdown table.
@@ -424,10 +425,12 @@ def format_leaderboard_table(
     Decision D5: Coverage rate is per-slice, not global.
     Decision D6: Baseline fallback uses MIN for history_n, ANY for fallback.
     TWEAK 5: Non-baseline forecasters show "-" for Fallback column.
+    Phase 3D-2: Show baseline history_n, staleness, and fallback warnings.
 
     Args:
         entries: List of leaderboard entries
         include_fallback: Whether to include fallback column
+        include_baseline_metadata: Whether to include baseline metadata columns
 
     Returns:
         Markdown table string
@@ -453,9 +456,20 @@ def format_leaderboard_table(
         key=lambda x: (x.get("primary_brier") or float('inf'))
     )
 
+    # Check if any baseline entries have metadata
+    has_baseline_metadata = any(
+        e.get("forecaster_id", "").startswith("oracle_baseline_") and
+        e.get("baseline_history_n") is not None
+        for e in entries
+    )
+
     # Build header
     header = "| Forecaster | Primary Brier | Log | Coverage | Eff. Penalty | N |"
     divider = "|------------|---------------|-----|----------|--------------|---|"
+
+    if include_baseline_metadata and has_baseline_metadata:
+        header += " History N | Staleness |"
+        divider += "-----------|-----------|"
 
     if include_fallback:
         header += " Fallback |"
@@ -472,6 +486,7 @@ def format_leaderboard_table(
         resolved_n = entry.get("resolved_n", 0)
         baseline_fallback = entry.get("baseline_fallback")
         baseline_history_n = entry.get("baseline_history_n")
+        baseline_staleness_days = entry.get("baseline_staleness_days")
 
         # TWEAK 5: Non-baseline forecasters show "-" for Fallback
         is_baseline = forecaster_id.startswith("oracle_baseline_")
@@ -482,6 +497,15 @@ def format_leaderboard_table(
             brier_str = f"⚠️ {brier_str}"
 
         row = f"| {forecaster_id} | {brier_str} | {fmt(log_score, 2)} | {fmt_pct(coverage_rate)} | {fmt(effective_penalty)} | {resolved_n} |"
+
+        if include_baseline_metadata and has_baseline_metadata:
+            if is_baseline:
+                history_str = str(baseline_history_n) if baseline_history_n is not None else "-"
+                staleness_str = f"{baseline_staleness_days}d" if baseline_staleness_days is not None else "-"
+            else:
+                history_str = "-"
+                staleness_str = "-"
+            row += f" {history_str} | {staleness_str} |"
 
         if include_fallback:
             if is_baseline:

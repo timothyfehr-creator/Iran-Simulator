@@ -1,7 +1,7 @@
 # Makefile for Iran Crisis Simulator Pipeline
 # Convenience commands for running importer + compiler on test fixtures
 
-.PHONY: help test clean import-fixture compile-fixture run-fixture-pipeline validate daily daily-manual daily-status daily-diff
+.PHONY: help test clean import-fixture compile-fixture run-fixture-pipeline validate daily daily-manual daily-status daily-diff dashboard cron-install cron-remove cron-status cron-test deterministic-smoke
 
 # Default target
 help:
@@ -11,11 +11,21 @@ help:
 	@echo "Test & Validation:"
 	@echo "  make test                  - Run all unit tests"
 	@echo "  make validate              - Validate path registry and schemas"
+	@echo "  make deterministic-smoke   - Verify pipeline reproducibility"
 	@echo ""
 	@echo "Fixture Pipeline (End-to-End):"
 	@echo "  make run-fixture-pipeline  - Import + compile minimal test bundle"
 	@echo "  make import-fixture        - Import test bundle only"
 	@echo "  make compile-fixture       - Compile test bundle only"
+	@echo ""
+	@echo "Dashboard:"
+	@echo "  make dashboard             - Launch Mission Control dashboard"
+	@echo ""
+	@echo "Cron/Automation:"
+	@echo "  make cron-install          - Install daily cron job"
+	@echo "  make cron-remove           - Remove daily cron job"
+	@echo "  make cron-status           - Check cron job status"
+	@echo "  make cron-test             - Test cron wrapper (runs full pipeline)"
 	@echo ""
 	@echo "Real Data Pipeline (when Deep Research completes):"
 	@echo "  make import-real BUNDLE=<path>"
@@ -143,6 +153,12 @@ quick-validate: test run-fixture-pipeline
 	@echo "✓ Quick validation passed!"
 	@echo "=========================================="
 
+# Deterministic smoke test - verify pipeline reproducibility
+deterministic-smoke:
+	@echo "Running deterministic smoke test..."
+	python3 scripts/deterministic_smoke.py
+	@echo "✓ Deterministic smoke test passed"
+
 # ============================================================================
 # Daily Update Targets
 # ============================================================================
@@ -191,3 +207,44 @@ daily-diff:
 		echo ""; \
 		cat runs/$$LATEST/daily_summary.md; \
 	fi
+
+# ============================================================================
+# Dashboard
+# ============================================================================
+
+# Launch Mission Control dashboard
+dashboard:
+	@echo "Launching Mission Control dashboard..."
+	streamlit run dashboard.py
+
+# ============================================================================
+# Cron Management
+# ============================================================================
+
+# Install cron job for automated daily runs
+cron-install:
+	@echo "Installing cron job..."
+	bash scripts/setup_cron.sh
+
+# Remove cron job
+cron-remove:
+	@echo "Removing cron job..."
+	@crontab -l 2>/dev/null | grep -v "run_daily_cron.sh" | crontab - && echo "Cron job removed." || echo "No cron job found."
+
+# Check cron job status
+cron-status:
+	@echo "Current cron jobs:"
+	@crontab -l 2>/dev/null | grep -E "(daily|iran|cron)" || echo "No matching cron jobs found"
+	@echo ""
+	@if [ -f .daily_update.lock ]; then \
+		echo "WARNING: Lock file exists (.daily_update.lock)"; \
+		echo "  PID: $$(cat .daily_update.lock)"; \
+	else \
+		echo "No active lock file"; \
+	fi
+
+# Test cron wrapper script (runs full pipeline)
+cron-test:
+	@echo "Testing cron wrapper script..."
+	@echo "This will run the full auto-ingest pipeline."
+	@read -p "Continue? [y/N] " confirm && [ "$$confirm" = "y" ] && bash scripts/run_daily_cron.sh || echo "Aborted."

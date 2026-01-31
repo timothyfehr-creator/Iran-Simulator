@@ -13,6 +13,8 @@ Modules:
     evidence - Evidence snapshot storage with hashing
     scorer - Brier/log scoring and calibration metrics
     reporter - JSON and markdown report generation
+    ensembles - Static ensemble forecaster generation
+    baseline_history - History-based baseline forecasters (Phase 3D-2)
     cli - Command-line interface entrypoints
 """
 
@@ -24,6 +26,8 @@ from . import resolver
 from . import evidence
 from . import scorer
 from . import reporter
+from . import ensembles
+from . import baseline_history
 from . import cli
 
-__version__ = "3.0.0"
+__version__ = "3.1.0"

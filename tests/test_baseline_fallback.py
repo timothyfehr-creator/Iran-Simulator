@@ -121,9 +121,13 @@ class TestClimatologyBaselineWithMetadata:
         assert metadata["fallback"] is None
         assert metadata["baseline_history_n"] == 20
 
-        # Check historical frequencies
-        assert probs["A"] == pytest.approx(0.75, abs=1e-6)
-        assert probs["B"] == pytest.approx(0.25, abs=1e-6)
+        # Check Dirichlet-smoothed frequencies (alpha=1.0, K=3)
+        # p_A = (15 + 1) / (20 + 3) = 16/23 ≈ 0.6957
+        # p_B = (5 + 1) / (20 + 3) = 6/23 ≈ 0.2609
+        # p_C = (0 + 1) / (20 + 3) = 1/23 ≈ 0.0435
+        assert probs["A"] == pytest.approx(16/23, abs=1e-4)
+        assert probs["B"] == pytest.approx(6/23, abs=1e-4)
+        assert probs["C"] == pytest.approx(1/23, abs=1e-4)  # Smoothing gives non-zero for C
 
     def test_metadata_includes_event_horizon(self, outcomes_3):
         """Test that metadata includes event_id and horizon_days."""

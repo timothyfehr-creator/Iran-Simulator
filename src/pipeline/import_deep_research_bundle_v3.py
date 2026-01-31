@@ -120,7 +120,8 @@ def validate_evidence_docs(
         translation_confidence = doc.get("translation_confidence")
 
         if language != "en":
-            if not translation_confidence:
+            # Check for None specifically (0.0 is a valid value meaning "no translation done")
+            if translation_confidence is None:
                 errors.append(
                     f"evidence_docs[{i}] (doc_id={doc_id}): "
                     f"language='{language}' but missing translation_confidence"
@@ -219,117 +220,210 @@ def check_coverage_gates(
 
 def check_daily_update_gates(
     kept_docs: List[Dict[str, Any]],
-    data_cutoff_utc: Optional[str]
+    data_cutoff_utc: Optional[str],
+    source_config: Optional[Dict[str, Dict]] = None
 ) -> Dict[str, Any]:
     """
-    Daily update minimum requirements (lower bar than full runs).
+    Rolling-window coverage gates using src/ingest/coverage.evaluate_coverage().
 
-    FIXED: Now uses 24-hour date window instead of exact date match.
-    Counts docs published anywhere within the calendar day of cutoff_date.
+    UPDATED: Now uses window-based coverage instead of date-specific checks.
+    Each bucket has a rolling window (36h-72h) to accommodate varying publication frequencies.
 
     Gates:
-    - 1+ ISW/CTP update for that date
-    - 1+ wire report (Reuters/AP)
-    - 1+ NGO/rights monitor item (HRANA/IHR/Amnesty)
-    - 1+ regime outlet item (when available)
+    - Each bucket checked against its BUCKET_WINDOWS threshold (e.g., 72h for most)
+    - Non-critical bucket misses → WARN
+    - Critical bucket misses (≥2) → FAIL
 
     Args:
         kept_docs: List of validated evidence documents
-        data_cutoff_utc: Data cutoff timestamp (ISO 8601)
+        data_cutoff_utc: Data cutoff timestamp (ISO 8601) - used as reference time
+        source_config: Optional source configuration mapping source_id -> config.
+                       If not provided, loads from config/sources.yaml.
 
     Returns:
-        Daily coverage report
+        Coverage report with counts_by_bucket, buckets_missing, bucket_details, status
     """
+    from datetime import datetime, timezone
+
+    # Import coverage module
+    try:
+        from src.ingest.coverage import (
+            evaluate_coverage,
+            load_source_config_from_yaml,
+            BUCKET_WINDOWS,
+            CRITICAL_BUCKETS
+        )
+    except ImportError:
+        # Handle when run as script
+        import sys
+        import os
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        from src.ingest.coverage import (
+            evaluate_coverage,
+            load_source_config_from_yaml,
+            BUCKET_WINDOWS,
+            CRITICAL_BUCKETS
+        )
+
     if not data_cutoff_utc:
         return {
-            "daily_gates": {},
-            "warnings": ["No data cutoff specified, skipping daily gates"],
-            "status": "SKIP"
+            "counts_by_bucket": {},
+            "buckets_missing": [],
+            "bucket_details": {},
+            "status": "SKIP",
+            "status_reason": "No data cutoff specified, skipping coverage gates",
+            "warnings": ["No data cutoff specified"]
         }
 
+    # Parse reference time from cutoff
     try:
-        from datetime import datetime
-        cutoff_dt = datetime.fromisoformat(data_cutoff_utc.replace('Z', '+00:00'))
-        cutoff_date = cutoff_dt.date()
-
-        # Define 24-hour window around cutoff date (00:00:00 to 23:59:59 UTC)
-        window_start = cutoff_dt.replace(hour=0, minute=0, second=0, microsecond=0)
-        window_end = cutoff_dt.replace(hour=23, minute=59, second=59, microsecond=999999)
+        reference_time = datetime.fromisoformat(data_cutoff_utc.replace('Z', '+00:00'))
     except (ValueError, AttributeError):
         return {
-            "daily_gates": {},
-            "warnings": [f"Invalid cutoff format: {data_cutoff_utc}"],
-            "status": "SKIP"
+            "counts_by_bucket": {},
+            "buckets_missing": [],
+            "bucket_details": {},
+            "status": "SKIP",
+            "status_reason": f"Invalid cutoff format: {data_cutoff_utc}",
+            "warnings": [f"Invalid cutoff format: {data_cutoff_utc}"]
         }
 
-    # Count docs by bucket and date
-    isw_count = 0
-    wire_count = 0
-    ngo_count = 0
-    regime_count = 0
-
-    for doc in kept_docs:
+    # Load source config if not provided
+    if source_config is None:
         try:
-            # Parse published date as full datetime (not just date)
-            pub_date_str = doc.get('published_at_utc', '')
-            pub_datetime = datetime.fromisoformat(pub_date_str.replace('Z', '+00:00'))
+            source_config = load_source_config_from_yaml()
+        except Exception as e:
+            # Fallback: create minimal config from doc source_ids
+            source_config = _build_source_config_from_docs(kept_docs)
 
-            # Check if published within the 24-hour window of cutoff date
-            if not (window_start <= pub_datetime <= window_end):
-                continue
+    # Run window-based coverage evaluation
+    report = evaluate_coverage(
+        docs=kept_docs,
+        source_config=source_config,
+        reference_time=reference_time,
+        run_id=data_cutoff_utc[:10] if data_cutoff_utc else ""
+    )
 
-            # Check source (unchanged)
-            source_id = doc.get('source_id', '')
-            org = doc.get('organization', '').lower()
-
-            # ISW/CTP check
-            if 'SRC_ISW' == source_id or 'institute for the study of war' in org:
-                isw_count += 1
-
-            # Wire check (Reuters, AP, AFP, etc.)
-            wire_keywords = ['reuters', 'associated press', 'ap news', 'afp', 'bloomberg']
-            if any(kw in org for kw in wire_keywords):
-                wire_count += 1
-
-            # NGO check (HRANA, IHR, Amnesty, HRW, etc.)
-            ngo_keywords = ['hrana', 'human rights', 'amnesty', 'hrw', 'rights watch']
-            if any(kw in org for kw in ngo_keywords):
-                ngo_count += 1
-
-            # Regime outlet check (Fars, IRNA, Tasnim, Mehr, PressTV)
-            regime_keywords = ['fars', 'irna', 'tasnim', 'mehr', 'press tv', 'presstv']
-            if any(kw in org for kw in regime_keywords):
-                regime_count += 1
-
-        except (ValueError, AttributeError, TypeError):
-            # Skip docs with invalid dates
-            continue
-
-    # Build warnings
+    # Build warnings for non-critical missing buckets
     warnings = []
-    if isw_count == 0:
-        warnings.append(f"No ISW/CTP update for {cutoff_date}")
-    if wire_count == 0:
-        warnings.append(f"No wire reports for {cutoff_date}")
-    if ngo_count == 0:
-        warnings.append(f"No NGO/rights monitor reports for {cutoff_date}")
-
-    # Status: WARN if missing critical sources, PASS otherwise
-    status = "WARN" if warnings else "PASS"
+    for bucket in report.buckets_missing:
+        window_hours = BUCKET_WINDOWS.get(bucket, 72)
+        if bucket in CRITICAL_BUCKETS:
+            warnings.append(f"CRITICAL: No docs in {bucket} bucket (window: {window_hours}h)")
+        else:
+            warnings.append(f"No docs in {bucket} bucket (window: {window_hours}h)")
 
     return {
-        "daily_gates": {
-            "cutoff_date": str(cutoff_date),
-            "window_start": window_start.isoformat(),
-            "window_end": window_end.isoformat(),
-            "isw_count": isw_count,
-            "wire_count": wire_count,
-            "ngo_count": ngo_count,
-            "regime_count": regime_count
-        },
+        "counts_by_bucket": report.counts_by_bucket,
+        "buckets_missing": report.buckets_missing,
+        "buckets_present": report.buckets_present,
+        "bucket_details": report.bucket_details,
+        "status": report.status,
+        "status_reason": report.status_reason,
         "warnings": warnings,
-        "status": status
+        "reference_time_utc": report.reference_time_utc,
+        "total_docs": report.total_docs
     }
+
+
+def _build_source_config_from_docs(docs: List[Dict[str, Any]]) -> Dict[str, Dict]:
+    """
+    Build minimal source config from document source_ids for coverage evaluation.
+    Maps common source patterns to buckets.
+    """
+    # Default bucket mappings based on common source patterns
+    PATTERN_TO_BUCKET = {
+        "isw": "osint_thinktank",
+        "ctp": "osint_thinktank",
+        "hrana": "ngo_rights",
+        "amnesty": "ngo_rights",
+        "hrw": "ngo_rights",
+        "ihr": "ngo_rights",
+        "irna": "regime_outlets",
+        "fars": "regime_outlets",
+        "tasnim": "regime_outlets",
+        "mehr": "regime_outlets",
+        "presstv": "regime_outlets",
+        "iranintl": "persian_services",
+        "radiofarda": "persian_services",
+        "bbcpersian": "persian_services",
+        "netblocks": "internet_monitoring",
+        "ooni": "internet_monitoring",
+        "ioda": "internet_monitoring",
+        "bonbast": "econ_fx",
+        "tgju": "econ_fx",
+    }
+
+    source_config = {}
+    for doc in docs:
+        source_id = doc.get("source_id", "").lower()
+        if source_id.startswith("src_"):
+            source_id = source_id[4:]
+
+        # Find matching bucket
+        bucket = None
+        for pattern, b in PATTERN_TO_BUCKET.items():
+            if pattern in source_id:
+                bucket = b
+                break
+
+        if bucket and source_id not in source_config:
+            source_config[source_id] = {"bucket": bucket, "name": source_id}
+
+    return source_config
+
+
+def _load_health_summary() -> Optional[Dict[str, Any]]:
+    """
+    Load health summary from the latest tracker state if available.
+
+    Returns:
+        Health summary dict or None if not available
+    """
+    health_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "runs", "_meta", "sources_health.json"
+    )
+
+    if not os.path.exists(health_path):
+        return None
+
+    try:
+        with open(health_path, 'r') as f:
+            health_data = json.load(f)
+
+        # Build summary from health data
+        sources_ok = []
+        sources_degraded = []
+        sources_down = []
+
+        for source_id, source_health in health_data.items():
+            status = source_health.get('status', 'OK')
+            if status == 'DOWN':
+                sources_down.append(source_id)
+            elif status == 'DEGRADED':
+                sources_degraded.append(source_id)
+            else:
+                sources_ok.append(source_id)
+
+        # Determine overall status
+        if sources_down:
+            overall_status = 'DOWN'
+        elif sources_degraded:
+            overall_status = 'DEGRADED'
+        else:
+            overall_status = 'OK'
+
+        return {
+            'overall_status': overall_status,
+            'sources_ok': len(sources_ok),
+            'sources_degraded': len(sources_degraded),
+            'sources_down': len(sources_down),
+            'degraded_sources': sources_degraded,
+            'down_sources': sources_down
+        }
+    except Exception:
+        return None
 
 
 def validate_candidate_claims(
@@ -609,39 +703,56 @@ def import_bundle(bundle_path: str, out_dir: str) -> None:
     # Combine all warnings
     all_warnings = doc_warnings + claim_warnings
 
-    # CHECK COVERAGE GATES (V3)
-    print(f"Checking coverage gates...")
+    # CHECK QUALITY GATES (min-docs, farsi, buckets)
+    print(f"Checking quality gates...")
     registry = load_v2_registry()
     registry_config = json.load(open(os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
         "config", "path_registry_v2.json"
     )))
-    coverage_report = check_coverage_gates(kept_docs, source_index, registry_config)
-    print(f"  - Coverage status: {coverage_report['status']}")
-    if coverage_report['failures']:
+    quality_gates = check_coverage_gates(kept_docs, source_index, registry_config)
+    print(f"  - Quality gates status: {quality_gates['status']}")
+    if quality_gates['failures']:
         print(f"  - FAILURES:")
-        for failure in coverage_report['failures']:
+        for failure in quality_gates['failures']:
             print(f"    ✗ {failure}")
-    if coverage_report['warnings']:
+    if quality_gates['warnings']:
         print(f"  - WARNINGS:")
-        for warning in coverage_report['warnings']:
+        for warning in quality_gates['warnings']:
             print(f"    ⚠ {warning}")
 
-    # CHECK DAILY UPDATE GATES (V3 - date-specific source checks)
-    print(f"Checking daily update gates...")
-    daily_coverage = check_daily_update_gates(kept_docs, data_cutoff_utc)
-    coverage_report['daily_coverage'] = daily_coverage
-    if daily_coverage['status'] == 'WARN' and daily_coverage['warnings']:
-        print(f"  - Daily coverage warnings:")
-        for warning in daily_coverage['warnings']:
+    # CHECK ROLLING-WINDOW COVERAGE (primary coverage status)
+    print(f"Checking rolling-window coverage...")
+    window_coverage = check_daily_update_gates(kept_docs, data_cutoff_utc)
+    print(f"  - Window coverage status: {window_coverage['status']}")
+    if window_coverage['warnings']:
+        for warning in window_coverage['warnings']:
             print(f"    ⚠ {warning}")
-    elif daily_coverage['status'] == 'PASS':
-        print(f"  - Daily coverage: PASS")
-        daily_gates = daily_coverage.get('daily_gates', {})
-        print(f"    ISW: {daily_gates.get('isw_count', 0)}, "
-              f"Wires: {daily_gates.get('wire_count', 0)}, "
-              f"NGOs: {daily_gates.get('ngo_count', 0)}, "
-              f"Regime: {daily_gates.get('regime_count', 0)}")
+    if window_coverage.get('buckets_present'):
+        print(f"  - Buckets present: {', '.join(window_coverage['buckets_present'])}")
+    if window_coverage.get('buckets_missing'):
+        print(f"  - Buckets missing: {', '.join(window_coverage['buckets_missing'])}")
+
+    # Load health summary from tracker if available
+    health_summary = _load_health_summary()
+
+    # BUILD UNIFIED COVERAGE REPORT (window-based at top level)
+    coverage_report = {
+        # Top-level: rolling-window coverage (primary status)
+        "status": window_coverage.get('status', 'UNKNOWN'),
+        "status_reason": window_coverage.get('status_reason', ''),
+        "counts_by_bucket": window_coverage.get('counts_by_bucket', {}),
+        "buckets_missing": window_coverage.get('buckets_missing', []),
+        "buckets_present": window_coverage.get('buckets_present', []),
+        "bucket_details": window_coverage.get('bucket_details', {}),
+        "reference_time_utc": window_coverage.get('reference_time_utc', ''),
+        "total_docs": window_coverage.get('total_docs', len(kept_docs)),
+        "warnings": window_coverage.get('warnings', []),
+        # Quality gates (min-docs, farsi, buckets) under separate field
+        "quality_gates": quality_gates,
+        # Health summary if available
+        "health_summary": health_summary
+    }
 
     # Create output directory
     os.makedirs(out_dir, exist_ok=True)

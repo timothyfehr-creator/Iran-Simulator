@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "gpt-math": {
+      "command": "python",
+      "args": ["-m", "src.mcp.math_model_server"],
+      "cwd": "/Users/personallaptop/iran_simulator/iran_simulation",
+      "env": {
+        "PYTHONPATH": "/Users/personallaptop/iran_simulator/iran_simulation"
+      }
+    }
+  }
+}

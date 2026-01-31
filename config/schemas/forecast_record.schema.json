@@ -155,6 +155,46 @@
         }
       },
       "required": ["config_version", "members_used", "weights_used"]
+    },
+    "baseline_history_n": {
+      "type": ["integer", "null"],
+      "description": "Count of valid historical resolutions used for baseline (only for baseline forecasters)",
+      "minimum": 0
+    },
+    "baseline_fallback": {
+      "type": ["string", "null"],
+      "description": "Fallback method used if history insufficient (null if history used, 'uniform' if fell back)",
+      "enum": ["uniform", "no_outcomes", null]
+    },
+    "baseline_staleness_days": {
+      "type": ["integer", "null"],
+      "description": "Days since last verified outcome (only for baseline_persistence forecasters)",
+      "minimum": 0
+    },
+    "baseline_last_verified_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Timestamp of last verified outcome (only for baseline_persistence forecasters)"
+    },
+    "baseline_config_version": {
+      "type": ["string", "null"],
+      "description": "Version of baseline config used"
+    },
+    "baseline_resolution_modes": {
+      "type": "array",
+      "description": "Resolution modes included in history (only for baseline forecasters)",
+      "items": {
+        "type": "string",
+        "enum": ["external_auto", "external_manual", "claims_inferred"]
+      }
+    },
+    "baseline_excluded_counts_by_reason": {
+      "type": "object",
+      "description": "Audit trail of excluded resolutions by reason (only for baseline forecasters)",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
     }
   }
 }

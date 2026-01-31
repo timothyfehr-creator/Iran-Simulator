@@ -74,6 +74,26 @@ Claude Code will parse the Deep Research output and create/update `data/iran_cri
 - Notes source quality and bias
 - Identifies data gaps (null values with reasons)
 
+### Step 2.5: Evidence Quality Gate (NEW v2.1)
+
+Before proceeding to priors generation, verify evidence quality:
+
+**Automatic checks:**
+- Claims below grade B3 are flagged for review
+- Source diversity: minimum 3 independent sources for high-confidence claims
+- Conflicting data preserved with source attribution
+
+**When quality gate fails:**
+1. Review flagged claims in `qa_report.json`
+2. Seek additional corroboration for low-grade sources
+3. Consider widening confidence intervals for poorly-sourced estimates
+4. Document data gaps explicitly (don't fill with assumptions)
+
+**Quality thresholds:**
+- **PASS:** ≥80% of claims from A1-B2 sources, ≥3 source diversity
+- **WARN:** 60-80% quality, 2 sources - proceed with wider intervals
+- **FAIL:** <60% quality or single source - gather more evidence
+
 ---
 
 ### Step 3: Generate Updated Analyst Priors
@@ -84,6 +104,29 @@ Claude Code will act as the Security Analyst Agent (using `prompts/02_security_a
 2. **Update probability estimates** based on evidence changes
 3. **Provide reasoning** for each change
 4. **Generate updated `data/analyst_priors.json`**
+5. **NEW v2.1:** Apply ACH pre-mortem analysis ("What would have to be true for this estimate to be wrong?")
+
+### Step 3.5: Red Team Review (Optional but Recommended) - NEW v2.1
+
+Before running the simulation, consider challenging your priors with a structured adversarial review.
+
+**When to use:**
+- Confidence intervals seem suspiciously narrow
+- High-stakes decisions depend on the simulation
+- Estimates diverge significantly from base rates
+
+**Process:**
+1. Load `prompts/05_red_team_prompt.md`
+2. Provide `analyst_priors.json` and `compiled_intel.json`
+3. Review the critique output (`red_team_critique.json`)
+4. Consider revisions to weakest estimates
+5. Re-generate priors if significant issues identified
+
+**What Red Team provides:**
+- 3-5 weakest estimates identified with reasoning
+- Historical base rate challenges
+- Alternative scenario analysis
+- Specific numeric revision suggestions
 
 **Example changes:**
 ```diff

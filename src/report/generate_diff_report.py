@@ -140,6 +140,95 @@ def format_coverage_changes(coverage_changes: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def format_coverage_deltas(coverage_deltas: dict) -> str:
+    """Format coverage deltas showing bucket changes."""
+    if not coverage_deltas:
+        return ""
+
+    lines = []
+
+    buckets_lost = coverage_deltas.get('buckets_lost', [])
+    buckets_recovered = coverage_deltas.get('buckets_recovered', [])
+
+    if buckets_lost:
+        lines.append("**Buckets Now Missing:**")
+        for bucket in buckets_lost:
+            lines.append(f"- {bucket}")
+
+    if buckets_recovered:
+        lines.append("**Buckets Recovered:**")
+        for bucket in buckets_recovered:
+            lines.append(f"- {bucket} ✅")
+
+    if not lines:
+        return ""
+
+    return "\n".join(lines) + "\n"
+
+
+def format_health_deltas(health_deltas: dict) -> str:
+    """Format health status changes."""
+    if not health_deltas:
+        return ""
+
+    transitions = health_deltas.get('transitions', [])
+    if not transitions:
+        return ""
+
+    lines = ["**Source Health Transitions:**"]
+
+    for t in transitions:
+        source = t['source']
+        from_status = t['from']
+        to_status = t['to']
+
+        if to_status == 'DOWN':
+            lines.append(f"- {source}: {from_status} → **{to_status}** ⚠️")
+        elif to_status == 'DEGRADED':
+            lines.append(f"- {source}: {from_status} → {to_status}")
+        elif to_status == 'OK':
+            lines.append(f"- {source}: {from_status} → {to_status} ✅")
+        else:
+            lines.append(f"- {source}: {from_status} → {to_status}")
+
+    overall = health_deltas.get('overall_status', 'UNKNOWN')
+    lines.append(f"\n**Overall Health Status:** {overall}")
+
+    return "\n".join(lines) + "\n"
+
+
+def format_contested_claims(contested_claims: list) -> str:
+    """Format contested claims section."""
+    if not contested_claims:
+        return ""
+
+    lines = []
+
+    # Only show claims with actual conflicts (not just high candidate count)
+    true_conflicts = [c for c in contested_claims if 'tie' in c.get('reason', '').lower() or 'conflict' in c.get('reason', '').lower()]
+
+    if true_conflicts:
+        lines.append("**Conflicting Claims (value set to null):**")
+        for claim in true_conflicts[:5]:
+            path = claim['path'].split('.')[-1].replace('_', ' ').title()
+            lines.append(f"- {path}: {claim.get('reason', 'conflict')}")
+
+    # High candidate count
+    high_candidates = [c for c in contested_claims if c.get('candidates', 0) >= 3 and c not in true_conflicts]
+    if high_candidates:
+        if lines:
+            lines.append("")
+        lines.append("**High Contention (3+ claims):**")
+        for claim in high_candidates[:5]:
+            path = claim['path'].split('.')[-1].replace('_', ' ').title()
+            lines.append(f"- {path}: {claim.get('candidates', 0)} competing claims")
+
+    if not lines:
+        return ""
+
+    return "\n".join(lines) + "\n"
+
+
 def generate_markdown_report(diff_data: dict) -> str:
     """Generate complete Markdown report."""
     comparison = diff_data.get('comparison', {})
@@ -191,6 +280,30 @@ def generate_markdown_report(diff_data: dict) -> str:
         lines.append("")
         lines.append(format_coverage_changes(coverage_changes))
 
+    # Coverage deltas (buckets lost/recovered)
+    coverage_deltas = diff_data.get('coverage_deltas', {})
+    coverage_deltas_text = format_coverage_deltas(coverage_deltas)
+    if coverage_deltas_text:
+        lines.append("### Bucket Coverage Deltas")
+        lines.append("")
+        lines.append(coverage_deltas_text)
+
+    # Health deltas
+    health_deltas = diff_data.get('health_deltas', {})
+    health_deltas_text = format_health_deltas(health_deltas)
+    if health_deltas_text:
+        lines.append("### Source Health Changes")
+        lines.append("")
+        lines.append(health_deltas_text)
+
+    # Contested claims
+    contested_claims = diff_data.get('contested_claims', [])
+    contested_text = format_contested_claims(contested_claims)
+    if contested_text:
+        lines.append("### Contested Claims")
+        lines.append("")
+        lines.append(contested_text)
+
     # Summary
     summary = diff_data.get('summary', {})
     lines.extend([
@@ -200,6 +313,8 @@ def generate_markdown_report(diff_data: dict) -> str:
         "",
         f"**Major Changes:** {summary.get('major_changes', 0)}",
         f"**Minor Changes:** {summary.get('minor_changes', 0)}",
+        f"**Contested Claims:** {summary.get('contested_claim_count', 0)}",
+        f"**Health Transitions:** {summary.get('health_transitions', 0)}",
         f"**Overall Assessment:** {summary.get('overall_assessment', 'Unknown')}",
         ""
     ])

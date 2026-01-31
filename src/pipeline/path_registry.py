@@ -25,15 +25,25 @@ class PathRegistry:
             registry = json.load(f)
 
         self.paths: Dict[str, Dict[str, Any]] = registry.get("paths", {})
+        self.aliases: Dict[str, str] = {
+            k: v for k, v in registry.get("path_aliases", {}).items()
+            if not k.startswith("_")  # Skip comment keys like _section_*
+        }
         self._schema_version = registry.get("_schema_version", "1.0")
 
+    def normalize_path(self, path: str) -> str:
+        """Apply path aliases to normalize a path to its canonical form."""
+        return self.aliases.get(path, path)
+
     def is_valid_path(self, path: str) -> bool:
-        """Check if path is registered."""
-        return path in self.paths
+        """Check if path is registered (after applying aliases)."""
+        normalized = self.normalize_path(path)
+        return normalized in self.paths
 
     def get_path_info(self, path: str) -> Optional[Dict[str, Any]]:
-        """Get path metadata (type, enum_values, etc.)."""
-        return self.paths.get(path)
+        """Get path metadata (type, enum_values, etc.) after normalizing aliases."""
+        normalized = self.normalize_path(path)
+        return self.paths.get(normalized)
 
     def normalize_enum_value(self, path: str, value: Any) -> Tuple[Any, List[str]]:
         """
@@ -81,6 +91,8 @@ class PathRegistry:
         """
         Validate and normalize a claim.
 
+        Applies path aliases and normalizes enum values.
+
         Args:
             claim: The claim dict
 
@@ -91,19 +103,26 @@ class PathRegistry:
         value = claim.get("value")
         errors: List[str] = []
 
-        # Check if path is registered
-        if not self.is_valid_path(path):
+        # Normalize path using aliases
+        normalized_path = self.normalize_path(path)
+
+        # Check if normalized path is registered
+        if normalized_path not in self.paths:
             errors.append(f"claim_id '{claim.get('claim_id')}': unknown path '{path}'")
             return claim, errors
 
+        # Create a copy of the claim with normalized path
+        claim = dict(claim)
+        if normalized_path != path:
+            claim["path"] = normalized_path
+            claim["_original_path"] = path
+
         # Normalize enum if applicable
         if value is not None:  # Don't normalize null values
-            normalized_value, norm_errors = self.normalize_enum_value(path, value)
+            normalized_value, norm_errors = self.normalize_enum_value(normalized_path, value)
             if norm_errors:
                 errors.extend(norm_errors)
             else:
-                # Update claim with normalized value
-                claim = dict(claim)  # shallow copy
                 claim["value"] = normalized_value
 
         return claim, errors

@@ -756,4 +756,73 @@ Before submitting bundle:
 
 **Remember:** Your job is **collection and citation**, not analysis. Preserve ambiguity, document conflicts, admit unknowns. The compilation and analysis stages (handled by downstream agents) will reconcile conflicts and generate assessments. Your role is to provide the raw, well-cited evidence they need.
 
+---
+
+## SECTION 11: CRITICAL EVIDENCE QUALITY GATE
+
+**Before finalizing your evidence bundle**, apply this mandatory quality gate to flag weak claims.
+
+### Source Grade Threshold Rules
+
+For each claim in your `candidate_claims.jsonl`, check the source grades:
+
+| Best Source Grade | Claim Class | Action Required |
+|------------------|-------------|-----------------|
+| A1, A2, B1 | HARD_FACT | No flag needed |
+| B2, B3 | HARD_FACT | Add triangulation note if single-source |
+| C1, C2, C3 | HARD_FACT | **FLAG as LOW_CONFIDENCE** |
+| D1-D4 | HARD_FACT | **FLAG as LOW_CONFIDENCE + suggest verification** |
+| C or D | SOFT_FACT | Add note about evidence quality |
+| C or D | ASSESSMENT | Acceptable with explicit caveats |
+
+### Implementation
+
+When flagging a claim, add these fields:
+
+```json
+{
+  "claim_id": "CLM_20260110_0042",
+  "path": "current_state.casualties.protesters.killed.mid",
+  "value": 85,
+  "source_grade": "C3",
+  "confidence": "LOW",
+  "confidence_flag": "LOW_SOURCE_QUALITY",
+  "quality_gate_notes": "Best available source is grade C3. Claim requires verification from higher-grade source before use in critical assessments.",
+  "suggested_followup": "Query HRANA or Iran Human Rights for corroboration; check Reuters/AP for independent casualty counts"
+}
+```
+
+### Quality Gate Checklist
+
+Before bundle submission, verify:
+
+- [ ] Every HARD_FACT claim with best source C or D is flagged as `"confidence_flag": "LOW_SOURCE_QUALITY"`
+- [ ] Every flagged claim has a `suggested_followup` field with specific verification guidance
+- [ ] Claims relying solely on regime sources (grade 4 bias) are flagged with `"confidence_flag": "REGIME_SOURCE_ONLY"`
+- [ ] Claims relying solely on opposition sources (grade 3 bias) without corroboration are flagged with `"confidence_flag": "OPPOSITION_SOURCE_ONLY"`
+- [ ] Bundle metadata includes count of flagged claims in `summary.low_confidence_claims`
+
+### Metadata Update
+
+Add to your `metadata.json`:
+
+```json
+{
+  "summary": {
+    "total_candidate_claims": 47,
+    "low_confidence_claims": 8,
+    "regime_source_only_claims": 3,
+    "opposition_source_only_claims": 5,
+    "fully_triangulated_claims": 12
+  },
+  "quality_gate_status": "PASSED|WARNING|FAILED",
+  "quality_gate_notes": "8 claims flagged for low source quality; suggest follow-up collection targeting these gaps"
+}
+```
+
+**Warning Status:** If >30% of HARD_FACT claims are flagged, bundle receives WARNING status
+**Failed Status:** If >50% of HARD_FACT claims are flagged, bundle receives FAILED status and should not proceed to compilation without additional collection
+
+---
+
 Good hunting. 🔍

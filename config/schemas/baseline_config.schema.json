@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iran-simulation/schemas/baseline_config.schema.json",
+  "title": "Baseline Config",
+  "description": "Schema for baseline forecaster configuration",
+  "type": "object",
+  "required": ["config_version", "defaults"],
+  "properties": {
+    "config_version": {
+      "type": "string",
+      "description": "Configuration version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "defaults": {
+      "type": "object",
+      "description": "Default configuration values for all events",
+      "required": [
+        "min_history_n",
+        "smoothing_alpha",
+        "persistence_stickiness",
+        "max_staleness_days",
+        "staleness_decay",
+        "resolution_modes"
+      ],
+      "properties": {
+        "min_history_n": {
+          "type": "integer",
+          "description": "Minimum samples before using history (falls back to uniform if below)",
+          "minimum": 1,
+          "default": 20
+        },
+        "window_days": {
+          "type": ["integer", "null"],
+          "description": "Lookback window in days (null = all-time)",
+          "minimum": 1,
+          "default": 180
+        },
+        "smoothing_alpha": {
+          "type": "number",
+          "description": "Dirichlet/Laplace smoothing parameter",
+          "minimum": 0,
+          "default": 1.0
+        },
+        "include_unknown": {
+          "type": "boolean",
+          "description": "Include UNKNOWN outcomes in training",
+          "default": false
+        },
+        "unknown_alpha": {
+          "type": "number",
+          "description": "Smoothing parameter for UNKNOWN outcome (if include_unknown is true)",
+          "minimum": 0,
+          "default": 0.1
+        },
+        "recency_halflife_days": {
+          "type": ["number", "null"],
+          "description": "Half-life for recency weighting (null = no recency weighting)",
+          "minimum": 1
+        },
+        "persistence_stickiness": {
+          "type": "number",
+          "description": "Base weight on last resolved outcome (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.7
+        },
+        "max_staleness_days": {
+          "type": "integer",
+          "description": "Days until full decay to climatology",
+          "minimum": 1,
+          "default": 30
+        },
+        "staleness_decay": {
+          "type": "string",
+          "description": "Decay function type",
+          "enum": ["linear", "exponential"],
+          "default": "linear"
+        },
+        "resolution_modes": {
+          "type": "array",
+          "description": "Resolution modes to include in history",
+          "items": {
+            "type": "string",
+            "enum": ["external_auto", "external_manual", "claims_inferred"]
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "default": ["external_auto", "external_manual"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "overrides": {
+      "type": "object",
+      "description": "Per-event overrides keyed by event_id",
+      "additionalProperties": {
+        "type": "object",
+        "description": "Event-specific overrides (any subset of default fields)",
+        "properties": {
+          "min_history_n": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "window_days": {
+            "type": ["integer", "null"],
+            "minimum": 1
+          },
+          "smoothing_alpha": {
+            "type": "number",
+            "minimum": 0
+          },
+          "include_unknown": {
+            "type": "boolean"
+          },
+          "unknown_alpha": {
+            "type": "number",
+            "minimum": 0
+          },
+          "recency_halflife_days": {
+            "type": ["number", "null"],
+            "minimum": 1
+          },
+          "persistence_stickiness": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "max_staleness_days": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "staleness_decay": {
+            "type": "string",
+            "enum": ["linear", "exponential"]
+          },
+          "resolution_modes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["external_auto", "external_manual", "claims_inferred"]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

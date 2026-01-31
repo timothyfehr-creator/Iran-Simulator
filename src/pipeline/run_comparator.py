@@ -222,6 +222,128 @@ def compare_coverage(current: Dict, previous: Dict) -> Dict[str, Any]:
     return coverage_changes
 
 
+def compute_coverage_deltas(current: Dict, previous: Dict) -> Dict[str, Any]:
+    """
+    Compute detailed coverage deltas including bucket changes.
+
+    Args:
+        current: Current coverage_report
+        previous: Previous coverage_report
+
+    Returns:
+        Coverage deltas dictionary with buckets_missing_now/prev (full lists per spec)
+    """
+    if not current:
+        return {}
+
+    curr_missing = set(current.get('buckets_missing', []))
+    prev_missing = set(previous.get('buckets_missing', [])) if previous else set()
+    curr_present = set(current.get('buckets_present', []))
+    prev_present = set(previous.get('buckets_present', [])) if previous else set()
+
+    return {
+        # Full lists per spec (not just deltas)
+        'buckets_missing_now': list(curr_missing),  # Full current missing list
+        'buckets_missing_prev': list(prev_missing),  # Full previous missing list
+        # Delta lists (helpful for quick analysis)
+        'buckets_recovered': list(prev_missing - curr_missing),  # Was missing, now present
+        'buckets_lost': list(curr_missing - prev_missing),  # Was present, now missing
+        'status_current': current.get('status', 'UNKNOWN'),
+        'status_previous': previous.get('status', 'UNKNOWN') if previous else None
+    }
+
+
+def compute_health_deltas(current: Dict, previous: Dict) -> Dict[str, Any]:
+    """
+    Compute health status changes between runs.
+
+    Args:
+        current: Current coverage_report (with health_summary)
+        previous: Previous coverage_report (with health_summary)
+
+    Returns:
+        Health deltas dictionary
+    """
+    curr_health = current.get('health_summary', {}) if current else {}
+    prev_health = previous.get('health_summary', {}) if previous else {}
+
+    curr_degraded = set(curr_health.get('degraded_sources', []))
+    curr_down = set(curr_health.get('down_sources', []))
+    prev_degraded = set(prev_health.get('degraded_sources', []))
+    prev_down = set(prev_health.get('down_sources', []))
+
+    # Compute transitions
+    transitions = []
+
+    # OK -> DEGRADED
+    for source in curr_degraded - prev_degraded - prev_down:
+        transitions.append({
+            'source': source,
+            'from': 'OK',
+            'to': 'DEGRADED'
+        })
+
+    # OK/DEGRADED -> DOWN
+    for source in curr_down - prev_down:
+        if source in prev_degraded:
+            transitions.append({'source': source, 'from': 'DEGRADED', 'to': 'DOWN'})
+        else:
+            transitions.append({'source': source, 'from': 'OK', 'to': 'DOWN'})
+
+    # DOWN -> DEGRADED (recovering)
+    for source in curr_degraded & prev_down:
+        transitions.append({'source': source, 'from': 'DOWN', 'to': 'DEGRADED'})
+
+    # DEGRADED/DOWN -> OK (recovered)
+    for source in (prev_degraded | prev_down) - curr_degraded - curr_down:
+        prev_status = 'DOWN' if source in prev_down else 'DEGRADED'
+        transitions.append({'source': source, 'from': prev_status, 'to': 'OK'})
+
+    return {
+        'overall_status': curr_health.get('overall_status', 'UNKNOWN'),
+        'transitions': transitions,
+        'sources_degraded': list(curr_degraded),
+        'sources_down': list(curr_down)
+    }
+
+
+def extract_contested_claims(current_merge: Dict) -> List[Dict[str, Any]]:
+    """
+    Extract claims with conflict groups (contested claims).
+
+    Args:
+        current_merge: Current merge_report
+
+    Returns:
+        List of contested claims with conflict details
+    """
+    if not current_merge:
+        return []
+
+    contested = []
+
+    for note in current_merge.get('merge_notes', []):
+        if note.get('conflict', False):
+            contested.append({
+                'path': note.get('path'),
+                'conflict_group': note.get('conflicting_values', []),
+                'winner': note.get('winner_claim_id'),
+                'reason': note.get('reason', 'source_grade tie with different values'),
+                'candidates': note.get('candidates', 0)
+            })
+        elif note.get('candidates', 0) >= 3:
+            # High candidate count is also noteworthy
+            contested.append({
+                'path': note.get('path'),
+                'conflict_group': [c.get('claim_id') for c in note.get('all_candidates', [])],
+                'winner': note.get('winner_claim_id'),
+                'reason': f'High candidate count ({note.get("candidates")} claims)',
+                'candidates': note.get('candidates')
+            })
+
+    return contested
+
+
 def generate_diff_report(previous_run: str, current_run: str) -> Dict[str, Any]:
     """
     Generate comprehensive diff report.
@@ -255,6 +377,18 @@ def generate_diff_report(previous_run: str, current_run: str) -> Dict[str, Any]:
     print("Comparing coverage...")
     coverage_changes = compare_coverage(curr_data.get('coverage_report'), prev_data.get('coverage_report'))
 
+    # Compute coverage deltas (buckets_missing_now/prev)
+    print("Computing coverage deltas...")
+    coverage_deltas = compute_coverage_deltas(curr_data.get('coverage_report'), prev_data.get('coverage_report'))
+
+    # Compute health deltas
+    print("Computing health deltas...")
+    health_deltas = compute_health_deltas(curr_data.get('coverage_report'), prev_data.get('coverage_report'))
+
+    # Extract contested claims
+    print("Extracting contested claims...")
+    contested_claims = extract_contested_claims(curr_data.get('merge_report'))
+
     # Generate summary
     major_changes = sum(1 for oc in outcome_changes.values() if oc.get('significant', False))
     major_changes += sum(1 for ec in event_changes.values() if ec.get('significance') == 'HIGH')
@@ -272,6 +406,12 @@ def generate_diff_report(previous_run: str, current_run: str) -> Dict[str, Any]:
     elif major_changes > 0:
         overall_assessment = "Minor assessment updates"
 
+    # Add health-related assessment
+    if health_deltas.get('transitions'):
+        down_transitions = [t for t in health_deltas['transitions'] if t['to'] == 'DOWN']
+        if down_transitions:
+            overall_assessment += f" (WARNING: {len(down_transitions)} source(s) went DOWN)"
+
     diff_report = {
         'comparison': {
             'previous_run': os.path.basename(previous_run),
@@ -281,11 +421,16 @@ def generate_diff_report(previous_run: str, current_run: str) -> Dict[str, Any]:
         'outcome_changes': outcome_changes,
         'event_rate_changes': event_changes,
         'claim_winner_changes': claim_changes,
+        'contested_claims': contested_claims,
         'coverage_changes': coverage_changes,
+        'coverage_deltas': coverage_deltas,
+        'health_deltas': health_deltas,
         'summary': {
             'major_changes': major_changes,
             'minor_changes': minor_changes,
-            'overall_assessment': overall_assessment
+            'overall_assessment': overall_assessment,
+            'contested_claim_count': len(contested_claims),
+            'health_transitions': len(health_deltas.get('transitions', []))
         }
     }
 

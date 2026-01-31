@@ -25,6 +25,9 @@ ANCHOR_ALLOWED = {
     "ethnic_uprising_day",
     "khamenei_death_day",
     "collapse_day",
+    # Regional cascade anchors
+    "us_kinetic_day",
+    "israel_strike_day",
 }
 
 DEFAULT_DIST = "beta_pert"
@@ -89,6 +92,16 @@ def resolve_priors(priors: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, An
         "cyber_attack_given_crackdown",
         "kinetic_strike_given_crackdown",
         "ground_intervention_given_collapse",
+    ]
+    required_regional_keys = [
+        "iraq_stressed_given_iran_crisis",
+        "iraq_crisis_given_iran_collapse",
+        "syria_crisis_given_iran_collapse",
+        "iraq_proxy_activation_given_us_kinetic",
+        "syria_proxy_activation_given_us_kinetic",
+        "israel_strikes_given_defection",
+        "russia_support_given_iran_threatened",
+        "gulf_realignment_given_collapse",
     ]
 
     # Helper to resolve a probability dict
@@ -182,9 +195,17 @@ def resolve_priors(priors: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, An
             else:
                 resolve_prob(f"us_intervention_probabilities.{k}.probability", prob)
 
-    # Warn about unused sections
-    if "regional_cascade_probabilities" in pri and pri["regional_cascade_probabilities"]:
-        warnings.append("regional_cascade_probabilities present but currently unused by simulator.")
+    # Resolve regional cascade probabilities
+    rp = pri.get("regional_cascade_probabilities", {})
+    for k in required_regional_keys:
+        if k not in rp:
+            errors.append(f"Missing regional_cascade_probabilities.{k}")
+        else:
+            prob = rp[k].get("probability")
+            if not isinstance(prob, dict):
+                errors.append(f"regional_cascade_probabilities.{k}.probability missing or not dict")
+            else:
+                resolve_prob(f"regional_cascade_probabilities.{k}.probability", prob)
 
     qa: Dict[str, Any] = {
         "errors": errors,

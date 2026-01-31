@@ -107,6 +107,48 @@ For each probability estimate, you must provide:
 
 **Critical:** The `base_rate_anchor` field must reference specific baseline data, not vague historical claims.
 
+### MANDATORY PRE-ESTIMATION CHECK (ACH Pre-Mortem)
+
+**Before outputting ANY probability estimate**, you MUST complete the following structured analysis:
+
+1. **FORCE LOGIC (Why it WILL happen):**
+   - List 2 specific, concrete reasons this event WILL occur
+   - Each reason must cite evidence from compiled_intel.json or baseline
+   - Focus on enabling conditions, actor motivations, and precedents
+
+2. **BLOCK LOGIC (Why it WON'T happen):**
+   - List 2 specific, concrete reasons this event WON'T occur
+   - Each reason must cite evidence from compiled_intel.json or baseline
+   - Focus on constraints, countervailing forces, and historical patterns
+
+3. **EVIDENCE WEIGHT ASSESSMENT:**
+   - Which logic (Force or Block) has stronger evidentiary support?
+   - What is the quality difference (source grades, triangulation)?
+   - How confident are you in this assessment?
+
+**Only after completing all three steps** should you derive your low/mode/high probability values.
+
+**Example Pre-Estimation Check:**
+```
+Estimate: P(security_force_defection | protests_30d)
+
+FORCE LOGIC (reasons it WILL happen):
+1. Unprecedented protest scale (compiled_intel: 23 provinces) creates exhaustion
+2. Conscript morale reportedly low (compiled_intel: HRANA interviews)
+
+BLOCK LOGIC (reasons it WON'T happen):
+1. Zero defections in 5 prior major protests (baseline: 0/5 rate)
+2. IRGC economic control creates dependency (baseline: 40% GDP)
+
+EVIDENCE WEIGHT:
+Block logic stronger - historical pattern + structural incentives vs. soft morale indicators
+Source quality: Block (A1 baseline data) > Force (B3 single-source claims)
+
+Derive: Point=0.05, Low=0.02, High=0.10
+```
+
+This structured analysis prevents anchoring bias and forces consideration of countervailing evidence.
+
 ### Common Analyst Errors to Avoid
 
 - **Availability bias:** Recent vivid events (Venezuela extraction) distort probability estimates

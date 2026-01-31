@@ -209,6 +209,45 @@ def get_resolutions(
     return read_records(ledger_dir / RESOLUTIONS_FILE, filter_fn)
 
 
+def get_corrections(
+    ledger_dir: Path = LEDGER_DIR,
+    resolution_id: Optional[str] = None,
+    before_utc: Optional[datetime] = None
+) -> List[Dict[str, Any]]:
+    """
+    Get correction records, optionally filtered by resolution_id or time.
+
+    Args:
+        ledger_dir: Directory containing ledger files
+        resolution_id: Optional filter to corrections for specific resolution
+        before_utc: Optional filter to corrections before this timestamp (for lookahead prevention)
+
+    Returns:
+        List of matching correction records
+    """
+    from datetime import timezone
+
+    def filter_fn(r: Dict[str, Any]) -> bool:
+        if resolution_id and r.get("resolution_id") != resolution_id:
+            return False
+        if before_utc is not None:
+            # Filter by corrected_at_utc
+            corrected_at_str = r.get("corrected_at_utc")
+            if corrected_at_str:
+                try:
+                    corrected_at_str = corrected_at_str.replace('Z', '+00:00')
+                    corrected_at = datetime.fromisoformat(corrected_at_str)
+                    if corrected_at.tzinfo is None:
+                        corrected_at = corrected_at.replace(tzinfo=timezone.utc)
+                    if corrected_at > before_utc:
+                        return False
+                except (ValueError, AttributeError):
+                    pass
+        return True
+
+    return read_records(ledger_dir / CORRECTIONS_FILE, filter_fn)
+
+
 def get_pending_forecasts(ledger_dir: Path = LEDGER_DIR) -> List[Dict[str, Any]]:
     """
     Get forecasts that haven't been resolved yet.

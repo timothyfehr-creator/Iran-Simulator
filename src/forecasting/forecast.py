@@ -17,6 +17,7 @@ import re
 from . import catalog as cat
 from . import ledger
 from . import ensembles
+from . import baseline_history
 from .ledger import compute_manifest_id
 from ..run_utils import (
     list_runs_sorted,
@@ -98,41 +99,70 @@ def validate_distribution(probs: Dict[str, float], event: Dict[str, Any]) -> Lis
 
 def generate_baseline_distribution(
     event: Dict[str, Any],
-    forecast_source_type: str
-) -> Dict[str, float]:
+    forecast_source_type: str,
+    history_entry: Optional[baseline_history.HistoryEntry] = None,
+    config: Optional[Dict[str, Any]] = None
+) -> Tuple[Dict[str, float], Dict[str, Any]]:
     """
-    Generate baseline probability distribution for MVP events.
+    Generate baseline probability distribution from history.
 
-    Phase 3A: Uniform fallback only (no ledger history lookup).
-    Full persistence/climatology logic deferred to Phase 3C.
+    Uses history-based climatology or persistence algorithms when history
+    is available, falling back to uniform distribution otherwise.
 
     Args:
         event: Event definition with allowed_outcomes
         forecast_source_type: "baseline_persistence" or "baseline_climatology"
+        history_entry: Optional history entry for this event/horizon
+        config: Optional event-specific configuration
 
     Returns:
-        Uniform distribution: {outcome: 1/K for outcome in allowed_outcomes}
-        where K is the number of non-UNKNOWN outcomes
+        Tuple of (probabilities, metadata)
     """
     outcomes = event.get("allowed_outcomes", [])
-    # Exclude UNKNOWN from uniform distribution
+    # Exclude UNKNOWN from distribution
     non_unknown = [o for o in outcomes if o != "UNKNOWN"]
     k = len(non_unknown)
 
     if k == 0:
-        return {"UNKNOWN": 1.0}
+        return {"UNKNOWN": 1.0}, {"baseline_fallback": "no_outcomes"}
 
-    # Calculate uniform probability
-    prob = round(1.0 / k, 6)
-    dist = {o: prob for o in non_unknown}
+    # Default config if not provided
+    if config is None:
+        config = {
+            "min_history_n": 20,
+            "smoothing_alpha": 1.0,
+            "persistence_stickiness": 0.7,
+            "max_staleness_days": 30,
+            "staleness_decay": "linear",
+        }
 
-    # Adjust for rounding to ensure sum == 1.0
-    total = sum(dist.values())
-    if total != 1.0:
-        first_key = non_unknown[0]
-        dist[first_key] = round(dist[first_key] + (1.0 - total), 6)
+    # If no history entry, fall back to uniform
+    if history_entry is None:
+        prob = round(1.0 / k, 6)
+        dist = {o: prob for o in non_unknown}
+        total = sum(dist.values())
+        if total != 1.0:
+            dist[non_unknown[0]] = round(dist[non_unknown[0]] + (1.0 - total), 6)
 
-    return dist
+        metadata = {
+            "baseline_history_n": 0,
+            "baseline_fallback": "uniform",
+            "baseline_staleness_days": None,
+            "baseline_last_verified_at": None,
+            "baseline_excluded_counts_by_reason": {},
+        }
+        return dist, metadata
+
+    # Use history-based distribution
+    if forecast_source_type == "baseline_persistence":
+        return baseline_history.compute_persistence_distribution(
+            history_entry, non_unknown, config
+        )
+    else:
+        # baseline_climatology or default
+        return baseline_history.compute_climatology_distribution(
+            history_entry, non_unknown, config
+        )
 
 
 def hazard_rate_conversion(p_90: float, horizon_days: int) -> float:
@@ -543,6 +573,19 @@ def generate_forecasts(
     as_of_utc = datetime.now(timezone.utc)
     records = []
 
+    # Load baseline config and build history index once for all forecasts
+    baseline_config = None
+    history_index = None
+    try:
+        baseline_config = baseline_history.load_baseline_config()
+        history_index = baseline_history.build_history_index(
+            as_of_utc, ledger_dir, baseline_config
+        )
+        logger.debug(f"Built history index with {len(history_index.get_all_entries())} entries")
+    except baseline_history.BaselineHistoryError as e:
+        logger.warning(f"Failed to build history index: {e}")
+        # Continue without history - baselines will use uniform fallback
+
     for event in cat.get_forecastable_events(catalog_data):
         source_type = event.get("forecast_source", {}).get("type")
 
@@ -565,9 +608,11 @@ def generate_forecasts(
 
             # Generate forecast record with appropriate source handling
             if source_type in ("baseline_persistence", "baseline_climatology"):
-                # Use minimal baseline (uniform) in Phase 3A
+                # Use history-based baseline (Phase 3D-2)
                 record = generate_baseline_forecast_record(
-                    event, run_dir, artifacts, horizon, as_of_utc, source_type
+                    event, run_dir, artifacts, horizon, as_of_utc, source_type,
+                    history_index=history_index,
+                    baseline_config=baseline_config
                 )
             else:
                 # Use existing simulation-based logic
@@ -627,13 +672,15 @@ def generate_baseline_forecast_record(
     artifacts: Dict[str, Any],
     horizon_days: int,
     as_of_utc: datetime,
-    source_type: str
+    source_type: str,
+    history_index: Optional[baseline_history.HistoryIndex] = None,
+    baseline_config: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Generate a forecast record for baseline events (persistence/climatology).
 
-    Phase 3A: Uses uniform distribution as fallback.
-    Full baseline logic deferred to Phase 3C.
+    Uses history-based distributions when history index is provided,
+    falling back to uniform distribution otherwise.
 
     Args:
         event: Event definition from catalog
@@ -642,6 +689,8 @@ def generate_baseline_forecast_record(
         horizon_days: Forecast horizon in days
         as_of_utc: Timestamp for forecast creation
         source_type: "baseline_persistence" or "baseline_climatology"
+        history_index: Optional history index for baseline computation
+        baseline_config: Optional baseline configuration
 
     Returns:
         Complete forecast record dictionary
@@ -654,8 +703,20 @@ def generate_baseline_forecast_record(
     manifest_path = run_dir / "run_manifest.json"
     manifest_id = compute_manifest_id(manifest_path)
 
-    # Generate uniform baseline distribution
-    probabilities = generate_baseline_distribution(event, source_type)
+    # Get history entry if index is available
+    history_entry = None
+    event_config = None
+    if history_index is not None:
+        history_entry = history_index.get_entry(event_id, horizon_days)
+        if baseline_config:
+            defaults = baseline_config.get("defaults", {})
+            overrides = baseline_config.get("overrides", {})
+            event_config = baseline_history.get_event_config(event_id, defaults, overrides)
+
+    # Generate baseline distribution with history
+    probabilities, baseline_metadata = generate_baseline_distribution(
+        event, source_type, history_entry, event_config
+    )
 
     # Calculate target date
     target_date = as_of_utc + timedelta(days=horizon_days)
@@ -666,6 +727,11 @@ def generate_baseline_forecast_record(
 
     # Extract artifact hashes from manifest
     artifact_hashes = manifest.get("hashes", {})
+
+    # Get resolution modes from config for metadata
+    resolution_modes = ["external_auto", "external_manual"]
+    if event_config:
+        resolution_modes = event_config.get("resolution_modes", resolution_modes)
 
     record = {
         "record_type": "forecast",
@@ -689,6 +755,14 @@ def generate_baseline_forecast_record(
         "horizon_conversion_applied": False,
         "abstain": False,
         "abstain_reason": None,
+        # Baseline metadata fields (Phase 3D-2)
+        "baseline_history_n": baseline_metadata.get("baseline_history_n"),
+        "baseline_fallback": baseline_metadata.get("baseline_fallback"),
+        "baseline_staleness_days": baseline_metadata.get("baseline_staleness_days"),
+        "baseline_last_verified_at": baseline_metadata.get("baseline_last_verified_at"),
+        "baseline_config_version": baseline_config.get("config_version") if baseline_config else None,
+        "baseline_resolution_modes": resolution_modes,
+        "baseline_excluded_counts_by_reason": baseline_metadata.get("baseline_excluded_counts_by_reason", {}),
     }
 
     return record

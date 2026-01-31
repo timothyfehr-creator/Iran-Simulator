@@ -1,7 +1,101 @@
 {
   "_comment": "Registry of valid paths for iran_crisis_intel schema with strict validation",
-  "_schema_version": "2.0",
-  "_enforcement": "STRICT - Unknown paths will be REJECTED",
+  "_schema_version": "2.1",
+  "_enforcement": "STRICT - Unknown paths will be REJECTED, aliases normalized first",
+
+  "path_aliases": {
+    "_comment": "Common incorrect paths mapped to canonical paths. Used by extract_claims.py for normalization.",
+
+    "_section_casualties": "=== CASUALTY ALIASES ===",
+    "current_state.protest_metrics.casualties": "current_state.casualties.protesters.killed.mid",
+    "current_state.protest_metrics.deaths": "current_state.casualties.protesters.killed.mid",
+    "current_state.protest_metrics.killed": "current_state.casualties.protesters.killed.mid",
+    "current_state.protest_metrics.death_toll": "current_state.casualties.protesters.killed.mid",
+    "current_state.protest_metrics.casualties_estimate": "current_state.casualties.protesters.killed.mid",
+    "current_state.regime_response.crackdown_fatalities": "current_state.casualties.protesters.killed.mid",
+    "current_state.casualties.killed": "current_state.casualties.protesters.killed.mid",
+    "current_state.casualties.deaths": "current_state.casualties.protesters.killed.mid",
+
+    "_section_detained": "=== DETENTION ALIASES ===",
+    "current_state.regime_response.arrests": "current_state.casualties.protesters.detained.estimate",
+    "current_state.regime_response.detained": "current_state.casualties.protesters.detained.estimate",
+    "current_state.protest_metrics.detained": "current_state.casualties.protesters.detained.estimate",
+    "current_state.protest_metrics.arrests": "current_state.casualties.protesters.detained.estimate",
+
+    "_section_internet": "=== INTERNET STATUS ALIASES ===",
+    "current_state.regime_response.internet_blackout": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.internet_shutdown": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.internet": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.internet_access": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.censorship": "current_state.information_environment.internet_status.current",
+    "current_state.network_metrics.internet_status": "current_state.information_environment.internet_status.current",
+    "current_state.information_environment.internet_shutdown": "current_state.information_environment.internet_status.current",
+    "internet_connectivity": "current_state.information_environment.internet_connectivity_index",
+    "connectivity_score": "current_state.information_environment.internet_connectivity_index",
+    "current_state.connectivity": "current_state.information_environment.internet_connectivity_index",
+
+    "_section_censorship": "=== CENSORSHIP/NETWORK ALIASES ===",
+    "current_state.network_metrics.anomaly_detection": "current_state.information_environment.internet_status.current",
+    "current_state.network_metrics.censorship.anomaly_detection": "current_state.information_environment.internet_status.current",
+    "current_state.network_metrics.measurement_id": "current_state.information_environment.internet_status.current",
+    "current_state.network_metrics.probe_asn": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.censorship_metrics.anomaly_detected": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.censorship_metrics.anomaly_detection": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.censorship_metrics.anomalies_detected": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.censorship_metrics.target_url": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.censorship_metrics.targeted_sites": "current_state.information_environment.internet_status.current",
+    "current_state.regime_response.anomaly_detection": "current_state.information_environment.internet_status.current",
+    "current_state.external_actors.censorship_metrics.probe_asn": "current_state.information_environment.internet_status.current",
+    "current_state.external_actors.censorship_measurement": "current_state.information_environment.internet_status.current",
+    "current_state.external_actors.censorship_tools.psiphon": "current_state.information_environment.internet_status.current",
+    "current_state.external_actors.network_interference": "current_state.information_environment.internet_status.current",
+    "current_state.external_actors.social_media": "current_state.information_environment.internet_status.current",
+    "current_state.external_actors.internet_blackout": "current_state.information_environment.internet_status.current",
+    "current_state.external_actors.tor_usage": "current_state.information_environment.internet_status.current",
+
+    "_section_protest_trend": "=== PROTEST TREND ALIASES ===",
+    "current_state.protest_metrics.trend": "current_state.protest_metrics.current_snapshot.intensity_trend",
+    "current_state.protest_metrics.intensity": "current_state.protest_metrics.current_snapshot.intensity_trend",
+    "current_state.protest_metrics.intensity_trend": "current_state.protest_metrics.current_snapshot.intensity_trend",
+    "current_state.regime_response.intensity": "current_state.protest_metrics.current_snapshot.intensity_trend",
+
+    "_section_protest_scope": "=== PROTEST SCOPE ALIASES ===",
+    "current_state.protest_metrics.cities": "current_state.protest_metrics.current_snapshot.cities_affected.value",
+    "current_state.protest_metrics.provinces": "current_state.protest_metrics.current_snapshot.provinces_affected.value",
+    "current_state.protest_metrics.participants": "current_state.protest_metrics.current_snapshot.estimated_participants",
+    "current_state.protest_metrics.duration": "current_situation.protest_status.duration_days",
+    "current_state.protest_metrics.slogans": "current_state.protest_metrics.protest_character.primary_demands",
+
+    "_section_regime_response": "=== REGIME RESPONSE ALIASES ===",
+    "current_state.regime_response.crackdown": "current_situation.regime_response.crackdown_severity",
+    "current_state.regime_response.measures_taken": "current_situation.regime_response.crackdown_severity",
+    "current_state.regime_response.allegations": "current_state.information_environment.regime_narrative.key_statements",
+    "current_state.regime_response.damage": "current_state.information_environment.regime_narrative.key_statements",
+
+    "_section_external_actors": "=== EXTERNAL ACTORS ALIASES ===",
+    "current_state.external_actors.involvement": "external_actors.united_states.stated_position.quotes",
+    "current_state.external_actors.influence": "external_actors.united_states.stated_position.quotes",
+    "external_actors.us.position": "external_actors.united_states.stated_position.quotes",
+    "external_actors.usa.position": "external_actors.united_states.stated_position.quotes",
+
+    "_section_economic": "=== ECONOMIC ALIASES ===",
+    "current_state.economic.inflation": "current_state.economic_conditions.inflation.official_annual_percent",
+    "current_state.economic.rial_rate": "current_state.economic_conditions.rial_usd_rate.market",
+    "current_state.economic.oil_exports": "current_state.economic_conditions.oil_exports_bpd.value",
+    "current_state.economics.exchange_rates.USD_IRR": "current_state.economic_conditions.rial_usd_rate.market",
+    "current_state.economics.exchange_rates.EUR_IRR": "current_state.economic_conditions.rial_usd_rate.market",
+    "current_state.economics.gold_prices.18K_gold_IRR_per_gram": "current_state.economic_conditions.gold_18k_per_gram_rial",
+    "current_state.economics.bitcoin_price.USD": "current_state.economic_conditions.rial_usd_rate.market",
+
+    "_section_defections": "=== DEFECTION ALIASES ===",
+    "current_state.defections.count": "current_situation.defections.confirmed_count",
+    "current_state.defections.occurred": "current_situation.regime_response.defections",
+
+    "_section_baseline": "=== BASELINE ALIASES ===",
+    "regime.khamenei.health": "baseline.regime_structure.supreme_leader.health_baseline",
+    "regime.khamenei.age": "baseline.regime_structure.supreme_leader.age"
+  },
+
   "paths": {
     "current_state.protest_metrics.current_snapshot.provinces_affected.value": {
       "type": "integer",
@@ -71,6 +165,11 @@
       "units": "text",
       "description": "How internet status was measured"
     },
+    "current_state.information_environment.internet_connectivity_index": {
+      "type": "number",
+      "units": "percent",
+      "description": "Internet connectivity index 0-100, where 100 is normal baseline. Source: IODA/Georgia Tech."
+    },
     "current_state.information_environment.regime_narrative.key_statements": {
       "type": "string",
       "units": "text",
@@ -135,6 +234,16 @@
       "type": "integer",
       "units": "count",
       "description": "Market exchange rate (rials per USD)"
+    },
+    "current_state.economic_conditions.gold_18k_per_gram_rial": {
+      "type": "integer",
+      "units": "count",
+      "description": "Gold 18k price per gram in rials"
+    },
+    "current_state.protest_metrics.current_snapshot.estimated_participants": {
+      "type": "integer",
+      "units": "people",
+      "description": "Estimated number of protest participants"
     },
     "external_actors.united_states.stated_position.quotes": {
       "type": "string",
