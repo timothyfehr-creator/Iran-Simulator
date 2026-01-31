@@ -19,8 +19,8 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Project-specific: ISW ingestion output
-ingest/
+# Project-specific: ISW ingestion output (root level only)
+/ingest/
 
 # Outputs and run artifacts
 outputs/
