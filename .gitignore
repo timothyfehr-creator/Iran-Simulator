@@ -56,3 +56,19 @@ forecasting/evidence/
 !data/iran_crisis_intel.json
 !data/analyst_priors.json
 !knowledge/iran_baseline/*.jsonl
+
+# Development artifacts
+outputs_test*.json
+playwright-report/
+test-results/
+frontend/playwright-report/
+frontend/test-results/
+
+# One-off internal docs
+CLAUDE_HANDOFF_*.md
+REVIEW_FOR_*.md
+SUMMARY_FOR_USER*.md
+TASKLIST_*.md
+QA_GATES_SPEC_*.md
+IMPLEMENTATION_SUMMARY.md
+merge_isw_bundle.py
