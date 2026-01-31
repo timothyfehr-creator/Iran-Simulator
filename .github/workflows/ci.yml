@@ -1,6 +1,10 @@
 name: CI
 on:
   push:
+    paths-ignore:
+      - 'runs/**'
+      - 'forecasting/ledger/**'
+      - 'logs/**'
   pull_request:
 
 permissions:
