@@ -72,4 +72,18 @@ TASKLIST_*.md
 QA_GATES_SPEC_*.md
 IMPLEMENTATION_SUMMARY.md
 merge_isw_bundle.py
+
+# Session / runtime artifacts
+.daily_update.lock
+.mcp.json
+AUTO_INGEST_TEST_RESULTS.md
+GEMINI_OVERVIEW.txt
+ISW_INTEGRATION_RESULTS.md
+DIAGRAM.txt
+DOCS_INDEX.md
+EVIDENCE_BUNDLE_SPEC.md
+PLAN_A.md
+WORKFLOW_UPDATE.md
+
+# Build caches
 frontend/.vite/
