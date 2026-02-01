@@ -16,14 +16,29 @@ export function TimelineSlider({ currentDay, onDayChange }: TimelineSliderProps)
     handleChange(parseInt(e.target.value, 10));
   };
 
-  // Generate tick marks every 10 days
   const ticks = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90];
+  const progress = (day / 90) * 100;
 
   return (
-    <div data-testid="timeline-slider" className="space-y-3">
+    <div data-testid="timeline-slider" className="space-y-2">
       <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-400 uppercase tracking-wider">Timeline</span>
-        <span className="text-sm font-mono text-war-room-accent">{formatDay(day)}</span>
+        <span className="text-caption text-war-room-text-secondary uppercase tracking-wider">
+          Timeline
+        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-mono font-mono text-war-room-accent font-bold">{formatDay(day)}</span>
+          {day > 0 && (
+            <div
+              className="h-1.5 w-16 bg-war-room-border rounded-full overflow-hidden"
+              aria-hidden="true"
+            >
+              <div
+                className="h-full bg-war-room-accent rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="relative">
@@ -41,18 +56,29 @@ export function TimelineSlider({ currentDay, onDayChange }: TimelineSliderProps)
           aria-valuenow={day}
         />
 
-        {/* Tick marks */}
-        <div className="flex justify-between mt-1 px-1">
+        <div className="flex justify-between mt-1 px-0.5">
           {ticks.map((tick) => (
             <div key={tick} className="flex flex-col items-center">
-              <div className="w-px h-2 bg-war-room-border" />
-              <span className="text-xs text-gray-600 mt-1">{tick}</span>
+              <div
+                className={`w-px h-2 ${
+                  tick === day ? 'bg-war-room-accent' : 'bg-war-room-border'
+                }`}
+              />
+              <span
+                className={`text-[10px] mt-0.5 ${
+                  tick === day
+                    ? 'text-war-room-accent font-medium'
+                    : 'text-war-room-muted'
+                }`}
+              >
+                {tick}
+              </span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="flex justify-between text-xs text-gray-500">
+      <div className="flex justify-between text-caption text-war-room-muted">
         <span>Simulation Start</span>
         <span>Day 90</span>
       </div>

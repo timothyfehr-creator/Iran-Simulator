@@ -17,7 +17,7 @@ export function WarRoomLayout() {
         />
       </ErrorBoundary>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden gap-0">
         <ErrorBoundary>
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         </ErrorBoundary>
@@ -28,7 +28,7 @@ export function WarRoomLayout() {
       </div>
 
       <ErrorBoundary>
-        <div className="panel border-t border-war-room-border p-4">
+        <div className="panel border-t border-war-room-border rounded-none px-5 py-4">
           <TimelineSlider />
         </div>
       </ErrorBoundary>

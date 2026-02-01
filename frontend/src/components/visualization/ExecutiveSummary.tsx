@@ -1,6 +1,11 @@
 import { useSimulationStore } from '../../store/simulationStore';
 import { formatPercent, formatNumber, formatRial } from '../../utils/formatters';
 import { outcomeLabels } from '../../data/mockData';
+import { Panel } from '../ui/Panel';
+import { StatCard } from '../ui/StatCard';
+import { Badge } from '../ui/Badge';
+import { EmptyState } from '../ui/EmptyState';
+import { Skeleton } from '../ui/Skeleton';
 import {
   AlertTriangle,
   TrendingUp,
@@ -9,20 +14,27 @@ import {
   Users,
   DollarSign,
   Activity,
+  BarChart3,
 } from 'lucide-react';
 
 export function ExecutiveSummary() {
   const results = useSimulationStore((state) => state.results);
+  const isLoading = useSimulationStore((state) => state.isLoading);
+
+  if (isLoading && !results) {
+    return <ExecutiveSummarySkeleton />;
+  }
 
   if (!results) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] text-gray-500">
-        No simulation data available. Run a simulation to generate the executive summary.
-      </div>
+      <EmptyState
+        icon={<BarChart3 className="w-10 h-10" />}
+        title="No simulation data"
+        description="Run a simulation to generate the executive summary."
+      />
     );
   }
 
-  // Sort outcomes by probability
   const sortedOutcomes = Object.entries(results.outcome_distribution)
     .map(([key, value]) => ({
       key,
@@ -38,132 +50,92 @@ export function ExecutiveSummary() {
     (results.outcome_distribution.CIVIL_WAR?.probability || 0);
 
   const stressLevel = results.economic_analysis.stress_level;
-  const stressColors = {
-    stable: 'text-war-room-success',
-    pressured: 'text-war-room-warning',
-    critical: 'text-war-room-danger',
-  };
 
   return (
-    <div className="space-y-6 p-2">
+    <div className="space-y-4">
       {/* Top Line Assessment */}
-      <div className="panel p-6 border-l-4 border-war-room-accent">
-        <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-war-room-accent" />
-          Bottom Line Up Front (BLUF)
-        </h3>
-        <p className="text-gray-300 leading-relaxed">
-          Based on {formatNumber(results.n_runs)} Monte Carlo simulations, the most likely outcome
-          is <span className="text-white font-semibold">{topOutcome.label}</span> with a{' '}
-          <span className="text-war-room-accent font-bold">
-            {formatPercent(topOutcome.probability)}
-          </span>{' '}
-          probability. The regime has a{' '}
-          <span className={regimeSurvival > 0.7 ? 'text-war-room-success' : 'text-war-room-warning'}>
-            {formatPercent(regimeSurvival)}
-          </span>{' '}
-          chance of maintaining power through the simulation period.
-        </p>
-      </div>
+      <Panel accent="blue">
+        <div className="flex items-start gap-3">
+          <Activity className="w-5 h-5 text-war-room-accent mt-0.5 flex-shrink-0" />
+          <div>
+            <h3 className="text-heading text-war-room-text-primary mb-2">
+              Bottom Line Up Front (BLUF)
+            </h3>
+            <p className="text-body text-war-room-text-secondary leading-relaxed">
+              Based on {formatNumber(results.n_runs)} Monte Carlo simulations, the most likely outcome
+              is <span className="text-war-room-text-primary font-semibold">{topOutcome.label}</span> with a{' '}
+              <span className="text-war-room-accent font-bold font-mono">
+                {formatPercent(topOutcome.probability)}
+              </span>{' '}
+              probability. The regime has a{' '}
+              <span className={regimeSurvival > 0.7 ? 'text-war-room-success' : 'text-war-room-warning'}>
+                {formatPercent(regimeSurvival)}
+              </span>{' '}
+              chance of maintaining power through the simulation period.
+            </p>
+          </div>
+        </div>
+      </Panel>
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Regime Stability */}
-        <div className="panel p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Shield className="w-4 h-4 text-gray-400" />
-            <span className="text-xs text-gray-400 uppercase tracking-wider">Regime Stability</span>
-          </div>
-          <div className="text-2xl font-bold text-white">{formatPercent(regimeSurvival)}</div>
-          <div className="text-xs text-gray-500 mt-1">Probability of status quo survival</div>
-        </div>
-
-        {/* Collapse Risk */}
-        <div className="panel p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-4 h-4 text-war-room-danger" />
-            <span className="text-xs text-gray-400 uppercase tracking-wider">Collapse Risk</span>
-          </div>
-          <div className="text-2xl font-bold text-war-room-danger">{formatPercent(collapseRisk)}</div>
-          <div className="text-xs text-gray-500 mt-1">Chaotic collapse + civil war combined</div>
-        </div>
-
-        {/* Economic Stress */}
-        <div className="panel p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="w-4 h-4 text-gray-400" />
-            <span className="text-xs text-gray-400 uppercase tracking-wider">Economic Stress</span>
-          </div>
-          <div className={`text-2xl font-bold uppercase ${stressColors[stressLevel]}`}>
-            {stressLevel}
-          </div>
-          <div className="text-xs text-gray-500 mt-1">
-            Rial: {formatRial(results.economic_analysis.rial_rate_used)}
-          </div>
-        </div>
+        <StatCard
+          icon={<Shield className="w-4 h-4" />}
+          label="Regime Stability"
+          value={formatPercent(regimeSurvival)}
+          status={regimeSurvival > 0.7 ? 'success' : regimeSurvival > 0.4 ? 'warning' : 'danger'}
+        />
+        <StatCard
+          icon={<AlertTriangle className="w-4 h-4" />}
+          label="Collapse Risk"
+          value={formatPercent(collapseRisk)}
+          status={collapseRisk > 0.2 ? 'danger' : collapseRisk > 0.1 ? 'warning' : 'success'}
+        />
+        <StatCard
+          icon={<DollarSign className="w-4 h-4" />}
+          label="Economic Stress"
+          value={stressLevel.toUpperCase()}
+          unit={`Rial: ${formatRial(results.economic_analysis.rial_rate_used)}`}
+          status={stressLevel === 'critical' ? 'danger' : stressLevel === 'pressured' ? 'warning' : 'success'}
+        />
       </div>
 
       {/* Key Event Probabilities */}
-      <div className="panel p-6">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
-          Key Event Probabilities
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center justify-between p-3 bg-war-room-bg/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-300">Security Force Defection</span>
-            </div>
-            <span className="font-mono text-war-room-accent">
-              {formatPercent(results.key_event_rates.security_force_defection)}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between p-3 bg-war-room-bg/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-300">Ethnic Uprising</span>
-            </div>
-            <span className="font-mono text-war-room-accent">
-              {formatPercent(results.key_event_rates.ethnic_uprising)}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between p-3 bg-war-room-bg/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-300">Supreme Leader Death</span>
-            </div>
-            <span className="font-mono text-war-room-accent">
-              {formatPercent(results.key_event_rates.khamenei_death)}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between p-3 bg-war-room-bg/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <TrendingDown className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-300">US Intervention</span>
-            </div>
-            <span className="font-mono text-war-room-accent">
-              {formatPercent(results.key_event_rates.us_intervention)}
-            </span>
-          </div>
+      <Panel title="Key Event Probabilities">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <EventRow
+            icon={<Users className="w-4 h-4" />}
+            label="Security Force Defection"
+            value={formatPercent(results.key_event_rates.security_force_defection)}
+          />
+          <EventRow
+            icon={<TrendingUp className="w-4 h-4" />}
+            label="Ethnic Uprising"
+            value={formatPercent(results.key_event_rates.ethnic_uprising)}
+          />
+          <EventRow
+            icon={<AlertTriangle className="w-4 h-4" />}
+            label="Supreme Leader Death"
+            value={formatPercent(results.key_event_rates.khamenei_death)}
+          />
+          <EventRow
+            icon={<TrendingDown className="w-4 h-4" />}
+            label="US Intervention"
+            value={formatPercent(results.key_event_rates.us_intervention)}
+          />
         </div>
-      </div>
+      </Panel>
 
       {/* Outcome Ranking */}
-      <div className="panel p-6">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
-          Outcome Probability Ranking
-        </h3>
+      <Panel title="Outcome Probability Ranking">
         <div className="space-y-3">
           {sortedOutcomes.map((outcome, index) => (
             <div key={outcome.key} className="flex items-center gap-3">
-              <span className="text-xs text-gray-500 w-6">{index + 1}.</span>
+              <span className="text-caption text-war-room-muted w-6">{index + 1}.</span>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-gray-300">{outcome.label}</span>
-                  <span className="font-mono text-sm text-war-room-accent">
+                  <span className="text-body text-war-room-text-secondary">{outcome.label}</span>
+                  <span className="font-mono text-mono text-war-room-accent">
                     {formatPercent(outcome.probability)}
                   </span>
                 </div>
@@ -177,19 +149,56 @@ export function ExecutiveSummary() {
             </div>
           ))}
         </div>
-      </div>
+      </Panel>
 
       {/* Analyst Notes */}
-      <div className="panel p-6 border-l-4 border-war-room-warning">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-          Key Uncertainties
-        </h3>
-        <ul className="text-sm text-gray-400 space-y-2 list-disc list-inside">
+      <Panel accent="yellow" title="Key Uncertainties">
+        <ul className="text-body text-war-room-text-secondary space-y-2 list-disc list-inside">
           <li>Security force loyalty remains the most sensitive variable</li>
           <li>Economic stress could accelerate protest momentum unexpectedly</li>
           <li>External intervention scenarios have wide confidence intervals</li>
           <li>Supreme Leader succession planning is opaque and unpredictable</li>
         </ul>
+      </Panel>
+    </div>
+  );
+}
+
+function EventRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between p-3 bg-war-room-bg/50 rounded-lg">
+      <div className="flex items-center gap-2">
+        <span className="text-war-room-text-secondary">{icon}</span>
+        <span className="text-body text-war-room-text-secondary">{label}</span>
+      </div>
+      <span className="font-mono text-mono text-war-room-accent">{value}</span>
+    </div>
+  );
+}
+
+function ExecutiveSummarySkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="panel p-5 space-y-3">
+        <Skeleton className="h-5 w-48" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="panel p-5 space-y-3">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-8 w-20" />
+          </div>
+        ))}
+      </div>
+      <div className="panel p-5 space-y-3">
+        <Skeleton className="h-4 w-36" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
       </div>
     </div>
   );

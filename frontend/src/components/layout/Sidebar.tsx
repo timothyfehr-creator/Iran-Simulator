@@ -33,25 +33,27 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           flex flex-col
         `}
       >
-        <div className="p-4 border-b border-war-room-border">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+        <div className="px-5 py-3 border-b border-war-room-border">
+          <h2 className="text-heading uppercase tracking-wider text-war-room-text-secondary">
             Simulation Controls
           </h2>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-5">
           <ControlPanel />
         </div>
 
-        <div className="p-4 border-t border-war-room-border">
-          <div className="text-xs text-gray-500 space-y-1">
+        <div className="px-5 py-3 border-t border-war-room-border bg-war-room-bg/30">
+          <div className="text-caption text-war-room-muted space-y-1.5">
             <div className="flex justify-between">
-              <span>Total Runs:</span>
-              <span className="text-gray-300">{formatNumber(results?.n_runs || 0)}</span>
+              <span>Total Runs</span>
+              <span className="font-mono font-medium text-war-room-text-primary">
+                {formatNumber(results?.n_runs || 0)}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span>Session Runs:</span>
-              <span className="text-gray-300">{runCount}</span>
+              <span>Session Runs</span>
+              <span className="font-mono font-medium text-war-room-text-primary">{runCount}</span>
             </div>
           </div>
         </div>

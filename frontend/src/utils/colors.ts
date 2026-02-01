@@ -3,11 +3,15 @@ import type { StressLevel } from '../types/simulation';
 export const WAR_ROOM_COLORS = {
   bg: '#0a0f1c',
   panel: '#111827',
+  surface: '#1a2332',
   border: '#1f2937',
   accent: '#3b82f6',
   danger: '#ef4444',
   warning: '#f59e0b',
   success: '#10b981',
+  muted: '#6b7280',
+  textPrimary: '#f3f4f6',
+  textSecondary: '#9ca3af',
 } as const;
 
 export const STATUS_COLORS: Record<StressLevel, string> = {

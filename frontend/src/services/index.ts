@@ -3,11 +3,29 @@ import { realApi } from './realApi';
 import { causalApi } from './causalApi';
 import type { SimulationApi } from './api';
 
-// Switch between mock and real API based on environment variable
-export const api: SimulationApi =
-  import.meta.env.VITE_USE_REAL_API === 'true' ? realApi : mockApi;
+// Wraps the real API with automatic fallback to mock if backend is unreachable
+function createFallbackApi(): SimulationApi {
+  let useMock = import.meta.env.VITE_USE_REAL_API !== 'true';
 
-// Causal API is always real (no mock implementation)
+  async function tryReal<T>(realFn: () => Promise<T>, mockFn: () => Promise<T>): Promise<T> {
+    if (useMock) return mockFn();
+    try {
+      return await realFn();
+    } catch {
+      useMock = true;
+      console.warn('[SimulationApi] Backend not available, falling back to mock data');
+      return mockFn();
+    }
+  }
+
+  return {
+    getResults: () => tryReal(() => realApi.getResults(), () => mockApi.getResults()),
+    runSimulation: (params) => tryReal(() => realApi.runSimulation(params), () => mockApi.runSimulation(params)),
+    getStatus: () => tryReal(() => realApi.getStatus(), () => mockApi.getStatus()),
+  };
+}
+
+export const api: SimulationApi = createFallbackApi();
+
 export { causalApi };
-
 export type { SimulationApi };

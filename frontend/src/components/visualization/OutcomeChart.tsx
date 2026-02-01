@@ -10,6 +10,9 @@ import {
 import { useSimulationStore } from '../../store/simulationStore';
 import { outcomeLabels, outcomeColors } from '../../data/mockData';
 import { formatPercent } from '../../utils/formatters';
+import { EmptyState } from '../ui/EmptyState';
+import { Skeleton } from '../ui/Skeleton';
+import { BarChart3 } from 'lucide-react';
 
 interface ChartData {
   name: string;
@@ -20,12 +23,28 @@ interface ChartData {
 
 export function OutcomeChart() {
   const results = useSimulationStore((state) => state.results);
+  const isLoading = useSimulationStore((state) => state.isLoading);
+
+  if (isLoading && !results) {
+    return (
+      <div className="space-y-3">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex items-center gap-3">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-6 flex-1" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   if (!results) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-gray-500">
-        No simulation data available
-      </div>
+      <EmptyState
+        icon={<BarChart3 className="w-8 h-8" />}
+        title="No data available"
+        description="Run a simulation to see outcome distribution."
+      />
     );
   }
 
@@ -66,8 +85,8 @@ export function OutcomeChart() {
               if (!payload || payload.length === 0) return null;
               const item = payload[0].payload as ChartData;
               return (
-                <div className="bg-war-room-panel border border-war-room-border rounded-lg p-3 shadow-lg">
-                  <p className="text-white font-medium text-sm">{item.fullName}</p>
+                <div className="panel-elevated border border-war-room-border p-3">
+                  <p className="text-war-room-text-primary font-medium text-body">{item.fullName}</p>
                   <p className="text-war-room-accent font-mono text-lg">
                     {formatPercent(item.probability / 100)}
                   </p>
