@@ -580,6 +580,21 @@
       "type": "string",
       "units": "text",
       "description": "Current sanctions status if applicable"
+    },
+    "live_wire.economic_stress": {
+      "type": "string",
+      "units": "enum:STABLE|PRESSURED|CRITICAL",
+      "description": "Live Wire derived economic stress classification"
+    },
+    "live_wire.internet_status": {
+      "type": "string",
+      "units": "enum:FUNCTIONAL|PARTIAL|SEVERELY_DEGRADED|BLACKOUT",
+      "description": "Live Wire derived internet status classification"
+    },
+    "live_wire.news_activity": {
+      "type": "string",
+      "units": "enum:NORMAL|ELEVATED|SURGE",
+      "description": "Live Wire derived news activity classification"
     }
   },
   "source_type_buckets": {

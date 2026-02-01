@@ -29,6 +29,18 @@ timeouts:
   fetch_timeout: 30
   total_source_timeout: 120
 
+# Live Wire configuration
+live_wire:
+  schedule_hours: 6
+  retry:
+    max_retries: 2
+    initial_backoff_seconds: 5
+    backoff_multiplier: 2
+  stale_thresholds:
+    default_hours: 12
+    connectivity_hours: 6
+    news_hours: 8
+
 # Rate limiting
 rate_limits:
   # Delay between fetcher calls (seconds)

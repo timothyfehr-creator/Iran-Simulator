@@ -85,6 +85,12 @@ EVIDENCE_BUNDLE_SPEC.md
 PLAN_A.md
 WORKFLOW_UPDATE.md
 
+# Public artifacts (transient, uploaded to R2)
+latest/
+
+# Live Wire data
+data/live_wire/
+
 # Build caches
 frontend/.vite/
 

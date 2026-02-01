@@ -323,6 +323,19 @@ sources:
   # =========================================================================
   # ECONOMIC / FX DATA (72h window)
   # =========================================================================
+  - id: nobitex
+    name: "Nobitex (USDT/IRT)"
+    type: api
+    bucket: econ_fx
+    urls:
+      - https://api.nobitex.ir/market/stats
+    access_grade: B
+    bias_grade: 1
+    language: en
+    fetcher: src.ingest.fetch_nobitex
+    enabled: true
+    notes: "Iran's largest crypto exchange. USDT/IRT pair as USD/IRR proxy. Returns Rials natively."
+
   - id: bonbast
     name: "Bonbast (Rial Rates)"
     type: api

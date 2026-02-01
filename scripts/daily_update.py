@@ -599,6 +599,36 @@ def main():
     except Exception as e:
         logger.warning(f"Failed to generate run manifest: {e}")
 
+    # Stage 4.5: Generate scorecard + public artifacts
+    if not args.no_simulate and not skip_simulation_due_to_coverage:
+        logger.info("\n=== STAGE 4.5: Scorecard + Public Artifacts ===")
+        try:
+            from src.forecasting.reporter import generate_report
+            report_outputs = generate_report(
+                ledger_dir=Path("forecasting/ledger"),
+                reports_dir=Path("forecasting/reports"),
+                output_format="both",
+            )
+            logger.info(f"Scorecard generated: {report_outputs}")
+        except Exception as e:
+            logger.warning(f"Scorecard generation failed (non-fatal): {e}")
+
+        try:
+            artifact_cmd = [
+                sys.executable, "scripts/generate_public_artifacts.py",
+                "--run-dir", run_dir,
+                "--live-wire", "data/live_wire/latest.json",
+                "--scorecard", "forecasting/reports/scorecard.json",
+                "--output-dir", "latest/",
+            ]
+            result = subprocess.run(artifact_cmd, capture_output=True, text=True)
+            if result.returncode == 0:
+                logger.info("Public artifacts generated successfully")
+            else:
+                logger.warning(f"Public artifact generation failed: {result.stderr}")
+        except Exception as e:
+            logger.warning(f"Public artifact generation failed (non-fatal): {e}")
+
     # Stage 5: Diff (if previous run exists and simulation ran)
     if not args.no_simulate and not skip_simulation_due_to_coverage:
         logger.info("\n=== STAGE 5: Generate Diff ===")

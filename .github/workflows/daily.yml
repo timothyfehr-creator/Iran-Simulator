@@ -24,13 +24,75 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install -r requirements.txt
 
+      - name: Install AWS CLI
+        run: |
+          if ! command -v aws &>/dev/null; then
+            curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+            unzip -q /tmp/awscliv2.zip -d /tmp
+            sudo /tmp/aws/install
+          fi
+          aws --version
+
       - name: Run daily simulation
         run: python scripts/daily_update.py --auto-ingest --runs 10000 --seed 42
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PYTHONPATH: .
 
-      - name: Commit results
+      # Download only two small files from R2 (source of truth):
+      #   latest.json  — current live wire state for defcon/KPIs
+      #   series.json  — pre-built 7-day series for headline chart
+      # This avoids pulling + decompressing the full snapshot archive.
+      # If R2 has nothing (first-ever run), the artifact generator
+      # gracefully degrades to UNKNOWN/empty.
+      - name: Download live wire from R2
+        run: |
+          mkdir -p data/live_wire
+          aws s3 cp "s3://$R2_BUCKET/latest/live_wire_state.json" data/live_wire/latest.json \
+            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
+            || echo "No live wire data in R2 yet (first run)"
+          aws s3 cp "s3://$R2_BUCKET/latest/live_wire_series.json" data/live_wire/series.json \
+            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
+            || echo "No series data in R2 yet (first run)"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET_NAME }}
+
+      - name: Generate public artifacts
+        run: |
+          python scripts/generate_public_artifacts.py \
+            --run-dir $(ls -dt runs/RUN_* | head -1) \
+            --live-wire data/live_wire/latest.json \
+            --series data/live_wire/series.json \
+            --scorecard forecasting/reports/scorecard.json \
+            --output-dir latest/
+        env:
+          PYTHONPATH: .
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+
+      - name: Upload artifacts to R2
+        run: |
+          if [ -d latest/ ]; then
+            aws s3 cp latest/ "s3://$R2_BUCKET/latest/" --recursive \
+              --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
+              --cache-control "public, max-age=300, stale-while-revalidate=60"
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET_NAME }}
+
+      # Commit simulation results only (runs/, ledger/, logs/).
+      # Live Wire data and public artifacts are NOT committed — they
+      # live exclusively in R2.  latest/ and data/live_wire/ are in
+      # .gitignore as a safety net.
+      - name: Commit simulation results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

@@ -1,0 +1,56 @@
+{
+  "_schema_version": "1.0.0",
+  "cadence_hours": 6,
+  "ema_alpha": 0.3,
+  "signals": {
+    "rial_usd_rate": {
+      "enabled": true,
+      "source": "bonbast",
+      "stale_after_hours": 12,
+      "endpoint": "https://www.bonbast.com/"
+    },
+    "usdt_irt_rate": {
+      "enabled": true,
+      "source": "nobitex",
+      "stale_after_hours": 12,
+      "endpoint": "https://api.nobitex.ir/market/stats"
+    },
+    "connectivity_index": {
+      "enabled": true,
+      "source": "ioda",
+      "stale_after_hours": 6,
+      "endpoint": "https://api.ioda.inetintel.cc.gatech.edu/v2/signals/raw/country/IR"
+    },
+    "news_volume": {
+      "enabled": true,
+      "source": "gdelt",
+      "stale_after_hours": 8,
+      "endpoint": "https://api.gdeltproject.org/api/v2/doc/doc"
+    }
+  },
+  "rule_engine": {
+    "rule_version": "1.0.0",
+    "primary_economic_signal": "usdt_irt_rate",
+    "economic_stress": {
+      "_units": "IRR per USD",
+      "pressured": 800000,
+      "critical": 1200000
+    },
+    "internet_status": {
+      "_units": "IODA index 0-100",
+      "functional": 80,
+      "partial": 50,
+      "severely_degraded": 20
+    },
+    "news_activity": {
+      "_units": "ratio to EMA baseline",
+      "elevated_ratio": 1.5,
+      "surge_ratio": 3.0
+    },
+    "hysteresis_cycles": 3
+  },
+  "snapshot_dir": "data/live_wire/snapshots",
+  "latest_path": "data/live_wire/latest.json",
+  "state_r2_key": "state/live_wire_state.json",
+  "max_snapshot_days": 7
+}
