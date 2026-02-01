@@ -18,6 +18,7 @@ Ingests multi-source OSINT, compiles structured intelligence, calibrates probabi
 - **Live Wire pipeline** — 6-hourly real-time signals (Nobitex USDT/IRR, Bonbast, IODA connectivity, GDELT news volume) with signal quality tracking, EMA smoothing, rule-based classification, and N-cycle hysteresis. State persisted in R2.
 - **Claim extraction** — GPT-4 extracts discrete factual claims with source grading and conflict preservation
 - **Intelligence compilation** — merges claims into a schema-validated intel package with baseline anchoring
+- **Unified pre-simulation gate** — validates coverage, economic enrichment, economic priors (sub-key + ordering), QA, and claim extraction before simulation runs; any FAIL skips simulation and records `gate_decision=SKIP_SIMULATION` in the run manifest
 - **Dual simulation engines** — state-machine Monte Carlo *and* a 10,000-agent ABM with small-world network dynamics, defection cascades, and economic stress modifiers
 - **Oracle forecasting layer** — catalog of 18 events, Dirichlet-smoothed baselines, static ensembles, multinomial Brier scoring, and a leaderboard
 - **Public artifacts** — war room summary, leaderboard, and live wire state published to R2 every daily run; consumed by the frontend via typed fetch service
@@ -33,6 +34,12 @@ OSINT sources ──► Evidence ingestion ──► Claim extraction (GPT-4)
                                               │
                                               ▼
                             Analyst priors (calibrated probabilities)
+                                              │
+                                              ▼
+                                    Unified gate (5 checks)
+                                    coverage │ econ_enrichment │ econ_priors │ qa │ claims
+                                              │
+                                        PASS? ──── FAIL → skip simulation
                                               │
                               ┌───────────────┼───────────────┐
                               ▼               ▼               ▼
@@ -97,12 +104,13 @@ iran_simulation/
 ├── knowledge/              # Stable baseline knowledge pack
 ├── prompts/                # Agent prompts (research, analyst, red-team)
 ├── scripts/
-│   ├── daily_update.py     # Main daily pipeline orchestrator
+│   ├── daily_update.py     # Main daily pipeline orchestrator (unified gate + validate_econ_priors)
 │   ├── generate_public_artifacts.py  # Produces war_room_summary, leaderboard, live_wire JSONs
 │   └── pull_live_wire.py   # Local dev helper: download live wire data from R2
 ├── src/
 │   ├── abm_engine.py       # Multi-agent ABM (Project Swarm)
-│   ├── simulation.py       # State-machine Monte Carlo
+│   ├── logging_config.py   # Shared structured logging setup
+│   ├── simulation.py       # State-machine Monte Carlo (no silent fallbacks)
 │   ├── forecasting/        # Oracle layer (catalog, ensembles, baselines, scoring)
 │   ├── ingest/             # Evidence fetching (ISW, HRANA, BBC, etc.)
 │   │   ├── live_wire/      # 6-hourly signal pipeline (quality, rules, EMA, runner)
@@ -112,7 +120,7 @@ iran_simulation/
 │   ├── pipeline/           # Intel compilation, diff reports, path registry
 │   ├── priors/             # Priors contract and resolution
 │   └── report/             # Report generation
-├── tests/                  # Pytest suite (738 tests)
+├── tests/                  # Pytest suite (764 tests)
 ├── dashboard.py            # Streamlit entry point
 └── requirements.txt
 ```
