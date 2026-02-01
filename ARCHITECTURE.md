@@ -50,6 +50,35 @@ OSINT Sources (ISW, HRANA, Amnesty, BBC Persian, Bonbast, IODA, ...)
   Dashboard       Frontend            Leaderboard
 ```
 
+## Daily Pipeline Sequence
+
+```mermaid
+sequenceDiagram
+    participant Cron as daily_update.py
+    participant Ingest as ingest/coordinator
+    participant GPT4 as extract_claims
+    participant Compile as compile_intel_v2
+    participant ABM as abm_engine
+    participant Oracle as forecasting/
+    participant Report as report/
+
+    Cron->>Ingest: fetch_all() — 10+ sources
+    Ingest-->>Cron: evidence_docs.jsonl, coverage_report.json
+    Cron->>GPT4: extract claims from evidence
+    GPT4-->>Cron: candidate_claims.jsonl
+    Cron->>Compile: merge claims (priority chain)
+    Compile-->>Cron: compiled_intel.json
+    alt Coverage PASS
+        Cron->>ABM: run 10K agents x 90 days
+        ABM-->>Cron: simulation_results.json
+        Cron->>Oracle: log forecasts + ensembles
+        Oracle-->>Cron: append to ledger
+        Cron->>Report: narrative + diff
+    else Coverage FAIL
+        Cron-->>Cron: skip simulation, run_reliable=false
+    end
+```
+
 ## Stage 1: Evidence Ingestion
 
 **Code:** `src/ingest/`
@@ -137,6 +166,20 @@ The ABM produces more volatile outcomes than the state machine due to network co
 
 A structured forecasting system that tracks predictions over time and scores them against outcomes.
 
+```mermaid
+flowchart LR
+    SIM[Simulation Results] --> FG[Forecast Generation]
+    CLIM[Climatology] --> ENS[Ensemble Combiner]
+    PERS[Persistence] --> ENS
+    FG --> ENS
+    ENS -->|append| LEDGER[(forecasts.jsonl)]
+    INTEL[compiled_intel.json] --> RES[Auto-Resolver]
+    RES -->|append| RESOLUTIONS[(resolutions.jsonl)]
+    LEDGER --> SCORER[Brier Scorer]
+    RESOLUTIONS --> SCORER
+    SCORER --> REPORT[Leaderboard]
+```
+
 ### Event Catalog
 
 `config/event_catalog.json` defines 18 events across three types:
@@ -176,6 +219,30 @@ All forecasts, resolutions, and corrections are stored as append-only JSONL in `
 - `generate_report.py`: Narrative HTML/Markdown reports with outcome charts
 - `generate_diff_report.py`: Run-to-run comparison (outcome shifts, coverage deltas, health transitions, contested claims)
 
+## Frontend ↔ Backend Contract
+
+```mermaid
+sequenceDiagram
+    participant React as React Frontend :5173
+    participant API as FastAPI :8000
+    participant Sim as Simulation Engine
+    participant Causal as Causal Inference
+
+    React->>API: POST /api/simulation/run
+    API->>Sim: ABMEngine.run() or IranCrisisSimulation.run()
+    Sim-->>API: SimulationResults
+    API-->>React: {outcome_distribution, economic_analysis, key_event_rates}
+
+    React->>API: GET /api/causal/graph
+    API-->>React: {nodes, edges, categories}
+
+    React->>API: POST /api/causal/infer {evidence}
+    API->>Causal: bayesian update
+    API-->>React: posterior probabilities
+```
+
+**Invariant:** `frontend/` never imports from `src/`. Communication is HTTP-only.
+
 ## Dashboards
 
 ### Streamlit (`dashboard.py`)
@@ -191,6 +258,22 @@ War-room interface with:
 - Causal explorer (interactive DAG)
 - DEFCON widget (collapse probability indicator)
 - Timeline slider (90-day trajectory scrubbing)
+
+```
+frontend/src/
+├── components/
+│   ├── controls/       # ControlPanel, ConfidenceSlider, RunSimulationButton
+│   ├── layout/         # WarRoomLayout, Header, Sidebar, MainView
+│   ├── status/         # DefconWidget
+│   ├── timeline/       # TimelineSlider
+│   ├── ui/             # Badge, Panel, StatCard, Skeleton, EmptyState
+│   └── visualization/  # ExecutiveSummary, OutcomeChart, RegionalMap, CausalExplorer
+├── data/               # Mock data, Iran map GeoJSON
+├── services/           # API client (real + mock)
+├── store/              # Zustand simulationStore
+├── types/              # TypeScript interfaces
+└── utils/              # Colors, formatters
+```
 
 ## Configuration
 
@@ -221,3 +304,11 @@ runs/RUN_20260131_daily/
 ```
 
 The `run_manifest.json` includes SHA-256 hashes of all inputs and an optional seed, enabling exact reproduction of any run.
+
+## Architectural Invariants
+
+1. **No circular deps** — `frontend/` and `src/` communicate only via HTTP or JSON contracts
+2. **Stateless code** — `src/` contains no mutable state; all state lives in `data/`, `forecasting/ledger/`, or `runs/`
+3. **Immutable ledger** — `forecasting/ledger/*.jsonl` is append-only, never overwritten
+4. **Hermetic reproducibility** — every run produces `run_manifest.json` with SHA-256 input hashes and git commit
+5. **Coverage gating** — simulation skipped when critical OSINT sources are stale
