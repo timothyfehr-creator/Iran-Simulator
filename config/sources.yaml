@@ -58,29 +58,34 @@ sources:
     urls:
       - https://www.en-hrana.org/category/news/
     selectors:
-      article: ".post"
-      title: "h2.entry-title a"
-      date: ".entry-meta time"
-      content: ".entry-content"
+      article: "article"
+      title: "h3 a"
+      date: "time"
+      content: "p"
     access_grade: B
     bias_grade: 2
     language: en
-    fetcher: src.ingest.fetch_web
-    enabled: false
-    notes: "DISABLED - Cloudflare JS challenge blocks automated access. Requires headless browser."
+    fetcher: src.ingest.fetch_playwright
+    enabled: true
+    notes: "Cloudflare JS challenge - uses Playwright. May fail intermittently when Cloudflare escalates to interactive CAPTCHA."
 
   - id: ihr
     name: "Iran Human Rights"
-    type: rss
+    type: web
     bucket: ngo_rights
     urls:
-      - https://iranhr.net/en/feed/
+      - https://iranhr.net/en/
+    selectors:
+      article: "article"
+      title: "h3 a"
+      date: "time"
+      content: "p"
     access_grade: B
     bias_grade: 2
     language: en
-    fetcher: src.ingest.fetch_rss
-    enabled: false
-    notes: "DISABLED - Cloudflare JS challenge blocks automated access. Requires headless browser."
+    fetcher: src.ingest.fetch_playwright
+    enabled: true
+    notes: "Cloudflare JS challenge - uses Playwright. May fail intermittently when Cloudflare escalates to interactive CAPTCHA."
 
   - id: amnesty
     name: "Amnesty International"
@@ -115,16 +120,21 @@ sources:
   # =========================================================================
   - id: irna
     name: "Islamic Republic News Agency"
-    type: rss
+    type: web
     bucket: regime_outlets
     urls:
-      - https://en.irna.ir/service/World/rss
+      - https://en.irna.ir/service/World
+    selectors:
+      article: "li.news"
+      title: "h3 a"
+      date: "time"
+      content: ".desc p"
     access_grade: C
     bias_grade: 4
     language: en
-    fetcher: src.ingest.fetch_rss
-    enabled: false
-    notes: "DISABLED - JavaScript challenge (Arvancloud CDN) blocks automated access."
+    fetcher: src.ingest.fetch_playwright
+    enabled: true
+    notes: "Arvancloud JS challenge - uses Playwright headless browser."
 
   - id: tasnim
     name: "Tasnim News Agency"
@@ -141,29 +151,39 @@ sources:
 
   - id: mehr
     name: "Mehr News Agency"
-    type: rss
+    type: web
     bucket: regime_outlets
     urls:
-      - https://en.mehrnews.com/rss
+      - https://en.mehrnews.com/
+    selectors:
+      article: "li.news"
+      title: "h3 a"
+      date: "time"
+      content: ".desc p"
     access_grade: C
     bias_grade: 4
     language: en
-    fetcher: src.ingest.fetch_rss
-    enabled: false
-    notes: "DISABLED - RSS feed returns empty/malformed XML. May be blocked from external access."
+    fetcher: src.ingest.fetch_playwright
+    enabled: true
+    notes: "JS-rendered site - uses Playwright headless browser."
 
   - id: fars
     name: "Fars News Agency"
-    type: rss
+    type: web
     bucket: regime_outlets
     urls:
-      - https://www.farsnews.ir/en/rss
+      - https://www.farsnews.ir/en/
+    selectors:
+      article: "article"
+      title: "h2"
+      date: "time"
+      content: "p"
     access_grade: C
     bias_grade: 5
     language: en
-    fetcher: src.ingest.fetch_rss
+    fetcher: src.ingest.fetch_playwright
     enabled: false
-    notes: "DISABLED - DNS resolution failure. Domain may be blocked or deprecated."
+    notes: "DISABLED - Pure JS SPA requiring authentication. Even Playwright cannot render article content. English section appears non-functional."
 
   - id: presstv
     name: "Press TV"
@@ -209,7 +229,7 @@ sources:
     language: fa
     fetcher: src.ingest.fetch_rss
     enabled: false
-    notes: "DISABLED - API endpoint removed (returns 404). RFE/RL restructured their feeds."
+    notes: "DEAD SOURCE - RFE/RL defunded by Trump admin (March 2025). RSS feeds return 0 items. API endpoint removed (404)."
 
   - id: bbc_persian
     name: "BBC Persian"
