@@ -11,12 +11,7 @@ from typing import Dict, List, Optional, Any
 
 from . import bins
 
-# Try to import jsonschema for full schema validation
-try:
-    import jsonschema
-    HAS_JSONSCHEMA = True
-except ImportError:
-    HAS_JSONSCHEMA = False
+import jsonschema
 
 
 # Valid horizons
@@ -85,7 +80,7 @@ def validate_catalog(
         CatalogValidationError: If validation fails
     """
     # Use jsonschema if available and schema exists
-    if HAS_JSONSCHEMA and schema_path is not None and schema_path.exists():
+    if schema_path is not None and schema_path.exists():
         try:
             with open(schema_path) as f:
                 schema = json.load(f)

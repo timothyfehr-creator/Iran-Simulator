@@ -1,16 +1,25 @@
 """OONI (Open Observatory of Network Interference) fetcher for Iran censorship data."""
 
+import logging
 import requests
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional
-from .base_fetcher import BaseFetcher
+from .base_fetcher import BaseFetcher, FetchError
 
+logger = logging.getLogger(__name__)
 
-# Request timeout in seconds
-REQUEST_TIMEOUT = 30
+# Request timeout (connect, read) in seconds
+REQUEST_TIMEOUT = (10, 30)
 
 # OONI API base URL
 OONI_API_BASE = "https://api.ooni.io/api/v1"
+
+# Session-level retry for network transients
+_retry = Retry(total=1, allowed_methods=["GET"], backoff_factor=1, status_forcelist=[502, 503, 504])
+_session = requests.Session()
+_session.mount("https://", HTTPAdapter(max_retries=_retry))
 
 
 class OONIFetcher(BaseFetcher):
@@ -35,13 +44,18 @@ class OONIFetcher(BaseFetcher):
             "limit": 200  # Fetch more, filter locally
         }
 
-        response = requests.get(
-            f"{OONI_API_BASE}/measurements",
-            params=params,
-            timeout=REQUEST_TIMEOUT,
-            headers={'User-Agent': 'IranSimulator/1.0'}
-        )
-        response.raise_for_status()
+        try:
+            # URL from config/sources.yaml, falling back to module default
+            api_url = self.config.get("urls", [f"{OONI_API_BASE}/measurements"])[0]
+            response = _session.get(
+                api_url,
+                params=params,
+                timeout=REQUEST_TIMEOUT,
+                headers={'User-Agent': 'IranSimulator/1.0'}
+            )
+            response.raise_for_status()
+        except requests.RequestException as e:
+            raise FetchError(self.source_id, f"OONI API request failed: {e}", e) from e
 
         data = response.json()
         results = data.get('results', [])
@@ -58,7 +72,8 @@ class OONIFetcher(BaseFetcher):
                 try:
                     from urllib.parse import urlparse
                     domain = urlparse(input_url).netloc or input_url
-                except Exception:
+                except Exception as e:
+                    logger.debug(f"URL parse failed for {input_url}: {e}")
                     domain = input_url
             else:
                 domain = test_name

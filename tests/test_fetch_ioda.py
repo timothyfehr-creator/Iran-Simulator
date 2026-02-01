@@ -56,7 +56,7 @@ class TestIODAFetcher:
         signal = {"value": 10, "baseline": 100}
         assert fetcher._normalize_score(signal) == 10.0
 
-    @patch('requests.get')
+    @patch('src.ingest.fetch_ioda._session.get')
     def test_fetch_success(self, mock_get, config):
         """Test successful fetch from IODA API."""
         mock_response = MagicMock()
@@ -82,7 +82,7 @@ class TestIODAFetcher:
         assert "connectivity" in docs[0]["raw_text"].lower()
         assert docs[0]["structured_data"]["connectivity_index"] == 85.0
 
-    @patch('requests.get')
+    @patch('src.ingest.fetch_ioda._session.get')
     def test_fetch_empty_data(self, mock_get, config):
         """Test fetch when API returns no data."""
         mock_response = MagicMock()
@@ -96,7 +96,7 @@ class TestIODAFetcher:
         assert error is None
         assert len(docs) == 0
 
-    @patch('requests.get')
+    @patch('src.ingest.fetch_ioda._session.get')
     def test_fetch_multiple_signals(self, mock_get, config):
         """Test fetch with multiple datasources - should prefer gtr-norm."""
         mock_response = MagicMock()
@@ -127,7 +127,7 @@ class TestIODAFetcher:
         # Should use gtr-norm datasource (0.70 * 100 = 70.0)
         assert docs[0]["structured_data"]["connectivity_index"] == 70.0
 
-    @patch('requests.get')
+    @patch('src.ingest.fetch_ioda._session.get')
     def test_fetch_api_error(self, mock_get, config):
         """Test fetch when API returns an error."""
         mock_get.side_effect = Exception("API connection failed")

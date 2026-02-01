@@ -355,6 +355,15 @@ class ProbabilitySampler:
 # SIMULATION ENGINE
 # ============================================================================
 
+
+def _first_not_none(*vals):
+    """Return the first non-None value, or None if all are None."""
+    for v in vals:
+        if v is not None:
+            return v
+    return None
+
+
 class IranCrisisSimulation:
     """
     Monte Carlo simulation of Iran crisis scenarios.
@@ -406,50 +415,52 @@ class IranCrisisSimulation:
         if self._economic_stress is not None:
             return self._economic_stress
 
-        # Get thresholds from priors or use defaults
-        thresholds = self.priors.get("economic_thresholds", {})
-        rial_critical = int(thresholds.get("rial_critical_threshold", 1_200_000))
-        rial_pressured = int(thresholds.get("rial_pressured_threshold", 800_000))
-        inflation_critical = float(thresholds.get("inflation_critical_threshold", 50))
-        inflation_pressured = float(thresholds.get("inflation_pressured_threshold", 30))
-
-        # Extract economic data from intel
+        # Get thresholds from priors — gate validates these exist before simulation
+        thresholds = self.priors.get("economic_thresholds")
+        if not isinstance(thresholds, dict):
+            raise ValueError("analyst_priors.json missing 'economic_thresholds'")
         try:
-            econ = self.intel.get("current_state", {}).get("economic_conditions", {})
+            rial_critical = int(thresholds["rial_critical_threshold"])
+            rial_pressured = int(thresholds["rial_pressured_threshold"])
+            inflation_critical = float(thresholds["inflation_critical_threshold"])
+            inflation_pressured = float(thresholds["inflation_pressured_threshold"])
+        except KeyError as e:
+            raise ValueError(f"analyst_priors.json economic_thresholds missing {e.args[0]}") from e
 
-            # Get Rial rate (check various possible paths)
-            rial_data = econ.get("rial_usd_rate", {})
-            rial_rate = rial_data.get("market") or rial_data.get("mid") or rial_data.get("value")
-            if rial_rate is None:
-                rial_rate = 1_000_000  # Default to moderate if missing
+        # Extract economic data from intel — no fabrication, raise on missing
+        econ = self.intel.get("current_state", {}).get("economic_conditions")
+        if not isinstance(econ, dict):
+            raise ValueError("missing economic_conditions in intel current_state")
 
-            # Get inflation (check various possible paths)
-            inflation_data = econ.get("inflation", {})
-            inflation = inflation_data.get("official_annual_percent") or inflation_data.get("mid") or inflation_data.get("value")
-            if inflation is None:
-                inflation = 35  # Default to moderate if missing
+        rial_data = econ.get("rial_usd_rate")
+        if not isinstance(rial_data, dict):
+            raise ValueError("missing rial_usd_rate in intel economic_conditions")
+        rial_rate = _first_not_none(rial_data.get("market"), rial_data.get("mid"), rial_data.get("value"))
+        if rial_rate is None:
+            raise ValueError("missing rial_usd_rate value — market/mid/value all None")
 
-            # Store for later reporting
-            self._economic_data = {
-                "rial_rate": float(rial_rate),
-                "inflation": float(inflation),
-            }
+        inflation_data = econ.get("inflation")
+        if not isinstance(inflation_data, dict):
+            raise ValueError("missing inflation in intel economic_conditions")
+        inflation = _first_not_none(
+            inflation_data.get("official_annual_percent"),
+            inflation_data.get("mid"),
+            inflation_data.get("value"),
+        )
+        if inflation is None:
+            raise ValueError("missing inflation value — official_annual_percent/mid/value all None")
 
-            # Classify stress level
-            if rial_rate > rial_critical or inflation > inflation_critical:
-                self._economic_stress = EconomicStress.CRITICAL
-            elif rial_rate > rial_pressured or inflation > inflation_pressured:
-                self._economic_stress = EconomicStress.PRESSURED
-            else:
-                self._economic_stress = EconomicStress.STABLE
+        rial_rate_f = float(rial_rate)
+        inflation_f = float(inflation)
+        self._economic_data = {"rial_rate": rial_rate_f, "inflation": inflation_f}
 
-        except (KeyError, TypeError, ValueError):
-            # Default to PRESSURED if data unavailable
+        # Classify stress level
+        if rial_rate_f > rial_critical or inflation_f > inflation_critical:
+            self._economic_stress = EconomicStress.CRITICAL
+        elif rial_rate_f > rial_pressured or inflation_f > inflation_pressured:
             self._economic_stress = EconomicStress.PRESSURED
-            self._economic_data = {
-                "rial_rate": 1_000_000,
-                "inflation": 35,
-            }
+        else:
+            self._economic_stress = EconomicStress.STABLE
 
         return self._economic_stress
 
@@ -468,36 +479,26 @@ class IranCrisisSimulation:
         """
         stress = self._get_economic_stress()
 
-        # Get multipliers from priors or use defaults
-        multipliers = self.priors.get("economic_modifiers", {})
+        # Get multipliers from priors — pre-simulation validation should ensure these exist
+        multipliers = self.priors.get("economic_modifiers")
+        if not multipliers:
+            raise ValueError(
+                "analyst_priors.json missing 'economic_modifiers'. "
+                "Run the pre-simulation economic validator first."
+            )
 
-        default_multipliers = {
-            EconomicStress.CRITICAL: {
-                "protest_escalation": 1.20,
-                "elite_fracture": 1.30,
-                "security_defection": 1.15,
-                "regime_concession": 1.10,
-            },
-            EconomicStress.PRESSURED: {
-                "protest_escalation": 1.10,
-                "elite_fracture": 1.15,
-                "security_defection": 1.08,
-                "regime_concession": 1.05,
-            },
-            EconomicStress.STABLE: {
-                # No modifiers for stable economy
-            }
-        }
-
-        # Check for custom multipliers in priors
-        if stress == EconomicStress.CRITICAL:
-            key = f"critical_{event_type}_multiplier"
-            return float(multipliers.get(key, default_multipliers[stress].get(event_type, 1.0)))
-        elif stress == EconomicStress.PRESSURED:
-            key = f"pressured_{event_type}_multiplier"
-            return float(multipliers.get(key, default_multipliers[stress].get(event_type, 1.0)))
-        else:
+        if stress == EconomicStress.STABLE:
             return 1.0
+
+        prefix = "critical" if stress == EconomicStress.CRITICAL else "pressured"
+        key = f"{prefix}_{event_type}_multiplier"
+        value = multipliers.get(key)
+        if value is None:
+            raise ValueError(
+                f"analyst_priors.json economic_modifiers missing '{key}'. "
+                "All required multiplier keys must be present."
+            )
+        return float(value)
 
     def _apply_economic_modifiers(self, base_prob: float, event_type: str) -> float:
         """Adjust probability based on economic stress level.
@@ -657,7 +658,7 @@ class IranCrisisSimulation:
             abm_context = {
                 "protest_state": state.protest_state.value.upper(),
                 "regime_state": state.regime_state.value.upper(),
-                "rial_rate": self._economic_data.get("rial_rate", 1_000_000),
+                "rial_rate": self._economic_data["rial_rate"],
                 "crackdown_intensity": 0.8 if state.regime_state == RegimeState.CRACKDOWN else 0.2,
                 "concessions_offered": state.regime_state == RegimeState.CONCESSIONS,
                 "internet_blackout": state.regime_state == RegimeState.CRACKDOWN,

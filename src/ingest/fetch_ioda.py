@@ -7,17 +7,26 @@ Darknet data.
 API Documentation: https://api.ioda.inetintel.cc.gatech.edu/v2/
 """
 
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 import requests
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 
-from .base_fetcher import BaseFetcher
+from .base_fetcher import BaseFetcher, FetchError
 
+logger = logging.getLogger(__name__)
 
 # IODA API configuration
 IODA_BASE_URL = "https://api.ioda.inetintel.cc.gatech.edu/v2"
 IRAN_COUNTRY_CODE = "IR"
-REQUEST_TIMEOUT = 30
+REQUEST_TIMEOUT = (10, 30)
+
+# Session-level retry for network transients
+_retry = Retry(total=1, allowed_methods=["GET"], backoff_factor=1, status_forcelist=[502, 503, 504])
+_session = requests.Session()
+_session.mount("https://", HTTPAdapter(max_retries=_retry))
 
 
 class IODAFetcher(BaseFetcher):
@@ -42,16 +51,19 @@ class IODAFetcher(BaseFetcher):
 
         now = datetime.now(timezone.utc)
 
-        # IODA API endpoint for country-level signals
-        url = f"{IODA_BASE_URL}/signals/raw/country/{IRAN_COUNTRY_CODE}"
+        # URL from config/sources.yaml, falling back to module default
+        url = self.config.get("urls", [f"{IODA_BASE_URL}/signals/raw/country/{IRAN_COUNTRY_CODE}"])[0]
         params = {
             "from": int(since.timestamp()),
             "until": int(now.timestamp()),
         }
 
-        response = requests.get(url, params=params, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()
-        data = response.json()
+        try:
+            response = _session.get(url, params=params, timeout=REQUEST_TIMEOUT)
+            response.raise_for_status()
+            data = response.json()
+        except requests.RequestException as e:
+            raise FetchError(self.source_id, f"IODA API request failed: {e}", e) from e
 
         # IODA API returns: {"data": [[dict1, dict2, ...]]} - list containing list of signal dicts
         raw_data = data.get("data", [])

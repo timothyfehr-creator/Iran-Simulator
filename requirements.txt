@@ -26,14 +26,17 @@ streamlit>=1.30.0
 plotly>=5.18.0
 pandas>=2.0.0
 
-# React Frontend API
-fastapi>=0.109.0
-uvicorn>=0.27.0
+# React Frontend API (removed: FastAPI server deleted in Sprint 3)
+# fastapi>=0.109.0
+# uvicorn>=0.27.0
 
 # Bayesian Network (prototype)
 pgmpy>=0.1.25
 networkx>=3.0
 pyvis>=0.3.0  # Interactive network visualization
+
+# Validation
+jsonschema>=4.17.0
 
 # Testing
 pytest>=7.0.0

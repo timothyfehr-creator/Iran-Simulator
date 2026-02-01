@@ -184,7 +184,8 @@ def main():
 
         sys.exit(0)
     else:
-        sys.exit(1)
+        # Soft fail — exit 2 so daily_update.py captures via run_stage()
+        sys.exit(2)
 
 
 if __name__ == "__main__":

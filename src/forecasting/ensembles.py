@@ -11,12 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 
-# Try to import jsonschema for full schema validation
-try:
-    import jsonschema
-    HAS_JSONSCHEMA = True
-except ImportError:
-    HAS_JSONSCHEMA = False
+import jsonschema
 
 from . import catalog as cat_module
 from . import ledger
@@ -91,7 +86,7 @@ def validate_ensemble_config(
     errors = []
 
     # JSON Schema validation if available
-    if HAS_JSONSCHEMA and schema_path is not None and schema_path.exists():
+    if schema_path is not None and schema_path.exists():
         try:
             with open(schema_path) as f:
                 schema = json.load(f)

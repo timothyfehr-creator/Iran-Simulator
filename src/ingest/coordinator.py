@@ -13,11 +13,14 @@ Orchestrates all evidence fetchers with:
 import hashlib
 import json
 import importlib
+import logging
 import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple, Set
 import yaml
+
+logger = logging.getLogger(__name__)
 
 from .coverage import (
     evaluate_coverage,
@@ -62,7 +65,8 @@ class DocCache:
                 with open(self.cache_path, 'r') as f:
                     data = json.load(f)
                     self.cache = set(data.get("hashes", []))
-            except (json.JSONDecodeError, KeyError):
+            except (json.JSONDecodeError, KeyError) as e:
+                logger.warning(f"Failed to load doc cache from {self.cache_path}: {e}")
                 self.cache = set()
 
     def save(self):
@@ -201,13 +205,13 @@ class IngestionCoordinator:
 
             # Skip disabled sources
             if not source.get('enabled', True):
-                print(f"Skipping disabled source: {source_id}")
+                logger.debug(f"Skipping disabled source: {source_id}")
                 fetch_summary["sources_skipped"] += 1
                 continue
 
             # Skip manual sources
             if source.get('type') == 'manual':
-                print(f"Skipping manual source: {source_id}")
+                logger.debug(f"Skipping manual source: {source_id}")
                 fetch_summary["sources_skipped"] += 1
                 continue
 
@@ -220,11 +224,11 @@ class IngestionCoordinator:
 
             # Skip DOWN sources if configured
             if skip_down_sources and health.status == "DOWN":
-                print(f"Skipping DOWN source: {source_id}")
+                logger.info(f"Skipping DOWN source: {source_id}")
                 fetch_summary["sources_skipped"] += 1
                 continue
 
-            print(f"Fetching from {source['name']}...")
+            logger.info(f"Fetching from {source['name']}...")
             fetch_summary["sources_attempted"] += 1
 
             try:
@@ -244,7 +248,7 @@ class IngestionCoordinator:
                     fetch_func = getattr(module, 'fetch')
                     docs = fetch_func(source, since=since)
                     health.record_success(len(docs))
-                    print(f"  ✓ Fetched {len(docs)} docs from {source_id}")
+                    logger.info(f"  Fetched {len(docs)} docs from {source_id}")
                     all_docs.extend(docs)
                     fetch_summary["sources_succeeded"] += 1
                     continue
@@ -256,10 +260,10 @@ class IngestionCoordinator:
                     health.record_failure(error)
                     fetch_summary["sources_failed"] += 1
                     fetch_summary["errors"][source_id] = error
-                    print(f"  ✗ Failed: {error}")
+                    logger.warning(f"  Failed: {error}")
                 else:
                     health.record_success(len(docs))
-                    print(f"  ✓ Fetched {len(docs)} docs from {source_id}")
+                    logger.info(f"  Fetched {len(docs)} docs from {source_id}")
                     all_docs.extend(docs)
                     fetch_summary["sources_succeeded"] += 1
 
@@ -268,9 +272,7 @@ class IngestionCoordinator:
                 health.record_failure(error_msg)
                 fetch_summary["sources_failed"] += 1
                 fetch_summary["errors"][source_id] = error_msg
-                print(f"  ✗ Error: {e}")
-                import traceback
-                traceback.print_exc()
+                logger.error(f"  Error fetching {source_id}: {e}", exc_info=True)
 
         # Save updated health
         save_health_tracker(self.health_tracker)
@@ -292,7 +294,7 @@ class IngestionCoordinator:
             deduped_docs = [doc for doc in deduped_docs if not self.doc_cache.is_cached(doc)]
             fetch_summary["cached_docs_skipped"] = pre_cache_count - len(deduped_docs)
             if fetch_summary["cached_docs_skipped"] > 0:
-                print(f"  Skipped {fetch_summary['cached_docs_skipped']} cached docs")
+                logger.info(f"  Skipped {fetch_summary['cached_docs_skipped']} cached docs")
         else:
             fetch_summary["cached_docs_skipped"] = 0
 
@@ -306,7 +308,7 @@ class IngestionCoordinator:
         )
         fetch_summary["docs_capped"] = pre_cap_count - len(deduped_docs)
         if fetch_summary["docs_capped"] > 0:
-            print(f"  Capped {fetch_summary['docs_capped']} docs (max {self.max_docs_per_bucket}/bucket)")
+            logger.info(f"  Capped {fetch_summary['docs_capped']} docs (max {self.max_docs_per_bucket}/bucket)")
 
         # Update cache with new docs
         if self.doc_cache:
@@ -315,7 +317,7 @@ class IngestionCoordinator:
 
         fetch_summary["total_docs"] = len(deduped_docs)
 
-        print(f"\n✓ Total: {len(deduped_docs)} unique docs from {fetch_summary['sources_succeeded']} sources")
+        logger.info(f"Total: {len(deduped_docs)} unique docs from {fetch_summary['sources_succeeded']} sources")
 
         return deduped_docs, fetch_summary
 
@@ -390,7 +392,7 @@ class IngestionCoordinator:
         with open(output_path, 'w') as f:
             for doc in docs:
                 f.write(json.dumps(doc) + '\n')
-        print(f"Wrote evidence_docs.jsonl: {output_path}")
+        logger.info(f"Wrote evidence_docs.jsonl: {output_path}")
 
     def generate_source_index(self) -> List[Dict[str, Any]]:
         """Generate source_index.json from config."""
@@ -413,6 +415,8 @@ def main():
     """CLI entry point for testing."""
     import argparse
     import sys
+    from src.logging_config import configure_logging
+    configure_logging()
 
     parser = argparse.ArgumentParser(description="Fetch evidence from all sources")
     parser.add_argument('--since-hours', type=int, default=24,

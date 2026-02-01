@@ -55,6 +55,12 @@ class RunManifest:
     unreliable_reason: Optional[str] = None
     as_of_utc: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     n_sims: Optional[int] = None
+    qa_status: Optional[str] = None
+    econ_enrichment_status: Optional[str] = None
+    econ_priors_status: Optional[str] = None
+    claims_status: Optional[str] = None
+    claims_count: Optional[int] = None
+    gate_decision: Optional[str] = None  # "PASS" | "SKIP_SIMULATION"
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
@@ -185,7 +191,13 @@ def generate_run_manifest(
     coverage_report: Optional[Dict] = None,
     run_id: str = "",
     as_of_utc: Optional[str] = None,
-    n_sims: Optional[int] = None
+    n_sims: Optional[int] = None,
+    qa_status: Optional[str] = None,
+    econ_enrichment_status: Optional[str] = None,
+    econ_priors_status: Optional[str] = None,
+    claims_status: Optional[str] = None,
+    claims_count: Optional[int] = None,
+    gate_decision: Optional[str] = None,
 ) -> RunManifest:
     """
     Generate a complete run manifest.
@@ -208,6 +220,24 @@ def generate_run_manifest(
     hashes = compute_run_hashes(run_dir)
     is_reliable, unreliable_reason = determine_run_reliability(coverage_status, coverage_report)
 
+    # Gate decision overrides reliability — if gate skipped simulation, run is unreliable
+    if gate_decision == "SKIP_SIMULATION":
+        is_reliable = False
+        # Build a reason string from all failed statuses
+        failed = []
+        if qa_status == "FAIL":
+            failed.append("qa")
+        if econ_enrichment_status == "FAIL":
+            failed.append("econ_enrichment")
+        if econ_priors_status == "FAIL":
+            failed.append("econ_priors")
+        if claims_status == "FAIL":
+            failed.append("claims")
+        if coverage_status == "FAIL":
+            failed.append("coverage")
+        gate_reason = f"Gate SKIP_SIMULATION: failed [{', '.join(failed)}]"
+        unreliable_reason = gate_reason if not unreliable_reason else f"{unreliable_reason}; {gate_reason}"
+
     # Default as_of_utc to now if not provided
     if as_of_utc is None:
         as_of_utc = datetime.now(timezone.utc).isoformat()
@@ -224,7 +254,13 @@ def generate_run_manifest(
         run_id=run_id,
         unreliable_reason=unreliable_reason,
         as_of_utc=as_of_utc,
-        n_sims=n_sims
+        n_sims=n_sims,
+        qa_status=qa_status,
+        econ_enrichment_status=econ_enrichment_status,
+        econ_priors_status=econ_priors_status,
+        claims_status=claims_status,
+        claims_count=claims_count,
+        gate_decision=gate_decision,
     )
 
     return manifest
@@ -281,7 +317,13 @@ def load_run_manifest(run_dir: str) -> Optional[RunManifest]:
             run_id=data.get("run_id", ""),
             unreliable_reason=data.get("unreliable_reason"),
             as_of_utc=data.get("as_of_utc", data.get("generated_at_utc", "")),
-            n_sims=data.get("n_sims")
+            n_sims=data.get("n_sims"),
+            qa_status=data.get("qa_status"),
+            econ_enrichment_status=data.get("econ_enrichment_status"),
+            econ_priors_status=data.get("econ_priors_status"),
+            claims_status=data.get("claims_status"),
+            claims_count=data.get("claims_count"),
+            gate_decision=data.get("gate_decision"),
         )
 
     except (json.JSONDecodeError, KeyError) as e:

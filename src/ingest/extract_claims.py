@@ -1,11 +1,15 @@
 """Automated claim extraction from evidence using GPT API."""
 
 import json
+import logging
 import os
+import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -145,42 +149,59 @@ Content:
             evidence_doc=evidence_text
         )
 
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
+        max_attempts = 3
+        last_error = None
+        for attempt in range(1, max_attempts + 1):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.1,
+                    response_format={"type": "json_object"},
+                    timeout=60,
+                )
 
-            claims_json = response.choices[0].message.content
-            claims = json.loads(claims_json)
+                claims_json = response.choices[0].message.content
+                claims = json.loads(claims_json)
 
-            # Ensure it's a list
-            if isinstance(claims, dict) and 'claims' in claims:
-                claims = claims['claims']
+                # Ensure it's a list
+                if isinstance(claims, dict) and 'claims' in claims:
+                    claims = claims['claims']
 
-            # Generate unique claim IDs using doc_id hash
-            doc_id = evidence_doc.get('doc_id', 'UNKNOWN')
-            # Use last 8 chars of doc_id to make unique IDs
-            doc_hash = doc_id[-8:] if len(doc_id) >= 8 else doc_id
+                # Generate unique claim IDs using doc_id hash
+                doc_id = evidence_doc.get('doc_id', 'UNKNOWN')
+                # Use last 8 chars of doc_id to make unique IDs
+                doc_hash = doc_id[-8:] if len(doc_id) >= 8 else doc_id
 
-            for i, claim in enumerate(claims):
-                # Replace generic claim_id with unique one
-                claim['claim_id'] = f"CLM_{doc_hash}_{i+1:04d}"
+                for i, claim in enumerate(claims):
+                    # Replace generic claim_id with unique one
+                    claim['claim_id'] = f"CLM_{doc_hash}_{i+1:04d}"
 
-                # Normalize paths using registry aliases
-                if 'path' in claim:
-                    original_path = claim['path']
-                    claim['path'] = normalize_path(original_path)
-                    if claim['path'] != original_path:
-                        claim['_original_path'] = original_path
+                    # Normalize paths using registry aliases
+                    if 'path' in claim:
+                        original_path = claim['path']
+                        claim['path'] = normalize_path(original_path)
+                        if claim['path'] != original_path:
+                            claim['_original_path'] = original_path
 
-            return claims
+                return claims
 
-        except Exception as e:
-            print(f"Error extracting claims from {evidence_doc.get('doc_id')}: {e}")
-            return []
+            except Exception as e:
+                last_error = e
+                if attempt < max_attempts:
+                    backoff = 2 ** attempt
+                    logger.warning(
+                        f"Attempt {attempt}/{max_attempts} failed for {evidence_doc.get('doc_id')}: {e}. "
+                        f"Retrying in {backoff}s..."
+                    )
+                    time.sleep(backoff)
+                else:
+                    logger.exception(
+                        f"All {max_attempts} attempts failed extracting claims from "
+                        f"{evidence_doc.get('doc_id')}: {last_error}"
+                    )
+
+        return []
 
     def extract_from_jsonl(self, evidence_jsonl_path: str, output_path: str):
         """Extract claims from evidence_docs.jsonl."""
@@ -189,18 +210,17 @@ Content:
         with open(evidence_jsonl_path, 'r') as f:
             for line in f:
                 doc = json.loads(line)
-                print(f"Extracting claims from {doc.get('doc_id')}...")
+                logger.info(f"Extracting claims from {doc.get('doc_id')}...")
                 claims = self.extract_from_doc(doc)
                 all_claims.extend(claims)
-                print(f"  ✓ Extracted {len(claims)} claims")
+                logger.info(f"  Extracted {len(claims)} claims")
 
         # Write claims to JSONL
         with open(output_path, 'w') as f:
             for claim in all_claims:
                 f.write(json.dumps(claim) + '\n')
 
-        print(f"\n✓ Extracted {len(all_claims)} total claims")
-        print(f"  Output: {output_path}")
+        logger.info(f"Extracted {len(all_claims)} total claims -> {output_path}")
 
 
 def main():

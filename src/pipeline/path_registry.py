@@ -133,7 +133,7 @@ def load_default_registry() -> PathRegistry:
     # Find repo root (go up from src/pipeline/)
     current_dir = os.path.dirname(__file__)
     repo_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
-    registry_path = os.path.join(repo_root, "config", "path_registry.json")
+    registry_path = os.path.join(repo_root, "config", "path_registry_v2.json")
 
     if not os.path.exists(registry_path):
         raise FileNotFoundError(f"Path registry not found at {registry_path}")

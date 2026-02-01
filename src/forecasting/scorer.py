@@ -6,10 +6,13 @@ for resolved forecasts. Supports separation of core scores
 (external_auto + external_manual) from claims_inferred scores.
 """
 
+import logging
 import math
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any, Tuple, Union
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 from . import ledger
 from . import resolver
@@ -1500,13 +1503,13 @@ def compute_scores_by_forecaster(
                     raw, norm = effective_multinomial_brier_score(ef, resolutions, outcomes)
                     multi_brier_scores.append((norm, len(ef)))
                 except ScoringError:
-                    pass
+                    logger.warning("Scoring component failed for multinomial Brier", exc_info=True)
 
                 try:
                     ls = multinomial_log_score(ef, resolutions, outcomes)
                     multi_log_scores.append((ls, len(ef)))
                 except ScoringError:
-                    pass
+                    logger.warning("Scoring component failed for multinomial log score", exc_info=True)
 
             # Weighted average across events
             if multi_brier_scores:

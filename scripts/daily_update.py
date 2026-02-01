@@ -27,6 +27,7 @@ import logging
 import os
 import subprocess
 import sys
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, List
@@ -60,6 +61,130 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+
+_REQUIRED_THRESHOLD_KEYS = [
+    "rial_critical_threshold",
+    "rial_pressured_threshold",
+    "inflation_critical_threshold",
+    "inflation_pressured_threshold",
+]
+
+
+def validate_econ_priors(priors_path: str) -> tuple:
+    """Validate analyst_priors.json contains valid economic config.
+
+    Checks:
+    - economic_thresholds exists with all 4 required sub-keys
+    - Sub-key values are numeric and castable to int/float
+    - Pressured thresholds < critical thresholds (ordering)
+    - economic_modifiers exists and is a dict
+
+    Returns:
+        (status, errors) where status is "OK" or "FAIL" and errors is a list of strings.
+    """
+    errors: list = []
+    try:
+        with open(priors_path, 'r') as f:
+            priors = json.load(f)
+    except Exception as e:
+        return "FAIL", [f"Could not read priors JSON at {priors_path}: {e}"]
+
+    # --- economic_thresholds ---
+    thresholds = priors.get("economic_thresholds")
+    if not isinstance(thresholds, dict):
+        errors.append("Missing or invalid economic_thresholds (must be a dict)")
+        return "FAIL", errors
+
+    for k in _REQUIRED_THRESHOLD_KEYS:
+        if k not in thresholds:
+            errors.append(f"economic_thresholds missing required key: {k}")
+
+    if errors:
+        return "FAIL", errors
+
+    # Castability
+    try:
+        rial_critical = int(thresholds["rial_critical_threshold"])
+        rial_pressured = int(thresholds["rial_pressured_threshold"])
+        infl_critical = float(thresholds["inflation_critical_threshold"])
+        infl_pressured = float(thresholds["inflation_pressured_threshold"])
+    except (TypeError, ValueError) as e:
+        return "FAIL", [f"economic_thresholds value not numeric: {e}"]
+
+    # Ordering
+    if rial_pressured >= rial_critical:
+        errors.append(
+            f"rial_pressured_threshold ({rial_pressured}) must be < "
+            f"rial_critical_threshold ({rial_critical})"
+        )
+    if infl_pressured >= infl_critical:
+        errors.append(
+            f"inflation_pressured_threshold ({infl_pressured}) must be < "
+            f"inflation_critical_threshold ({infl_critical})"
+        )
+
+    # --- economic_modifiers ---
+    mods = priors.get("economic_modifiers")
+    if not isinstance(mods, dict):
+        errors.append("Missing or invalid economic_modifiers (must be a dict)")
+
+    return ("OK" if not errors else "FAIL"), errors
+
+
+@dataclass
+class StageResult:
+    """Result of a pipeline stage execution."""
+    status: str   # "OK" | "FAIL" | "TIMEOUT" | "CRASH"
+    returncode: int
+
+
+# Default stage timeout in seconds
+STAGE_TIMEOUT = 300
+
+
+def run_stage(cmd: List[str], label: str, timeout: int = STAGE_TIMEOUT) -> StageResult:
+    """Run a pipeline subprocess with timeout and soft-fail semantics.
+
+    Return codes:
+        0  -> StageResult("OK", 0)
+        2  -> StageResult("FAIL", 2)   — soft fail, pipeline continues to gate
+        TimeoutExpired -> StageResult("TIMEOUT", -1)
+        1 / other -> StageResult("CRASH", rc) — hard fail, caller should abort
+
+    Args:
+        cmd: Command list to run via subprocess
+        label: Human-readable stage name for logging
+        timeout: Timeout in seconds (default: 300)
+
+    Returns:
+        StageResult with status and return code
+    """
+    logger.info(f"Running {label}: {' '.join(cmd)}")
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+
+        if result.stdout:
+            logger.info(result.stdout.rstrip())
+        if result.stderr:
+            logger.warning(result.stderr.rstrip())
+
+        if result.returncode == 0:
+            logger.info(f"[OK] {label} completed successfully")
+            return StageResult("OK", 0)
+        elif result.returncode == 2:
+            logger.warning(f"[FAIL] {label} soft-failed (exit 2)")
+            return StageResult("FAIL", 2)
+        else:
+            logger.error(f"[CRASH] {label} crashed with exit code {result.returncode}")
+            return StageResult("CRASH", result.returncode)
+
+    except subprocess.TimeoutExpired:
+        logger.error(f"[TIMEOUT] {label} timed out after {timeout}s")
+        return StageResult("TIMEOUT", -1)
+    except Exception as e:
+        logger.error(f"[CRASH] {label} raised exception: {e}")
+        return StageResult("CRASH", -1)
 
 
 def determine_run_id(date: datetime) -> str:
@@ -100,89 +225,59 @@ def find_previous_run(current_run_id: str) -> Optional[str]:
     return None
 
 
-def run_pipeline_stage(stage: str, **kwargs) -> bool:
-    """
-    Invoke pipeline stage via subprocess.
+def build_stage_cmd(stage: str, **kwargs) -> List[str]:
+    """Build subprocess command for a pipeline stage.
 
     Args:
-        stage: Stage name (import, compile, simulate, report, diff)
+        stage: Stage name (import, compile, simulate, report, diff, enrich_economic)
         **kwargs: Stage-specific arguments
 
     Returns:
-        True if successful, False otherwise
+        Command list for subprocess
     """
-    try:
-        if stage == 'import':
-            cmd = [
-                sys.executable, '-m', 'src.pipeline.import_deep_research_bundle_v3',
-                '--bundle', kwargs['bundle'],
-                '--out_dir', kwargs['out_dir']
-            ]
-
-        elif stage == 'compile':
-            # Use compile_intel_v2 for deterministic merge with documented tiebreak order
-            cmd = [
-                sys.executable, '-m', 'src.pipeline.compile_intel_v2',
-                '--claims', os.path.join(kwargs['run_dir'], 'claims_deep_research.jsonl'),
-                '--template', 'data/iran_crisis_intel.json',
-                '--outdir', kwargs['run_dir']
-            ]
-
-        elif stage == 'enrich_economic':
-            cmd = [
-                sys.executable, 'scripts/enrich_economic_data.py',
-                '--intel', kwargs['intel_path'],
-                '--no-backup'  # Don't create backup in automated pipeline runs
-            ]
-
-        elif stage == 'simulate':
-            cmd = [
-                sys.executable, 'src/simulation.py',
-                '--intel', os.path.join(kwargs['run_dir'], 'compiled_intel.json'),
-                '--priors', 'data/analyst_priors.json',
-                '--runs', str(kwargs.get('runs', 10000)),
-                '--seed', str(kwargs.get('seed', 42)),
-                '--abm',  # Use multi-agent ABM (Project Swarm) for protest dynamics
-                '--output', os.path.join(kwargs['run_dir'], 'simulation_results.json')
-            ]
-
-        elif stage == 'report':
-            cmd = [
-                sys.executable, '-m', 'src.report.generate_report',
-                '--run_dir', kwargs['run_dir']
-            ]
-
-        elif stage == 'diff':
-            cmd = [
-                sys.executable, '-m', 'src.pipeline.run_comparator',
-                kwargs['previous_run'],
-                kwargs['current_run'],
-                '--output', os.path.join(kwargs['current_run'], 'diff_report.json')
-            ]
-
-        else:
-            logger.error(f"Unknown stage: {stage}")
-            return False
-
-        logger.info(f"Running {stage}: {' '.join(cmd)}")
-        result = subprocess.run(cmd, capture_output=True, text=True)
-
-        if result.returncode == 0:
-            logger.info(f"✓ {stage} completed successfully")
-            if result.stdout:
-                logger.info(result.stdout)
-            return True
-        else:
-            logger.error(f"✗ {stage} failed with exit code {result.returncode}")
-            if result.stderr:
-                logger.error(result.stderr)
-            if result.stdout:
-                logger.error(result.stdout)
-            return False
-
-    except Exception as e:
-        logger.error(f"Exception in {stage}: {e}")
-        return False
+    if stage == 'import':
+        return [
+            sys.executable, '-m', 'src.pipeline.import_deep_research_bundle_v3',
+            '--bundle', kwargs['bundle'],
+            '--out_dir', kwargs['out_dir']
+        ]
+    elif stage == 'compile':
+        return [
+            sys.executable, '-m', 'src.pipeline.compile_intel_v2',
+            '--claims', os.path.join(kwargs['run_dir'], 'claims_deep_research.jsonl'),
+            '--template', 'data/iran_crisis_intel.json',
+            '--outdir', kwargs['run_dir']
+        ]
+    elif stage == 'enrich_economic':
+        return [
+            sys.executable, 'scripts/enrich_economic_data.py',
+            '--intel', kwargs['intel_path'],
+            '--no-backup'
+        ]
+    elif stage == 'simulate':
+        return [
+            sys.executable, 'src/simulation.py',
+            '--intel', os.path.join(kwargs['run_dir'], 'compiled_intel.json'),
+            '--priors', 'data/analyst_priors.json',
+            '--runs', str(kwargs.get('runs', 10000)),
+            '--seed', str(kwargs.get('seed', 42)),
+            '--abm',
+            '--output', os.path.join(kwargs['run_dir'], 'simulation_results.json')
+        ]
+    elif stage == 'report':
+        return [
+            sys.executable, '-m', 'src.report.generate_report',
+            '--run_dir', kwargs['run_dir']
+        ]
+    elif stage == 'diff':
+        return [
+            sys.executable, '-m', 'src.pipeline.run_comparator',
+            kwargs['previous_run'],
+            kwargs['current_run'],
+            '--output', os.path.join(kwargs['current_run'], 'diff_report.json')
+        ]
+    else:
+        raise ValueError(f"Unknown stage: {stage}")
 
 
 def check_coverage_warnings(run_dir: str) -> List[str]:
@@ -489,8 +584,9 @@ def main():
 
     # Stage 1: Import
     logger.info("\n=== STAGE 1: Import Bundle ===")
-    if not run_pipeline_stage('import', bundle=bundle_path, out_dir=run_dir):
-        logger.error("Import stage failed")
+    import_result = run_stage(build_stage_cmd('import', bundle=bundle_path, out_dir=run_dir), "Import Bundle")
+    if import_result.status == "CRASH":
+        logger.error("Import stage crashed — aborting pipeline")
         sys.exit(1)
 
     # Copy coverage/alerts from ingest to run directory (auto-ingest mode only)
@@ -505,9 +601,24 @@ def main():
 
     # Stage 2: Compile
     logger.info("\n=== STAGE 2: Compile Intel ===")
-    if not run_pipeline_stage('compile', run_dir=run_dir):
-        logger.error("Compile stage failed")
+    compile_result = run_stage(build_stage_cmd('compile', run_dir=run_dir), "Compile Intel")
+    if compile_result.status == "CRASH":
+        logger.error("Compile stage crashed — aborting pipeline")
         sys.exit(1)
+
+    # Determine QA status from qa_report.json
+    qa_status = "OK"
+    qa_report_path = os.path.join(run_dir, 'qa_report.json')
+    if os.path.exists(qa_report_path):
+        try:
+            with open(qa_report_path, 'r') as f:
+                qa_report = json.load(f)
+            if qa_report.get('status') == 'FAIL':
+                qa_status = "FAIL"
+        except Exception:
+            pass
+    if compile_result.status in ("FAIL", "TIMEOUT"):
+        qa_status = "FAIL"
 
     # Check coverage warnings
     warnings = check_coverage_warnings(run_dir)
@@ -519,14 +630,15 @@ def main():
     # Stage 2.5: Enrich with economic data
     logger.info("\n=== STAGE 2.5: Economic Enrichment ===")
     intel_path = os.path.join(run_dir, 'compiled_intel.json')
-    if not run_pipeline_stage('enrich_economic', intel_path=intel_path):
-        logger.warning("Economic enrichment failed (non-fatal, continuing with defaults)")
+    econ_enrichment_result = run_stage(
+        build_stage_cmd('enrich_economic', intel_path=intel_path), "Economic Enrichment"
+    )
+    econ_enrichment_status = "OK" if econ_enrichment_result.status == "OK" else "FAIL"
 
-    # Load coverage report to determine if we should skip simulation
+    # Load coverage report to determine coverage status
     coverage_path = os.path.join(run_dir, 'coverage_report.json')
     coverage_status = "UNKNOWN"
     coverage_report_data = None
-    skip_simulation_due_to_coverage = False
 
     if os.path.exists(coverage_path):
         with open(coverage_path, 'r') as f:
@@ -538,20 +650,63 @@ def main():
     on_coverage_fail = ingest_config.get('on_coverage_fail', 'skip_simulation')
 
     if coverage_status == 'FAIL' and on_coverage_fail == 'skip_simulation':
-        logger.warning(f"Coverage status is FAIL - skipping simulation per config (on_coverage_fail={on_coverage_fail})")
-        skip_simulation_due_to_coverage = True
+        logger.warning(f"Coverage status is FAIL — will feed into unified gate")
 
-    # Stage 3: Simulate (unless skipped or coverage FAIL)
-    if not args.no_simulate and not skip_simulation_due_to_coverage:
+    # --- Pre-simulation: validate economic priors ---
+    econ_priors_status, econ_priors_errors = validate_econ_priors('data/analyst_priors.json')
+    for err in econ_priors_errors:
+        logger.warning(f"econ_priors: {err}")
+
+    # --- Claims status ---
+    claims_status = "OK"
+    claims_count = 0
+    claims_path = os.path.join(run_dir, 'claims_deep_research.jsonl')
+    if os.path.exists(claims_path):
+        with open(claims_path, 'r') as f:
+            claims_count = sum(1 for line in f if line.strip())
+
+    if args.auto_ingest and os.getenv('OPENAI_API_KEY') and claims_count == 0:
+        claims_status = "FAIL"
+        logger.warning("OPENAI_API_KEY set but 0 claims extracted (auto-ingest) — claims_status=FAIL")
+    if os.getenv('REQUIRE_CLAIMS') == '1' and claims_count == 0:
+        claims_status = "FAIL"
+        logger.warning("REQUIRE_CLAIMS=1 but 0 claims — claims_status=FAIL")
+
+    # --- Unified Gate ---
+    gate_statuses = {
+        "coverage": coverage_status if (coverage_status == "FAIL" and on_coverage_fail == "skip_simulation") else "OK",
+        "econ_enrichment": econ_enrichment_status,
+        "econ_priors": econ_priors_status,
+        "qa": qa_status,
+        "claims": claims_status,
+    }
+
+    gate_decision = "PASS"
+    run_reliable = True
+    if any(s == "FAIL" for s in gate_statuses.values()):
+        gate_decision = "SKIP_SIMULATION"
+        run_reliable = False
+        failed_gates = [k for k, v in gate_statuses.items() if v == "FAIL"]
+        logger.warning(f"Unified gate: SKIP_SIMULATION — failed gates: {failed_gates}")
+
+    skip_simulation_due_to_gate = (gate_decision == "SKIP_SIMULATION")
+
+    # Stage 3: Simulate (unless skipped or gate blocks)
+    if not args.no_simulate and not skip_simulation_due_to_gate:
         logger.info("\n=== STAGE 3: Simulation ===")
-        if not run_pipeline_stage('simulate', run_dir=run_dir, runs=args.runs, seed=args.seed):
-            logger.error("Simulation stage failed")
+        sim_result = run_stage(
+            build_stage_cmd('simulate', run_dir=run_dir, runs=args.runs, seed=args.seed),
+            "Simulation"
+        )
+        if sim_result.status in ("CRASH", "TIMEOUT"):
+            logger.error(f"Simulation stage {sim_result.status} — aborting pipeline")
             sys.exit(1)
 
         # Stage 4: Report
         logger.info("\n=== STAGE 4: Generate Reports ===")
-        if not run_pipeline_stage('report', run_dir=run_dir):
-            logger.error("Report stage failed")
+        report_result = run_stage(build_stage_cmd('report', run_dir=run_dir), "Generate Reports")
+        if report_result.status in ("CRASH", "TIMEOUT"):
+            logger.error(f"Report stage {report_result.status} — aborting pipeline")
             sys.exit(1)
 
     # Determine ingest_since_utc
@@ -588,7 +743,13 @@ def main():
             coverage_report=coverage_report_data,
             run_id=run_id,
             as_of_utc=datetime.now(timezone.utc).isoformat(),
-            n_sims=args.runs if (not args.no_simulate and not skip_simulation_due_to_coverage) else None
+            n_sims=args.runs if (not args.no_simulate and not skip_simulation_due_to_gate) else None,
+            qa_status=qa_status,
+            econ_enrichment_status=econ_enrichment_status,
+            econ_priors_status=econ_priors_status,
+            claims_status=claims_status,
+            claims_count=claims_count,
+            gate_decision=gate_decision,
         )
         manifest_path = write_run_manifest(manifest, run_dir)
         logger.info(f"✓ Wrote run manifest: {manifest_path}")
@@ -600,7 +761,7 @@ def main():
         logger.warning(f"Failed to generate run manifest: {e}")
 
     # Stage 4.5: Generate scorecard + public artifacts
-    if not args.no_simulate and not skip_simulation_due_to_coverage:
+    if not args.no_simulate and not skip_simulation_due_to_gate:
         logger.info("\n=== STAGE 4.5: Scorecard + Public Artifacts ===")
         try:
             from src.forecasting.reporter import generate_report
@@ -621,22 +782,23 @@ def main():
                 "--scorecard", "forecasting/reports/scorecard.json",
                 "--output-dir", "latest/",
             ]
-            result = subprocess.run(artifact_cmd, capture_output=True, text=True)
-            if result.returncode == 0:
-                logger.info("Public artifacts generated successfully")
-            else:
-                logger.warning(f"Public artifact generation failed: {result.stderr}")
+            artifact_result = run_stage(artifact_cmd, "Public Artifacts", timeout=120)
+            if artifact_result.status != "OK":
+                logger.warning(f"Public artifact generation failed (non-fatal)")
         except Exception as e:
             logger.warning(f"Public artifact generation failed (non-fatal): {e}")
 
     # Stage 5: Diff (if previous run exists and simulation ran)
-    if not args.no_simulate and not skip_simulation_due_to_coverage:
+    if not args.no_simulate and not skip_simulation_due_to_gate:
         logger.info("\n=== STAGE 5: Generate Diff ===")
         previous_run = find_previous_run(run_id)
         if previous_run:
             previous_run_dir = os.path.join('runs', previous_run)
             logger.info(f"Comparing to previous run: {previous_run}")
-            if run_pipeline_stage('diff', previous_run=previous_run_dir, current_run=run_dir):
+            diff_result = run_stage(
+            build_stage_cmd('diff', previous_run=previous_run_dir, current_run=run_dir), "Diff"
+        )
+        if diff_result.status == "OK":
                 # Generate markdown summary
                 try:
                     subprocess.run([
@@ -651,8 +813,8 @@ def main():
             logger.info("No previous run found, skipping diff")
     elif args.no_simulate:
         logger.info("\n=== Simulation skipped (--no-simulate) ===")
-    elif skip_simulation_due_to_coverage:
-        logger.info("\n=== Simulation skipped (coverage FAIL) ===")
+    elif skip_simulation_due_to_gate:
+        logger.info(f"\n=== Simulation skipped (gate: {gate_decision}) ===")
 
     logger.info(f"\n✓ Daily update complete: {run_id}")
     logger.info(f"  Output directory: {run_dir}")

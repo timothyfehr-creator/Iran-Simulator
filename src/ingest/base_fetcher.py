@@ -1,5 +1,6 @@
 """Abstract base class for all evidence fetchers with retry logic."""
 
+import logging
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional, Tuple
@@ -8,6 +9,11 @@ import os
 import time
 
 import yaml
+
+logger = logging.getLogger(__name__)
+
+# Maximum length for raw document text (bytes). Truncated in create_evidence_doc().
+MAX_DOC_TEXT_LENGTH = 50_000
 
 
 # Default retry configuration (can be overridden by config/ingest.yaml)
@@ -33,8 +39,8 @@ def load_ingest_config() -> Dict[str, Any]:
             try:
                 with open(path, 'r') as f:
                     return yaml.safe_load(f) or {}
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to load ingest config from {path}: {e}")
 
     return {}
 
@@ -121,11 +127,11 @@ class BaseFetcher(ABC):
             except Exception as e:
                 last_error = str(e)
                 if attempt < MAX_RETRIES:
-                    print(f"  Retry {attempt}/{MAX_RETRIES} for {self.source_id} in {backoff}s: {e}")
+                    logger.warning(f"Retry {attempt}/{MAX_RETRIES} for {self.source_id} in {backoff}s: {e}")
                     time.sleep(backoff)
                     backoff *= BACKOFF_MULTIPLIER
                 else:
-                    print(f"  Failed after {MAX_RETRIES} attempts for {self.source_id}: {e}")
+                    logger.error(f"Failed after {MAX_RETRIES} attempts for {self.source_id}: {e}")
 
         return [], last_error
 
@@ -171,7 +177,7 @@ class BaseFetcher(ABC):
             "published_at_utc": published_at,
             "retrieved_at_utc": retrieved_at,
             "language": language,
-            "raw_text": raw_text[:50000],  # Truncate to 50KB
+            "raw_text": raw_text[:MAX_DOC_TEXT_LENGTH],
             "translation_en": None,  # TODO: Add automatic translation
             "translation_confidence": translation_confidence,
             "access_grade": self.access_grade,

@@ -115,12 +115,50 @@ class TestEconomicStress:
         sim = IranCrisisSimulation(base_intel, base_priors)
         assert sim._get_economic_stress() == EconomicStress.STABLE
 
-    def test_missing_data_defaults_pressured(self, base_intel, base_priors):
-        """Test that missing economic data defaults to PRESSURED."""
-        # No economic_conditions at all
+    def test_missing_economic_conditions_raises(self, base_intel, base_priors):
+        """Test that missing economic_conditions raises ValueError."""
         del base_intel["current_state"]["economic_conditions"]
         sim = IranCrisisSimulation(base_intel, base_priors)
-        assert sim._get_economic_stress() == EconomicStress.PRESSURED
+        with pytest.raises(ValueError, match="missing economic_conditions"):
+            sim._get_economic_stress()
+
+    def test_missing_rial_raises(self, base_intel, base_priors):
+        """Test that missing rial_usd_rate raises ValueError."""
+        base_intel["current_state"]["economic_conditions"] = {
+            "inflation": {"official_annual_percent": 35}
+        }
+        sim = IranCrisisSimulation(base_intel, base_priors)
+        with pytest.raises(ValueError, match="missing rial_usd_rate"):
+            sim._get_economic_stress()
+
+    def test_missing_inflation_raises(self, base_intel, base_priors):
+        """Test that missing inflation raises ValueError."""
+        base_intel["current_state"]["economic_conditions"] = {
+            "rial_usd_rate": {"market": 900000}
+        }
+        sim = IranCrisisSimulation(base_intel, base_priors)
+        with pytest.raises(ValueError, match="missing inflation"):
+            sim._get_economic_stress()
+
+    def test_all_rial_paths_none_raises(self, base_intel, base_priors):
+        """Test that all-None rial paths raises ValueError."""
+        base_intel["current_state"]["economic_conditions"] = {
+            "rial_usd_rate": {"market": None, "mid": None, "value": None},
+            "inflation": {"official_annual_percent": 35}
+        }
+        sim = IranCrisisSimulation(base_intel, base_priors)
+        with pytest.raises(ValueError, match="rial_usd_rate value"):
+            sim._get_economic_stress()
+
+    def test_all_inflation_paths_none_raises(self, base_intel, base_priors):
+        """Test that all-None inflation paths raises ValueError."""
+        base_intel["current_state"]["economic_conditions"] = {
+            "rial_usd_rate": {"market": 900000},
+            "inflation": {"official_annual_percent": None, "mid": None, "value": None}
+        }
+        sim = IranCrisisSimulation(base_intel, base_priors)
+        with pytest.raises(ValueError, match="inflation value"):
+            sim._get_economic_stress()
 
     def test_economic_stress_cached(self, base_intel, base_priors):
         """Test that economic stress is cached after first call."""
@@ -216,7 +254,8 @@ class TestEconomicModifiers:
     def test_critical_increases_escalation(self, base_intel, base_priors):
         """Test that CRITICAL stress increases protest escalation probability."""
         base_intel["current_state"]["economic_conditions"] = {
-            "rial_usd_rate": {"market": 1500000}
+            "rial_usd_rate": {"market": 1500000},
+            "inflation": {"official_annual_percent": 25}
         }
         sim = IranCrisisSimulation(base_intel, base_priors)
 
@@ -229,7 +268,8 @@ class TestEconomicModifiers:
     def test_critical_increases_defection(self, base_intel, base_priors):
         """Test that CRITICAL stress increases defection probability."""
         base_intel["current_state"]["economic_conditions"] = {
-            "rial_usd_rate": {"market": 1500000}
+            "rial_usd_rate": {"market": 1500000},
+            "inflation": {"official_annual_percent": 25}
         }
         sim = IranCrisisSimulation(base_intel, base_priors)
 
@@ -242,7 +282,8 @@ class TestEconomicModifiers:
     def test_modifier_caps_at_95(self, base_intel, base_priors):
         """Test that modifier caps probability at 95%."""
         base_intel["current_state"]["economic_conditions"] = {
-            "rial_usd_rate": {"market": 1500000}
+            "rial_usd_rate": {"market": 1500000},
+            "inflation": {"official_annual_percent": 25}
         }
         sim = IranCrisisSimulation(base_intel, base_priors)
 

@@ -9,16 +9,20 @@ Note: Rates are displayed in Toman (1 Toman = 10 Rials). We convert to Rials
 for consistency with the simulation schema.
 """
 
+import logging
 import re
 import requests
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from .base_fetcher import BaseFetcher
+from .base_fetcher import BaseFetcher, FetchError
 
+logger = logging.getLogger(__name__)
 
-# Request configuration
-REQUEST_TIMEOUT = 30
+# Request timeout (connect, read) in seconds
+REQUEST_TIMEOUT = (10, 30)
 BONBAST_URL = "https://www.bonbast.com/"
 BONBAST_JSON_URL = "https://www.bonbast.com/json"
 
@@ -39,6 +43,8 @@ class BonbastFetcher(BaseFetcher):
             List with single evidence doc containing rate data
         """
         session = requests.Session()
+        retry = Retry(total=1, allowed_methods=["GET", "POST"], backoff_factor=1, status_forcelist=[502, 503, 504])
+        session.mount("https://", HTTPAdapter(max_retries=retry))
 
         # Headers for browser-like requests
         headers = {
@@ -47,8 +53,15 @@ class BonbastFetcher(BaseFetcher):
         }
 
         # Step 1: Fetch main page to get token
-        resp = session.get(BONBAST_URL, headers=headers, timeout=REQUEST_TIMEOUT)
-        resp.raise_for_status()
+        # URL from config/sources.yaml, falling back to module default
+        base_url = self.config.get("urls", [BONBAST_URL])[0]
+        json_url = base_url.rstrip("/") + "/json"
+
+        try:
+            resp = session.get(base_url, headers=headers, timeout=REQUEST_TIMEOUT)
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            raise FetchError(self.source_id, f"Bonbast main page request failed: {e}", e) from e
 
         # Extract the param token from JavaScript
         match = re.search(r"param:\s*['\"]([^'\"]+)['\"]", resp.text)
@@ -64,16 +77,19 @@ class BonbastFetcher(BaseFetcher):
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'X-Requested-With': 'XMLHttpRequest',
             'Origin': 'https://www.bonbast.com',
-            'Referer': BONBAST_URL,
+            'Referer': base_url,
         }
 
-        resp = session.post(
-            BONBAST_JSON_URL,
-            data={'param': param_token},
-            headers=json_headers,
-            timeout=REQUEST_TIMEOUT
-        )
-        resp.raise_for_status()
+        try:
+            resp = session.post(
+                json_url,
+                data={'param': param_token},
+                headers=json_headers,
+                timeout=REQUEST_TIMEOUT
+            )
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            raise FetchError(self.source_id, f"Bonbast JSON API request failed: {e}", e) from e
 
         data = resp.json()
 

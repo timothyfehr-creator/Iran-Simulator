@@ -1,10 +1,13 @@
 """Specialized ISW fetcher - scrapes backgrounder page since RSS is blocked."""
 
+import logging
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
-from .base_fetcher import BaseFetcher
+from .base_fetcher import BaseFetcher, FetchError, MAX_DOC_TEXT_LENGTH
+
+logger = logging.getLogger(__name__)
 
 
 class ISWFetcher(BaseFetcher):
@@ -14,8 +17,8 @@ class ISWFetcher(BaseFetcher):
         """Fetch ISW Iran Updates from homepage."""
         evidence_docs = []
 
-        # Fetch homepage which lists recent Iran Updates
-        url = "https://understandingwar.org/"
+        # URL from config/sources.yaml, falling back to default
+        url = self.config.get("urls", ["https://understandingwar.org/"])[0]
         response = requests.get(url, timeout=30, headers={
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         })
@@ -79,7 +82,7 @@ class ISWFetcher(BaseFetcher):
                 evidence_docs.append(doc)
 
             except Exception as e:
-                print(f"    Error processing ISW card: {e}")
+                logger.warning(f"Error processing ISW card: {e}", exc_info=True)
                 continue
 
         return evidence_docs
@@ -114,12 +117,12 @@ class ISWFetcher(BaseFetcher):
                     tag.decompose()
 
                 text = content.get_text(separator='\n', strip=True)
-                return text[:50000]  # Truncate to 50KB
+                return text[:MAX_DOC_TEXT_LENGTH]
 
             return ""
 
         except Exception as e:
-            print(f"    Error fetching article content: {e}")
+            logger.warning(f"Error fetching article content from {url}: {e}", exc_info=True)
             return ""
 
 

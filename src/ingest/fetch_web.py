@@ -1,15 +1,25 @@
 """Web scraper for evidence collection using CSS selectors."""
 
+import logging
 import requests
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 import time
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
-from .base_fetcher import BaseFetcher
+from .base_fetcher import BaseFetcher, FetchError
 
+logger = logging.getLogger(__name__)
 
-# Request timeout in seconds
-REQUEST_TIMEOUT = 30
+# Request timeout (connect, read) in seconds
+REQUEST_TIMEOUT = (10, 30)
+
+# Session-level retry for network transients
+_retry = Retry(total=1, allowed_methods=["GET"], backoff_factor=1, status_forcelist=[502, 503, 504])
+_session = requests.Session()
+_session.mount("https://", HTTPAdapter(max_retries=_retry))
+_session.mount("http://", HTTPAdapter(max_retries=_retry))
 
 # Delay between requests to avoid rate limiting (seconds)
 REQUEST_DELAY = 1.0
@@ -37,13 +47,16 @@ class WebFetcher(BaseFetcher):
             if i > 0:
                 time.sleep(REQUEST_DELAY)
 
-            # Fetch page - may raise exception
-            response = requests.get(
-                page_url,
-                timeout=REQUEST_TIMEOUT,
-                headers=DEFAULT_HEADERS
-            )
-            response.raise_for_status()
+            # Fetch page
+            try:
+                response = _session.get(
+                    page_url,
+                    timeout=REQUEST_TIMEOUT,
+                    headers=DEFAULT_HEADERS
+                )
+                response.raise_for_status()
+            except requests.RequestException as e:
+                raise FetchError(self.source_id, f"Web fetch failed for {page_url}: {e}", e) from e
 
             soup = BeautifulSoup(response.text, 'lxml')
 

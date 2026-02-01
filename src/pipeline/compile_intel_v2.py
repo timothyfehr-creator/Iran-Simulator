@@ -310,7 +310,12 @@ def main():
         json.dump(qa, f, indent=2)
 
     if qa["status"] != "OK":
-        print(f"⚠ QA warnings present (not fatal): {'; '.join(qa.get('errors', []))}")
+        print(f"QA warnings present: {'; '.join(qa.get('errors', []))}")
+
+        # Under STRICT_QA=1, soft-fail (exit 2) — qa_report.json is already written above
+        if os.environ.get("STRICT_QA") == "1":
+            print("STRICT_QA=1: exiting with soft-fail (exit code 2)")
+            sys.exit(2)
 
     print(f"Wrote: {compiled_path}")
     print(f"Wrote: {merge_report_path}")
