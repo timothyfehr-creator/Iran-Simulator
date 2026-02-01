@@ -114,7 +114,7 @@ def run_pipeline_stage(stage: str, **kwargs) -> bool:
     try:
         if stage == 'import':
             cmd = [
-                'python3', '-m', 'src.pipeline.import_deep_research_bundle_v3',
+                sys.executable, '-m', 'src.pipeline.import_deep_research_bundle_v3',
                 '--bundle', kwargs['bundle'],
                 '--out_dir', kwargs['out_dir']
             ]
@@ -122,7 +122,7 @@ def run_pipeline_stage(stage: str, **kwargs) -> bool:
         elif stage == 'compile':
             # Use compile_intel_v2 for deterministic merge with documented tiebreak order
             cmd = [
-                'python3', '-m', 'src.pipeline.compile_intel_v2',
+                sys.executable, '-m', 'src.pipeline.compile_intel_v2',
                 '--claims', os.path.join(kwargs['run_dir'], 'claims_deep_research.jsonl'),
                 '--template', 'data/iran_crisis_intel.json',
                 '--outdir', kwargs['run_dir']
@@ -130,14 +130,14 @@ def run_pipeline_stage(stage: str, **kwargs) -> bool:
 
         elif stage == 'enrich_economic':
             cmd = [
-                'python3', 'scripts/enrich_economic_data.py',
+                sys.executable, 'scripts/enrich_economic_data.py',
                 '--intel', kwargs['intel_path'],
                 '--no-backup'  # Don't create backup in automated pipeline runs
             ]
 
         elif stage == 'simulate':
             cmd = [
-                'python3', 'src/simulation.py',
+                sys.executable, 'src/simulation.py',
                 '--intel', os.path.join(kwargs['run_dir'], 'compiled_intel.json'),
                 '--priors', 'data/analyst_priors.json',
                 '--runs', str(kwargs.get('runs', 10000)),
@@ -148,13 +148,13 @@ def run_pipeline_stage(stage: str, **kwargs) -> bool:
 
         elif stage == 'report':
             cmd = [
-                'python3', '-m', 'src.report.generate_report',
+                sys.executable, '-m', 'src.report.generate_report',
                 '--run_dir', kwargs['run_dir']
             ]
 
         elif stage == 'diff':
             cmd = [
-                'python3', '-m', 'src.pipeline.run_comparator',
+                sys.executable, '-m', 'src.pipeline.run_comparator',
                 kwargs['previous_run'],
                 kwargs['current_run'],
                 '--output', os.path.join(kwargs['current_run'], 'diff_report.json')
@@ -232,7 +232,7 @@ def fetch_isw_data(cutoff: str) -> Optional[str]:
     try:
         # Run ISW fetcher
         result = subprocess.run(
-            ['python3', '-m', 'src.ingest.fetch_isw_updates', '--seed'],
+            [sys.executable, '-m', 'src.ingest.fetch_isw_updates', '--seed'],
             capture_output=True,
             text=True
         )
@@ -610,7 +610,7 @@ def main():
                 # Generate markdown summary
                 try:
                     subprocess.run([
-                        'python3', '-m', 'src.report.generate_diff_report',
+                        sys.executable, '-m', 'src.report.generate_diff_report',
                         os.path.join(run_dir, 'diff_report.json'),
                         '--output', os.path.join(run_dir, 'daily_summary.md')
                     ], check=True)
@@ -637,4 +637,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception:
+        logger.exception("Pipeline failed with unhandled exception")
+        sys.exit(1)

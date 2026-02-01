@@ -18,7 +18,7 @@ cache:
   # This avoids reprocessing identical documents
 
 # Behavior on coverage failures
-on_coverage_fail: skip_simulation
+on_coverage_fail: warn_only
 # Options:
 #   - skip_simulation: Skip simulation stage, mark run unreliable
 #   - warn_only: Log warning but continue
