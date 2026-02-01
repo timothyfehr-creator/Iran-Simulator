@@ -48,6 +48,31 @@ OSINT Sources (ISW, HRANA, Amnesty, BBC Persian, Bonbast, IODA, ...)
        ▼               ▼                    ▼
   Streamlit        React              Scorecard &
   Dashboard       Frontend            Leaderboard
+
+                   ┌──────────────────────────────────────┐
+                   │  Live Wire (6-hourly, independent)   │
+                   │                                      │
+                   │  R2 state ──► 4 signals ──► classify │
+                   │              + quality    + hysteresis│
+                   │                    │                  │
+                   │                    ▼                  │
+                   │  R2 latest/live_wire_state.json       │
+                   └──────────────────────────────────────┘
+                                       │
+                   ┌───────────────────┼───────────────────┐
+                   │  Daily: Public Artifact Generation    │
+                   │                                       │
+                   │  sim_results + live_wire + scorecard   │
+                   │        │                              │
+                   │        ▼                              │
+                   │  R2: latest/war_room_summary.json     │
+                   │  R2: latest/leaderboard.json          │
+                   │  R2: latest/live_wire_state.json      │
+                   └───────────────────────────────────────┘
+                                       │
+                                       ▼
+                              React staticDataService
+                             (typed fetch from R2)
 ```
 
 ## Daily Pipeline Sequence
@@ -60,6 +85,8 @@ sequenceDiagram
     participant Compile as compile_intel_v2
     participant ABM as abm_engine
     participant Oracle as forecasting/
+    participant Artifacts as generate_public_artifacts
+    participant R2 as Cloudflare R2
     participant Report as report/
 
     Cron->>Ingest: fetch_all() — 10+ sources
@@ -71,8 +98,12 @@ sequenceDiagram
     alt Coverage PASS
         Cron->>ABM: run 10K agents x 90 days
         ABM-->>Cron: simulation_results.json
-        Cron->>Oracle: log forecasts + ensembles
-        Oracle-->>Cron: append to ledger
+        Cron->>Oracle: log forecasts + ensembles + scorecard
+        Oracle-->>Cron: append to ledger, scorecard.json
+        Cron->>R2: download latest.json + series.json
+        Cron->>Artifacts: sim results + live wire + scorecard
+        Artifacts-->>Cron: war_room_summary, leaderboard, live_wire_state
+        Cron->>R2: upload latest/*.json
         Cron->>Report: narrative + diff
     else Coverage FAIL
         Cron-->>Cron: skip simulation, run_reliable=false
@@ -90,6 +121,7 @@ The coordinator (`coordinator.py`) runs 10+ source-specific fetchers in parallel
 | `fetch_isw.py` | Institute for the Study of War | Think-tank analysis |
 | `fetch_rss.py` | HRANA, Amnesty, HRW feeds | Human rights reporting |
 | `fetch_bonbast.py` | Bonbast.com | Black-market Rial exchange rate |
+| `fetch_nobitex.py` | Nobitex exchange | USDT/IRR crypto rate (primary FX signal) |
 | `fetch_ioda.py` | Georgia Tech IODA | Internet connectivity index |
 | `fetch_ooni.py` | OONI | Censorship measurements |
 | `fetch_tasnim.py` | Tasnim News | Regime media narrative |
@@ -98,6 +130,31 @@ The coordinator (`coordinator.py`) runs 10+ source-specific fetchers in parallel
 **Coverage gates** (`coverage.py`) enforce rolling-window freshness per source bucket (36-72 hours depending on type). If critical buckets (osint_thinktank, ngo_rights, regime_outlets, persian_services) go stale, the run is flagged unreliable and simulation can be skipped.
 
 **Source health** (`health.py`) tracks each source as OK, DEGRADED, or DOWN across runs.
+
+## Live Wire Pipeline (6-hourly, independent)
+
+**Code:** `src/ingest/live_wire/`
+
+The Live Wire pipeline runs every 6 hours via `.github/workflows/live_wire.yml`, independently of the daily simulation pipeline. It fetches 4 real-time signals and produces a classified state for the war room.
+
+**Signals:**
+
+| Signal | Source | Module | Units |
+|--------|--------|--------|-------|
+| USDT/IRR rate | Nobitex | `fetch_nobitex.py` | IRR (primary economic signal) |
+| Rial/USD rate | Bonbast | `fetch_bonbast.py` | IRR (fallback proxy) |
+| Connectivity index | IODA | `fetch_ioda.py` | 0-100 scale |
+| News volume | GDELT | `live_wire/fetch_gdelt.py` | 24h article count (tone=null) |
+
+**Processing stages:**
+
+1. **Signal quality** (`signal_quality.py`): Tracks OK/STALE/FAILED per signal. Uses `source_timestamp_utc` when the API provides it (Nobitex, IODA); falls back to `fetched_at_utc` (Bonbast, GDELT). On failure, carries `last_good_value` — never fabricates.
+2. **Smoothing** (`smoothing.py`): EMA with configurable alpha (0.3). Injects last-good value for failed signals before averaging.
+3. **Classification** (`rule_engine.py`): Thresholds from `config/live_wire.json` (never hardcoded). Economic stress: STABLE/PRESSURED/CRITICAL. Internet: FUNCTIONAL/PARTIAL/SEVERELY_DEGRADED/BLACKOUT. News: NORMAL/ELEVATED/SURGE. All return `None` on `None` input.
+4. **Hysteresis** (`rule_engine.py`): State must sustain N consecutive cycles (configurable, default 3) before transitioning.
+5. **Runner** (`runner.py`): Orchestrates the above. Downloads state from R2, fetches signals, processes, writes `data/live_wire/latest.json` + `series.json`, uploads to R2.
+
+**State persistence:** R2 bucket is the sole source of truth. Local `data/live_wire/` files are ephemeral CI working copies (.gitignored). State includes snapshot counter (monotonic IDs), signal qualities, hysteresis counters, and EMA values.
 
 ## Stage 2: Claim Extraction
 
@@ -212,7 +269,30 @@ Three forecast sources feed into ensembles:
 
 All forecasts, resolutions, and corrections are stored as append-only JSONL in `forecasting/ledger/`. This provides a complete audit trail.
 
-## Stage 7: Reporting & Visualization
+## Stage 7: Public Artifacts & R2 Publishing
+
+**Code:** `scripts/generate_public_artifacts.py`
+
+After simulation and scorecard generation, the daily pipeline produces three public JSON artifacts uploaded to Cloudflare R2:
+
+| Artifact | R2 key | Source |
+|----------|--------|--------|
+| `war_room_summary.json` | `latest/war_room_summary.json` | Simulation results + Live Wire + scorecard |
+| `leaderboard.json` | `latest/leaderboard.json` | Scorecard leaderboard_data |
+| `live_wire_state.json` | `latest/live_wire_state.json` | Copy of Live Wire latest |
+
+**DEFCON derivation:** RED (economic CRITICAL or internet BLACKOUT) > ORANGE (PRESSURED or SEVERELY_DEGRADED) > YELLOW (STALE/FAILED signals or news ELEVATED) > GREEN.
+
+**Data flow in daily.yml:**
+1. Simulation runs → produces `simulation_results.json` and scorecard
+2. Downloads `latest.json` + `series.json` from R2 (two small files, no snapshot history)
+3. `generate_public_artifacts.py` assembles war room summary (with headline chart from series), leaderboard, live wire copy
+4. Uploads `latest/` to R2
+5. Commits only simulation results (runs/, ledger/, logs/) to git — **no Live Wire or artifact data on main**
+
+**Schemas:** `config/schemas/war_room_summary.schema.json`, `live_wire_state.schema.json`, `leaderboard.schema.json`
+
+## Stage 8: Reporting & Visualization
 
 **Code:** `src/report/`
 
@@ -269,9 +349,17 @@ frontend/src/
 │   ├── ui/             # Badge, Panel, StatCard, Skeleton, EmptyState
 │   └── visualization/  # ExecutiveSummary, OutcomeChart, RegionalMap, CausalExplorer
 ├── data/               # Mock data, Iran map GeoJSON
-├── services/           # API client (real + mock)
+├── services/
+│   ├── api.ts          # SimulationApi interface
+│   ├── realApi.ts      # HTTP client for FastAPI backend
+│   ├── mockApi.ts      # Mock fallback with parameterized variation
+│   ├── causalApi.ts    # Causal inference API (Bayesian network)
+│   ├── staticDataService.ts  # Typed fetch for R2 public artifacts
+│   └── index.ts        # Exports with real→mock fallback
 ├── store/              # Zustand simulationStore
-├── types/              # TypeScript interfaces
+├── types/
+│   ├── simulation.ts   # SimulationResults, SimulationParams, SystemStatus
+│   └── publicData.ts   # WarRoomSummary, LiveWireState, Leaderboard, DefconLevel
 └── utils/              # Colors, formatters
 ```
 
@@ -282,7 +370,8 @@ frontend/src/
 | `config/event_catalog.json` | Event definitions, types, outcomes, resolution rules |
 | `config/ensemble_config.json` | Forecaster weights and combination policy |
 | `config/baseline_config.json` | History window, smoothing alpha, persistence stickiness |
-| `config/ingest.yaml` | Source limits, retry policy, coverage-fail behavior |
+| `config/ingest.yaml` | Source limits, retry policy, coverage-fail behavior, Live Wire schedule |
+| `config/live_wire.json` | Signal endpoints, staleness thresholds, rule thresholds, hysteresis cycles |
 | `config/path_registry_v2.json` | Environment-independent path resolution |
 | `data/analyst_priors.json` | Calibrated probability estimates |
 | `data/iran_crisis_intel.json` | Current situation snapshot |
@@ -312,3 +401,5 @@ The `run_manifest.json` includes SHA-256 hashes of all inputs and an optional se
 3. **Immutable ledger** — `forecasting/ledger/*.jsonl` is append-only, never overwritten
 4. **Hermetic reproducibility** — every run produces `run_manifest.json` with SHA-256 input hashes and git commit
 5. **Coverage gating** — simulation skipped when critical OSINT sources are stale
+6. **R2 is source of truth for Live Wire** — `data/live_wire/` and `latest/` are ephemeral local working copies (.gitignored). State, snapshots, and public artifacts are persisted exclusively in R2. No Live Wire data is committed to main.
+7. **No signal fabrication** — all classifiers return `None` on `None` input. Failed signals carry `last_good_value`, never invented values.

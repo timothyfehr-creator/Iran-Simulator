@@ -14,11 +14,13 @@ Ingests multi-source OSINT, compiles structured intelligence, calibrates probabi
 
 ## What It Does
 
-- **OSINT ingestion** — fetches evidence from ISW, HRANA, Amnesty, HRW, BBC Persian, regime outlets, and economic indicators (Bonbast, TGJU, IODA)
+- **OSINT ingestion** — fetches evidence from ISW, HRANA, Amnesty, HRW, BBC Persian, regime outlets, and economic indicators (Bonbast, Nobitex, TGJU, IODA)
+- **Live Wire pipeline** — 6-hourly real-time signals (Nobitex USDT/IRR, Bonbast, IODA connectivity, GDELT news volume) with signal quality tracking, EMA smoothing, rule-based classification, and N-cycle hysteresis. State persisted in R2.
 - **Claim extraction** — GPT-4 extracts discrete factual claims with source grading and conflict preservation
 - **Intelligence compilation** — merges claims into a schema-validated intel package with baseline anchoring
 - **Dual simulation engines** — state-machine Monte Carlo *and* a 10,000-agent ABM with small-world network dynamics, defection cascades, and economic stress modifiers
 - **Oracle forecasting layer** — catalog of 18 events, Dirichlet-smoothed baselines, static ensembles, multinomial Brier scoring, and a leaderboard
+- **Public artifacts** — war room summary, leaderboard, and live wire state published to R2 every daily run; consumed by the frontend via typed fetch service
 - **Interactive dashboards** — Streamlit for analysts, React + TypeScript war-room for briefings
 
 ## Architecture
@@ -45,6 +47,19 @@ OSINT sources ──► Evidence ingestion ──► Claim extraction (GPT-4)
                               ▼               ▼               ▼
                          Streamlit        React           Scorecard /
                          dashboard       frontend         leaderboard
+
+Live Wire (6-hourly, independent):
+  R2 state.json ──► Fetch 4 signals ──► Classify + hysteresis ──► R2: latest/
+                    (Nobitex, Bonbast,
+                     IODA, GDELT)
+
+Daily pipeline (after simulation):
+  Simulation results + Live Wire (from R2) + Scorecard
+       │
+       ▼
+  generate_public_artifacts.py ──► R2: latest/war_room_summary.json
+                                   R2: latest/leaderboard.json
+                                   R2: latest/live_wire_state.json
 ```
 
 ## Quick Start
@@ -73,22 +88,31 @@ cd frontend && npm install && npm run dev   # React war-room
 ```
 iran_simulation/
 ├── config/                 # Event catalog, schemas, baseline & ensemble configs
+│   └── live_wire.json      # Live Wire signal config, thresholds, hysteresis
 ├── data/                   # Analyst priors, baseline intel
 ├── frontend/               # React + TypeScript war-room dashboard
+│   └── src/services/       # API clients + staticDataService (R2 fetch)
+│   └── src/types/          # TypeScript interfaces (simulation + publicData)
 ├── forecasting/            # Ledger, reports (.gitkeep tracked)
 ├── knowledge/              # Stable baseline knowledge pack
 ├── prompts/                # Agent prompts (research, analyst, red-team)
-├── scripts/                # Daily update, sensitivity analysis, cron wrapper
+├── scripts/
+│   ├── daily_update.py     # Main daily pipeline orchestrator
+│   ├── generate_public_artifacts.py  # Produces war_room_summary, leaderboard, live_wire JSONs
+│   └── pull_live_wire.py   # Local dev helper: download live wire data from R2
 ├── src/
 │   ├── abm_engine.py       # Multi-agent ABM (Project Swarm)
 │   ├── simulation.py       # State-machine Monte Carlo
 │   ├── forecasting/        # Oracle layer (catalog, ensembles, baselines, scoring)
 │   ├── ingest/             # Evidence fetching (ISW, HRANA, BBC, etc.)
+│   │   ├── live_wire/      # 6-hourly signal pipeline (quality, rules, EMA, runner)
+│   │   ├── fetch_nobitex.py# Nobitex USDT/IRR exchange rate
+│   │   └── fetch_bonbast.py# Bonbast black-market Rial rate
 │   ├── mcp/                # MCP math-model server
 │   ├── pipeline/           # Intel compilation, diff reports, path registry
 │   ├── priors/             # Priors contract and resolution
 │   └── report/             # Report generation
-├── tests/                  # Pytest suite
+├── tests/                  # Pytest suite (738 tests)
 ├── dashboard.py            # Streamlit entry point
 └── requirements.txt
 ```
