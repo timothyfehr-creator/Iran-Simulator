@@ -87,3 +87,7 @@ WORKFLOW_UPDATE.md
 
 # Build caches
 frontend/.vite/
+
+# Claude Code workspace artifacts
+CLAUDE.md
+.claude/skills/

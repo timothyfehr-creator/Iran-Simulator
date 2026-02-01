@@ -50,7 +50,7 @@ validate:
 # Import test fixture bundle
 import-fixture:
 	@echo "Importing test fixture bundle..."
-	python3 -m src.pipeline.import_deep_research_bundle \
+	python3 -m src.pipeline.import_deep_research_bundle_v3 \
 		--bundle tests/fixtures/minimal_bundle.json \
 		--out_dir tests/fixtures/output
 	@echo "✓ Import complete: tests/fixtures/output/"
@@ -102,7 +102,7 @@ import-real:
 	@RUN_ID=$$(basename $(BUNDLE) .json); \
 	RUN_DIR="runs/$$RUN_ID"; \
 	mkdir -p $$RUN_DIR; \
-	python3 -m src.pipeline.import_deep_research_bundle \
+	python3 -m src.pipeline.import_deep_research_bundle_v3 \
 		--bundle $(BUNDLE) \
 		--out_dir $$RUN_DIR; \
 	echo "✓ Import complete: $$RUN_DIR/"

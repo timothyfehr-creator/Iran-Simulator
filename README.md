@@ -1,6 +1,25 @@
-# Iran Crisis Simulation
+# Iran Crisis Simulator
 
-Monte Carlo and agent-based simulation of the 2025-2026 Iranian crisis. The system ingests multi-source OSINT, compiles structured intelligence, calibrates probability estimates, runs 10,000+ simulations (state-machine MC or network-based ABM), and surfaces results through a Streamlit dashboard and React war-room frontend.
+**Monte Carlo + Agent-Based Model + Bayesian forecasting pipeline for the 2025–2026 Iranian crisis.**
+Ingests multi-source OSINT, compiles structured intelligence, calibrates probability estimates, runs 10,000+ simulations, and surfaces results through a Streamlit dashboard and React war-room frontend.
+
+![CI](https://github.com/timothyfehr-creator/Iran-Simulator/actions/workflows/ci.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)
+
+<!-- Add a screenshot of the war-room frontend: -->
+<!-- ![War Room](docs/screenshot.png) -->
+
+---
+
+## What It Does
+
+- **OSINT ingestion** — fetches evidence from ISW, HRANA, Amnesty, HRW, BBC Persian, regime outlets, and economic indicators (Bonbast, TGJU, IODA)
+- **Claim extraction** — GPT-4 extracts discrete factual claims with source grading and conflict preservation
+- **Intelligence compilation** — merges claims into a schema-validated intel package with baseline anchoring
+- **Dual simulation engines** — state-machine Monte Carlo *and* a 10,000-agent ABM with small-world network dynamics, defection cascades, and economic stress modifiers
+- **Oracle forecasting layer** — catalog of 18 events, Dirichlet-smoothed baselines, static ensembles, multinomial Brier scoring, and a leaderboard
+- **Interactive dashboards** — Streamlit for analysts, React + TypeScript war-room for briefings
 
 ## Architecture
 
@@ -28,59 +47,26 @@ OSINT sources ──► Evidence ingestion ──► Claim extraction (GPT-4)
                          dashboard       frontend         leaderboard
 ```
 
-## Prerequisites
-
-- Python 3.12+
-- Node 18+ (for the React frontend only)
-
-## Local Install
+## Quick Start
 
 ```bash
-# Clone and enter the repo
-git clone <repo-url> && cd iran_simulation
+git clone https://github.com/timothyfehr-creator/Iran-Simulator.git
+cd iran_simulation
 
-# Python dependencies
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env   # add OPENAI_API_KEY, ANTHROPIC_API_KEY
 
-# Environment variables
-cp .env.example .env
-# Edit .env — add OPENAI_API_KEY, ANTHROPIC_API_KEY
-
-# (Optional) React frontend
-cd frontend && npm install && cd ..
-```
-
-## Smoke Test
-
-```bash
+# Run tests
 python -m pytest tests/ -x --timeout=30
-```
 
-## Daily Pipeline
-
-```bash
-# Fully automated: fetch evidence, extract claims, compile, simulate, report
+# Fully automated daily pipeline
 python scripts/daily_update.py --auto-ingest
+
+# Dashboards
+streamlit run dashboard.py          # Streamlit
+cd frontend && npm install && npm run dev   # React war-room
 ```
-
-## Dashboard
-
-```bash
-# Streamlit dashboard
-streamlit run dashboard.py
-
-# React war-room frontend
-cd frontend && npm run dev
-```
-
-## Output Locations
-
-| Path | Contents |
-|------|----------|
-| `runs/RUN_YYYYMMDD_*/` | Per-run artifacts (intel, priors, simulation results, manifests) |
-| `forecasting/ledger/` | Append-only forecast ledger and resolutions |
-| `forecasting/reports/` | Scorecards and leaderboard reports |
 
 ## Project Structure
 
@@ -104,8 +90,7 @@ iran_simulation/
 │   └── report/             # Report generation
 ├── tests/                  # Pytest suite
 ├── dashboard.py            # Streamlit entry point
-├── requirements.txt
-└── CLAUDE.md               # Detailed instructions for Claude Code
+└── requirements.txt
 ```
 
 ## License

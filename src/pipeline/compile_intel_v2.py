@@ -38,7 +38,7 @@ from typing import Any, Dict, List, Tuple, Optional
 from collections import defaultdict
 
 from pipeline.qa import qa_compiled_intel
-from pipeline.import_deep_research_bundle_v2 import import_bundle
+from pipeline.import_deep_research_bundle_v3 import import_bundle
 
 
 # Deterministic tiebreak policy for reproducibility
