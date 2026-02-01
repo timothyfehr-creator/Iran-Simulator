@@ -469,11 +469,11 @@ class TestMultinomialClimatology:
             resolutions, outcomes_3, "e1", 7
         )
 
-        # 15 A, 5 B, 0 C out of 20 with Dirichlet smoothing (alpha=1, K=3)
-        # p_k = (count_k + 1) / (N + K) = (count_k + 1) / 23
-        assert result["A"] == pytest.approx(16/23, abs=1e-4)
-        assert result["B"] == pytest.approx(6/23, abs=1e-4)
-        assert result["C"] == pytest.approx(1/23, abs=1e-4)
+        # 15 A, 5 B, 0 C out of 20 with Dirichlet smoothing (alpha=1.0, K=3)
+        # p(A) = (15+1)/(20+3) = 16/23, p(B) = 6/23, p(C) = 1/23
+        assert result["A"] == pytest.approx(16/23, abs=1e-6)
+        assert result["B"] == pytest.approx(6/23, abs=1e-6)
+        assert result["C"] == pytest.approx(1/23, abs=1e-6)
 
     def test_filters_by_resolution_mode(self, outcomes_3):
         """Test that mode filter is applied."""
@@ -508,10 +508,11 @@ class TestMultinomialClimatology:
             resolutions, outcomes_3, "e1", 30
         )
 
-        # Horizon 7: 20 A, 0 B, 0 C with smoothing -> (20+1)/(20+3) = 21/23
-        assert result_7["A"] == pytest.approx(21/23, abs=1e-4)
-        # Horizon 30: 0 A, 20 B, 0 C with smoothing -> (20+1)/(20+3) = 21/23
-        assert result_30["B"] == pytest.approx(21/23, abs=1e-4)
+        # Horizon 7: 20 A, 0 B, 0 C with Dirichlet (alpha=1.0, K=3)
+        # p(A) = (20+1)/(20+3) = 21/23
+        assert result_7["A"] == pytest.approx(21/23, abs=1e-6)
+        # Horizon 30: 20 B, 0 A, 0 C
+        assert result_30["B"] == pytest.approx(21/23, abs=1e-6)
 
     def test_excludes_unknown_resolutions(self, outcomes_3):
         """Test that UNKNOWN resolutions are excluded from baseline."""
@@ -526,8 +527,9 @@ class TestMultinomialClimatology:
             resolutions, outcomes_3, "e1", 7
         )
 
-        # UNKNOWN excluded, so 20 A, 0 B, 0 C with smoothing -> 21/23
-        assert result["A"] == pytest.approx(21/23, abs=1e-4)
+        # UNKNOWN excluded, so 20 A out of 20 with Dirichlet (alpha=1.0, K=3)
+        # p(A) = (20+1)/(20+3) = 21/23
+        assert result["A"] == pytest.approx(21/23, abs=1e-6)
 
 
 # =============================================================================

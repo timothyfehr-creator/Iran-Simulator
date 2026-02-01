@@ -119,8 +119,7 @@ class TestGenerateBaselineDistribution:
     def test_uniform_binary(self):
         """Binary event should get 50/50 distribution."""
         event = {"allowed_outcomes": ["YES", "NO"]}
-        result = forecast.generate_baseline_distribution(event, "baseline_climatology")
-        dist = result[0] if isinstance(result, tuple) else result
+        dist, metadata = forecast.generate_baseline_distribution(event, "baseline_climatology")
 
         assert "YES" in dist
         assert "NO" in dist
@@ -130,8 +129,7 @@ class TestGenerateBaselineDistribution:
     def test_uniform_categorical(self):
         """Categorical event should get uniform distribution."""
         event = {"allowed_outcomes": ["A", "B", "C", "UNKNOWN"]}
-        result = forecast.generate_baseline_distribution(event, "baseline_climatology")
-        dist = result[0] if isinstance(result, tuple) else result
+        dist, metadata = forecast.generate_baseline_distribution(event, "baseline_climatology")
 
         # Should exclude UNKNOWN from probability mass
         assert "A" in dist
@@ -146,8 +144,7 @@ class TestGenerateBaselineDistribution:
     def test_uniform_binned(self):
         """Binned event should get uniform distribution over bins."""
         event = {"allowed_outcomes": ["LOW", "MEDIUM", "HIGH", "UNKNOWN"]}
-        result = forecast.generate_baseline_distribution(event, "baseline_persistence")
-        dist = result[0] if isinstance(result, tuple) else result
+        dist, metadata = forecast.generate_baseline_distribution(event, "baseline_persistence")
 
         assert "LOW" in dist
         assert "MEDIUM" in dist
@@ -161,8 +158,7 @@ class TestGenerateBaselineDistribution:
     def test_sum_equals_one(self):
         """Generated distribution should sum to exactly 1.0."""
         event = {"allowed_outcomes": ["A", "B", "C", "D", "E", "UNKNOWN"]}
-        result = forecast.generate_baseline_distribution(event, "baseline_climatology")
-        dist = result[0] if isinstance(result, tuple) else result
+        dist, metadata = forecast.generate_baseline_distribution(event, "baseline_climatology")
 
         total = sum(dist.values())
         assert abs(total - 1.0) < 1e-9
@@ -170,8 +166,7 @@ class TestGenerateBaselineDistribution:
     def test_empty_outcomes_returns_unknown(self):
         """Event with no outcomes should return UNKNOWN:1.0."""
         event = {"allowed_outcomes": ["UNKNOWN"]}
-        result = forecast.generate_baseline_distribution(event, "baseline_climatology")
-        dist = result[0] if isinstance(result, tuple) else result
+        dist, metadata = forecast.generate_baseline_distribution(event, "baseline_climatology")
 
         assert dist == {"UNKNOWN": 1.0}
 
@@ -179,8 +174,7 @@ class TestGenerateBaselineDistribution:
         """Distribution with rounding should still sum to 1.0."""
         # 7 outcomes will have 1/7 = 0.142857... which rounds
         event = {"allowed_outcomes": ["A", "B", "C", "D", "E", "F", "G", "UNKNOWN"]}
-        result = forecast.generate_baseline_distribution(event, "baseline_climatology")
-        dist = result[0] if isinstance(result, tuple) else result
+        dist, metadata = forecast.generate_baseline_distribution(event, "baseline_climatology")
 
         total = sum(dist.values())
         assert abs(total - 1.0) < 1e-9
