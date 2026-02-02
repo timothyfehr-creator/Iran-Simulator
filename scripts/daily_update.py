@@ -369,7 +369,7 @@ def fetch_isw_data(cutoff: str) -> Optional[str]:
         return None
 
 
-def create_bundle_from_ingest(ingest_dir: str, cutoff: str, candidate_claims_path: Optional[str] = None) -> str:
+def create_bundle_from_ingest(ingest_dir: str, cutoff: str, candidate_claims_path: Optional[str] = None, claims_partial: bool = False) -> str:
     """
     Create Deep Research bundle from ingested evidence and claims.
 
@@ -377,6 +377,7 @@ def create_bundle_from_ingest(ingest_dir: str, cutoff: str, candidate_claims_pat
         ingest_dir: Directory containing evidence_docs.jsonl and source_index.json
         cutoff: Data cutoff timestamp
         candidate_claims_path: Optional path to extracted claims JSONL
+        claims_partial: Whether the claims file is from a partial/failed extraction
 
     Returns:
         Path to created bundle
@@ -401,7 +402,8 @@ def create_bundle_from_ingest(ingest_dir: str, cutoff: str, candidate_claims_pat
                 "Auto-fetched from RSS/web sources only",
                 "Some sources may have been blocked or unavailable"
             ],
-            "collection_notes": "Automated ingestion from configured sources (see source_index)"
+            "collection_notes": "Automated ingestion from configured sources (see source_index)",
+            "claims_partial": claims_partial
         },
         "evidence_docs": [],
         "candidate_claims": []
@@ -417,8 +419,15 @@ def create_bundle_from_ingest(ingest_dir: str, cutoff: str, candidate_claims_pat
     # Load candidate claims if available
     if candidate_claims_path and os.path.exists(candidate_claims_path):
         with open(candidate_claims_path, 'r') as f:
-            for line in f:
-                bundle_data['candidate_claims'].append(json.loads(line))
+            for line_num, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    bundle_data['candidate_claims'].append(json.loads(line))
+                except json.JSONDecodeError:
+                    logger.warning(f"Skipping malformed claims line {line_num} in {candidate_claims_path}")
+                    continue
 
     # Load source index
     source_index_path = os.path.join(ingest_dir, 'source_index.json')
@@ -532,23 +541,30 @@ def main():
 
         # Step 2: Extract claims (if API key available)
         candidate_claims_path = None
+        claims_partial = False
         if os.getenv('OPENAI_API_KEY'):
             logger.info("Extracting claims using GPT API...")
             from src.ingest.extract_claims import ClaimExtractor
+            claims_output = os.path.join(ingest_dir, 'claims_extracted.jsonl')
             try:
                 extractor = ClaimExtractor()
                 extractor.extract_from_jsonl(
                     os.path.join(ingest_dir, 'evidence_docs.jsonl'),
-                    os.path.join(ingest_dir, 'claims_extracted.jsonl')
+                    claims_output
                 )
-                candidate_claims_path = os.path.join(ingest_dir, 'claims_extracted.jsonl')
+                candidate_claims_path = claims_output
             except Exception as e:
                 logger.warning(f"Claim extraction failed: {e}")
+                # With incremental writes, partial results may exist
+                if os.path.exists(claims_output) and os.path.getsize(claims_output) > 0:
+                    candidate_claims_path = claims_output
+                    claims_partial = True
+                    logger.info(f"Using partial claims file: {claims_output}")
         else:
             logger.warning("No OPENAI_API_KEY found, skipping claim extraction")
 
         # Step 3: Create bundle
-        bundle_path = create_bundle_from_ingest(ingest_dir, cutoff, candidate_claims_path)
+        bundle_path = create_bundle_from_ingest(ingest_dir, cutoff, candidate_claims_path, claims_partial=claims_partial)
         logger.info(f"✓ Auto-generated bundle: {bundle_path}")
 
     elif args.auto:

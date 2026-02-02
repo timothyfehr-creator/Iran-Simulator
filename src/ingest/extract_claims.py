@@ -205,22 +205,21 @@ Content:
 
     def extract_from_jsonl(self, evidence_jsonl_path: str, output_path: str):
         """Extract claims from evidence_docs.jsonl."""
-        all_claims = []
+        total = 0
 
-        with open(evidence_jsonl_path, 'r') as f:
-            for line in f:
-                doc = json.loads(line)
-                logger.info(f"Extracting claims from {doc.get('doc_id')}...")
-                claims = self.extract_from_doc(doc)
-                all_claims.extend(claims)
-                logger.info(f"  Extracted {len(claims)} claims")
+        with open(output_path, 'w') as out_f:
+            with open(evidence_jsonl_path, 'r') as f:
+                for line in f:
+                    doc = json.loads(line)
+                    logger.info(f"Extracting claims from {doc.get('doc_id')}...")
+                    claims = self.extract_from_doc(doc)
+                    for claim in claims:
+                        out_f.write(json.dumps(claim) + '\n')
+                    out_f.flush()
+                    total += len(claims)
+                    logger.info(f"  Extracted {len(claims)} claims")
 
-        # Write claims to JSONL
-        with open(output_path, 'w') as f:
-            for claim in all_claims:
-                f.write(json.dumps(claim) + '\n')
-
-        logger.info(f"Extracted {len(all_claims)} total claims -> {output_path}")
+        logger.info(f"Extracted {total} total claims -> {output_path}")
 
 
 def main():

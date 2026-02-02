@@ -25,9 +25,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sys
 from typing import Dict, Set, List, Any, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 # Import path registry
 try:
@@ -450,12 +453,8 @@ def validate_candidate_claims(
 
     Returns:
         (normalized_claims, warnings)
-
-    Raises:
-        ValueError: If validation fails
     """
     claim_ids: Set[str] = set()
-    errors: List[str] = []
     warnings: List[Dict[str, Any]] = []
     normalized_claims: List[Dict[str, Any]] = []
 
@@ -478,11 +477,20 @@ def validate_candidate_claims(
     for i, claim in enumerate(candidate_claims):
         claim_id = claim.get("claim_id")
         if not claim_id:
-            errors.append(f"candidate_claims[{i}]: missing claim_id")
+            warnings.append({
+                "type": "dropped_claim",
+                "claim_id": f"candidate_claims[{i}]",
+                "reason": "missing claim_id"
+            })
             continue
 
         if claim_id in claim_ids:
-            errors.append(f"candidate_claims[{i}]: duplicate claim_id '{claim_id}'")
+            warnings.append({
+                "type": "dropped_claim",
+                "claim_id": claim_id,
+                "reason": f"duplicate claim_id '{claim_id}'"
+            })
+            continue
         claim_ids.add(claim_id)
 
         # Create a mutable copy
@@ -499,19 +507,22 @@ def validate_candidate_claims(
                 "normalized": "HARD_FACT"
             })
         elif claim_class not in ["HARD_FACT", "ESTIMATED", "FACTUAL", "SPECULATIVE", "ASSESSMENT", None]:
-            errors.append(
-                f"candidate_claims[{i}] (claim_id={claim_id}): "
-                f"unknown claim_class '{claim_class}'"
-            )
+            warnings.append({
+                "type": "dropped_claim",
+                "claim_id": claim_id,
+                "reason": f"unknown claim_class '{claim_class}'"
+            })
+            continue
 
         # STRICT PATH VALIDATION (V3)
         path = claim.get("path", "")
         if not registry.is_valid_path(path):
-            errors.append(
-                f"candidate_claims[{i}] (claim_id={claim_id}): "
-                f"unknown path '{path}' (not in path_registry_v2.json)"
-            )
-            continue  # Skip this claim - hard fail
+            warnings.append({
+                "type": "dropped_claim",
+                "claim_id": claim_id,
+                "reason": f"unknown path '{path}' (not in path_registry_v2.json)"
+            })
+            continue
 
         # UNITS VALIDATION (V3)
         units = claim.get("units")
@@ -519,16 +530,23 @@ def validate_candidate_claims(
         if path_info:
             expected_units = path_info.get("units")
             if expected_units and units != expected_units:
-                errors.append(
-                    f"candidate_claims[{i}] (claim_id={claim_id}): "
-                    f"path '{path}' has units '{units}' but expected '{expected_units}'"
-                )
+                warnings.append({
+                    "type": "dropped_claim",
+                    "claim_id": claim_id,
+                    "reason": f"path '{path}' has units '{units}' but expected '{expected_units}'"
+                })
+                continue
 
         # Required fields
         required = ["path", "as_of_utc", "source_grade", "claim_class"]
-        for field in required:
-            if field not in claim:
-                errors.append(f"candidate_claims[{i}] (claim_id={claim_id}): missing '{field}'")
+        missing_fields = [field for field in required if field not in claim]
+        if missing_fields:
+            warnings.append({
+                "type": "dropped_claim",
+                "claim_id": claim_id,
+                "reason": f"missing required fields: {', '.join(missing_fields)}"
+            })
+            continue
 
         # NULL CLAIMS HANDLING
         value = claim.get("value")
@@ -537,10 +555,12 @@ def validate_candidate_claims(
 
         if value is None:
             if not null_reason:
-                errors.append(
-                    f"candidate_claims[{i}] (claim_id={claim_id}): "
-                    f"value is null but null_reason is empty"
-                )
+                warnings.append({
+                    "type": "dropped_claim",
+                    "claim_id": claim_id,
+                    "reason": "value is null but null_reason is empty"
+                })
+                continue
             else:
                 # Allow empty source_doc_refs for null claims with reason
                 if not source_doc_refs:
@@ -565,40 +585,52 @@ def validate_candidate_claims(
         else:
             # Non-null claims must have source_doc_refs
             if not source_doc_refs:
-                errors.append(
-                    f"candidate_claims[{i}] (claim_id={claim_id}): "
-                    f"source_doc_refs is empty (must reference at least one doc)"
-                )
+                warnings.append({
+                    "type": "dropped_claim",
+                    "claim_id": claim_id,
+                    "reason": "source_doc_refs is empty (must reference at least one doc)"
+                })
+                continue
 
         # Validate timestamp: as_of_utc <= data_cutoff_utc
         if data_cutoff_utc:
             as_of_utc = claim.get("as_of_utc", "")
             if as_of_utc and as_of_utc > data_cutoff_utc:
-                errors.append(
-                    f"candidate_claims[{i}] (claim_id={claim_id}): "
-                    f"as_of_utc '{as_of_utc}' is after data_cutoff_utc '{data_cutoff_utc}'"
-                )
+                warnings.append({
+                    "type": "dropped_claim",
+                    "claim_id": claim_id,
+                    "reason": f"as_of_utc '{as_of_utc}' is after data_cutoff_utc '{data_cutoff_utc}'"
+                })
+                continue
 
         # Validate each doc ref and check for dropped docs
         dropped_refs = []
+        bad_ref_format = False
         for j, ref in enumerate(source_doc_refs):
             if not isinstance(ref, dict):
-                errors.append(
-                    f"candidate_claims[{i}] (claim_id={claim_id}): "
-                    f"source_doc_refs[{j}] is not a dict"
-                )
-                continue
+                warnings.append({
+                    "type": "dropped_claim",
+                    "claim_id": claim_id,
+                    "reason": f"source_doc_refs[{j}] is not a dict"
+                })
+                bad_ref_format = True
+                break
 
             ref_doc_id = ref.get("doc_id")
             if not ref_doc_id:
-                errors.append(
-                    f"candidate_claims[{i}] (claim_id={claim_id}): "
-                    f"source_doc_refs[{j}] missing doc_id"
-                )
-                continue
+                warnings.append({
+                    "type": "dropped_claim",
+                    "claim_id": claim_id,
+                    "reason": f"source_doc_refs[{j}] missing doc_id"
+                })
+                bad_ref_format = True
+                break
 
             if ref_doc_id not in valid_doc_ids:
                 dropped_refs.append(ref_doc_id)
+
+        if bad_ref_format:
+            continue
 
         # DROP CLAIMS referencing dropped docs
         if dropped_refs:
@@ -629,10 +661,12 @@ def validate_candidate_claims(
                     else:
                         claim["value"] = normalized_value
                 else:
-                    errors.append(
-                        f"candidate_claims[{i}] (claim_id={claim_id}): "
-                        f"path '{path}' has invalid enum value '{value}' (allowed: {allowed_values})"
-                    )
+                    warnings.append({
+                        "type": "dropped_claim",
+                        "claim_id": claim_id,
+                        "reason": f"path '{path}' has invalid enum value '{value}' (allowed: {allowed_values})"
+                    })
+                    continue
 
         # Validate and normalize using path registry (V3: STRICT - already validated above)
         # At this point, path is guaranteed to be valid (or we would have continued earlier)
@@ -649,9 +683,17 @@ def validate_candidate_claims(
         else:
             normalized_claims.append(claim)
 
-    if errors:
-        raise ValueError(
-            f"Candidate claims validation failed:\n" + "\n".join(f"  - {e}" for e in errors)
+    total_input = len(candidate_claims)
+    dropped_count = len([w for w in warnings if w.get("type") == "dropped_claim"])
+    if dropped_count:
+        drop_rate = dropped_count / total_input if total_input else 0
+        logger.warning(
+            f"Dropped {dropped_count}/{total_input} claims "
+            f"({drop_rate:.0%}) — see warnings"
+        )
+    if not normalized_claims and total_input > 0:
+        logger.error(
+            f"All {total_input} candidate claims were dropped during validation"
         )
 
     return normalized_claims, warnings
