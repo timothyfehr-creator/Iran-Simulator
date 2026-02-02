@@ -89,5 +89,4 @@ WORKFLOW_UPDATE.md
 frontend/.vite/
 
 # Claude Code workspace artifacts
-CLAUDE.md
 .claude/skills/
