@@ -120,8 +120,13 @@ export function ExecutiveSummary() {
           />
           <EventRow
             icon={<TrendingDown className="w-4 h-4" />}
-            label="US Intervention"
-            value={formatPercent(results.key_event_rates.us_intervention)}
+            label="US Soft Intervention"
+            value={formatPercent(results.key_event_rates.us_soft_intervention)}
+          />
+          <EventRow
+            icon={<TrendingDown className="w-4 h-4" />}
+            label="US Hard Intervention"
+            value={formatPercent(results.key_event_rates.us_hard_intervention)}
           />
         </div>
       </Panel>

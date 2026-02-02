@@ -82,6 +82,25 @@ US_POSTURE_LEVEL = {
     USPosture.GROUND: 6,
 }
 
+# Intervention tiers for downstream weighting.
+# NOTE: CYBER_OFFENSIVE is classified as *soft* (deniable, no physical footprint)
+# even though it sits at level 4 on the escalation ladder — above COVERT (level 3).
+# The tier split is about diplomatic visibility, not escalation rank.
+US_SOFT_POSTURES = {USPosture.INFORMATION_OPS, USPosture.ECONOMIC, USPosture.CYBER_OFFENSIVE}
+US_HARD_POSTURES = {USPosture.COVERT, USPosture.KINETIC, USPosture.GROUND}
+
+# Modest impact for soft measures; stronger impact for hard measures
+US_SOFT_INTERVENTION_MODIFIERS = {
+    "protest_escalation": 1.07,
+    "security_defection": 1.05,
+    "regime_collapse": 1.05,
+}
+US_HARD_INTERVENTION_MODIFIERS = {
+    "protest_escalation": 1.20,
+    "security_defection": 1.15,
+    "regime_collapse": 1.20,
+}
+
 class ProtestState(Enum):
     DECLINING = "declining"
     STABLE = "stable"
@@ -166,7 +185,8 @@ class SimulationState:
     defection_occurred: bool = False
     khamenei_dead: bool = False
     ethnic_uprising: bool = False
-    us_intervened: bool = False
+    us_soft_intervened: bool = False
+    us_hard_intervened: bool = False
 
     # Outcome
     final_outcome: Optional[str] = None
@@ -513,6 +533,27 @@ class IranCrisisSimulation:
         modifier = self._get_economic_modifier(event_type)
         return min(0.95, base_prob * modifier)
 
+    def _apply_us_intervention_modifiers(
+        self,
+        base_prob: float,
+        state: SimulationState,
+        event_type: str
+    ) -> float:
+        """Adjust probability based on US intervention tier.
+
+        Soft interventions (info ops, economic escalation, cyber) apply a modest lift.
+        Hard interventions (covert, kinetic, ground) apply a stronger lift.
+        """
+        modifier = 1.0
+        # Hard intentionally supersedes soft (elif, not additive). A state that
+        # has escalated to kinetic/ground already subsumes softer measures.
+        if state.us_hard_intervened:
+            modifier = US_HARD_INTERVENTION_MODIFIERS.get(event_type, 1.0)
+        elif state.us_soft_intervened:
+            modifier = US_SOFT_INTERVENTION_MODIFIERS.get(event_type, 1.0)
+
+        return min(0.95, base_prob * modifier)
+
     # ----------------------------------------------------------------------
     # Time-basis helpers (P3 semantics)
     # ----------------------------------------------------------------------
@@ -743,6 +784,11 @@ class IranCrisisSimulation:
             if state.regime_state == RegimeState.CONCESSIONS:
                 daily_escalate *= 0.5
 
+            # FEEDBACK LOOP: US intervention increases protest escalation (tier-weighted)
+            daily_escalate = self._apply_us_intervention_modifiers(
+                daily_escalate, state, "protest_escalation"
+            )
+
             if random.random() < daily_escalate:
                 state.protest_state = ProtestState.ESCALATING
                 state.events.append(f"Day {state.day}: Protests escalate")
@@ -853,6 +899,11 @@ class IranCrisisSimulation:
             if state.regime_state == RegimeState.CONCESSIONS:
                 daily_prob *= 0.7
 
+            # FEEDBACK LOOP: US intervention increases defection probability (tier-weighted)
+            daily_prob = self._apply_us_intervention_modifiers(
+                daily_prob, state, "security_defection"
+            )
+
             if random.random() < daily_prob:
                 state.defection_occurred = True
                 state.defection_day = state.day
@@ -868,6 +919,10 @@ class IranCrisisSimulation:
         # Only evaluate collapse hazard inside the window anchored at defection_day.
         if self._window_active(state, prob_obj):
             daily_prob = self._daily_hazard_from_window_prob("transition", "regime_collapse_given_defection")
+            # FEEDBACK LOOP: US intervention increases collapse likelihood (tier-weighted)
+            daily_prob = self._apply_us_intervention_modifiers(
+                daily_prob, state, "regime_collapse"
+            )
             if random.random() < daily_prob:
                 state.regime_state = RegimeState.COLLAPSE
                 state.collapse_day = state.day
@@ -917,7 +972,10 @@ class IranCrisisSimulation:
         def escalate(new_posture: USPosture, event: str) -> None:
             if self._posture_gt(new_posture, state.us_posture):
                 state.us_posture = new_posture
-                state.us_intervened = True
+                if new_posture in US_SOFT_POSTURES:
+                    state.us_soft_intervened = True
+                if new_posture in US_HARD_POSTURES:
+                    state.us_hard_intervened = True
                 state.events.append(f"Day {state.day}: {event}")
 
         # Information operations: probability of occurring within the next 30 days
@@ -1180,8 +1238,9 @@ class IranCrisisSimulation:
                     "max_day": max(days)
                 }
         
-        # US intervention frequency
-        us_intervention_rate = sum(1 for r in results if r.us_intervened) / n
+        # US intervention frequency by tier
+        us_soft_intervention_rate = sum(1 for r in results if r.us_soft_intervened) / n
+        us_hard_intervention_rate = sum(1 for r in results if r.us_hard_intervened) / n
         
         # Defection frequency
         defection_rate = sum(1 for r in results if r.defection_occurred) / n
@@ -1223,7 +1282,8 @@ class IranCrisisSimulation:
             "outcome_distribution": outcome_dist,
             "outcome_timing": outcome_days,
             "key_event_rates": {
-                "us_intervention": us_intervention_rate,
+                "us_soft_intervention": us_soft_intervention_rate,
+                "us_hard_intervention": us_hard_intervention_rate,
                 "security_force_defection": defection_rate,
                 "khamenei_death": khamenei_death_rate,
                 "ethnic_uprising": ethnic_rate

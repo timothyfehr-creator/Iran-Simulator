@@ -18,7 +18,8 @@ export interface EconomicAnalysis {
 }
 
 export interface KeyEventRates {
-  us_intervention: number;
+  us_soft_intervention: number;
+  us_hard_intervention: number;
   security_force_defection: number;
   khamenei_death: number;
   ethnic_uprising: number;

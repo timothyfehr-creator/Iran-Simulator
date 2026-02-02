@@ -21,7 +21,8 @@ export const mockSimulationResponse: SimulationResults = {
     },
   },
   key_event_rates: {
-    us_intervention: 0.89,
+    us_soft_intervention: 0.70,
+    us_hard_intervention: 0.25,
     security_force_defection: 0.028,
     khamenei_death: 0.077,
     ethnic_uprising: 0.088,
