@@ -52,6 +52,7 @@ from src.ingest.base_fetcher import load_ingest_config
 from src.run_manifest import generate_run_manifest, write_run_manifest
 
 # Setup logging
+os.makedirs('logs', exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
