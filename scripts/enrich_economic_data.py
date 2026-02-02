@@ -24,10 +24,25 @@ import sys
 import shutil
 from datetime import datetime, timezone
 
+import yaml
+
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from ingest.fetch_bonbast import BonbastFetcher
+
+
+def _load_source_config(source_id: str) -> dict:
+    """Load a source config from config/sources.yaml by ID."""
+    sources_path = os.path.join(
+        os.path.dirname(__file__), '..', 'config', 'sources.yaml'
+    )
+    with open(sources_path, 'r') as f:
+        config = yaml.safe_load(f)
+    for source in config.get("sources", []):
+        if source.get("id") == source_id:
+            return source
+    raise ValueError(f"Source '{source_id}' not found in config/sources.yaml")
 
 
 def fetch_economic_data() -> dict:
@@ -36,12 +51,7 @@ def fetch_economic_data() -> dict:
     Returns:
         Dict with economic data or empty dict on failure
     """
-    config = {
-        "id": "bonbast",
-        "name": "Bonbast (Rial Rates)",
-        "access_grade": "B",
-        "bias_grade": 1,
-    }
+    config = _load_source_config("bonbast")
 
     try:
         fetcher = BonbastFetcher(config)
@@ -127,6 +137,17 @@ def enrich_intel(intel_path: str, backup: bool = True) -> bool:
     # Update gold prices if available
     if econ_data.get("gold_18k_rial"):
         econ["gold_18k_per_gram_rial"] = econ_data["gold_18k_rial"]
+
+    # Seed inflation baseline if not already set by claim extraction.
+    # Iran's SCI-reported annual inflation has been 40-50% through 2025-2026.
+    # This is an analyst-anchored baseline; claim extraction can override it.
+    if "inflation" not in econ or not isinstance(econ.get("inflation"), dict):
+        econ["inflation"] = {
+            "official_annual_percent": 42,
+            "source": "baseline_anchor",
+            "note": "SCI-reported range 40-50% (2025-2026). Override via claim extraction.",
+        }
+        print("Seeded baseline inflation: 42% (SCI anchor)")
 
     # Add data source metadata
     econ["_enrichment_metadata"] = {
