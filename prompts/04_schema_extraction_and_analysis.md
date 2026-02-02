@@ -483,7 +483,8 @@ The five regime outcome probabilities MUST sum to exactly 1.0:
     "protests_sustained_30d": 0.4523,
     "security_force_defection_occurred": 0.0234,
     "mass_casualty_crackdown": 0.3421,
-    "us_intervention_any": 0.1234
+    "us_soft_intervention": 0.1234,
+    "us_hard_intervention": 0.0567
   }
 }
 ```

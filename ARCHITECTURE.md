@@ -228,7 +228,8 @@ Two simulation engines produce outcome distributions from the same inputs.
 Runs 10,000 day-by-day simulations over a 90-day horizon. Each run samples from prior distributions to determine daily event probabilities, then steps through state transitions:
 
 - **5 terminal outcomes:** REGIME_SURVIVES_STATUS_QUO, REGIME_SURVIVES_WITH_CONCESSIONS, MANAGED_TRANSITION, REGIME_COLLAPSE_CHAOTIC, ETHNIC_FRAGMENTATION
-- **Feedback loops:** Economic stress increases protest escalation (+20% at CRITICAL level). Concessions dampen escalation (x0.5) and defection (x0.7). Regional instability raises crackdown probability (+20%).
+- **US intervention tiers:** Postures are split into *soft* (INFORMATION_OPS, ECONOMIC, CYBER_OFFENSIVE — deniable, no physical footprint) and *hard* (COVERT, KINETIC, GROUND). Hard supersedes soft; modifiers are not stacked. CYBER_OFFENSIVE is soft despite sitting above COVERT on the escalation ladder because the tier split tracks diplomatic visibility, not escalation rank.
+- **Feedback loops:** US intervention lifts protest escalation, defection, and collapse probabilities (soft: +5–7%, hard: +15–20%). Economic stress increases protest escalation (+20% at CRITICAL level). Concessions dampen escalation (x0.5) and defection (x0.7). Regional instability raises crackdown probability (+20%).
 - **Regional cascade:** Iraq/Syria spillover, Israel strikes, and Gulf realignment are modeled as correlated processes.
 
 ### Agent-Based Model (`src/abm_engine.py`)
