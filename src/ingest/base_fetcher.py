@@ -69,6 +69,11 @@ INITIAL_BACKOFF_SECONDS = _retry_config['initial_backoff_seconds']
 BACKOFF_MULTIPLIER = _retry_config['backoff_multiplier']
 
 
+class ConfigError(ValueError):
+    """Raised for non-retriable configuration errors (e.g., missing URLs)."""
+    pass
+
+
 class FetchError(Exception):
     """Exception raised when a fetch fails after retries."""
     def __init__(self, source_id: str, message: str, original_error: Optional[Exception] = None):
@@ -88,6 +93,16 @@ class BaseFetcher(ABC):
         self.access_grade = source_config.get('access_grade', 'C')
         self.bias_grade = source_config.get('bias_grade', 3)
         self.config = source_config
+
+    def _require_url(self) -> str:
+        """Get the primary URL from source config. Raises ValueError if missing."""
+        urls = self.config.get("urls")
+        if not urls:
+            raise ConfigError(
+                f"{self.source_id}: 'urls' missing or empty in source config. "
+                f"Check config/sources.yaml entry for this source."
+            )
+        return urls[0]
 
     @abstractmethod
     def _fetch_impl(self, since: Optional[datetime] = None) -> List[Dict[str, Any]]:
@@ -124,6 +139,9 @@ class BaseFetcher(ABC):
             try:
                 docs = self._fetch_impl(since)
                 return docs, None
+            except ConfigError as e:
+                logger.error(f"Config error for {self.source_id}: {e}")
+                return [], str(e)
             except Exception as e:
                 last_error = str(e)
                 if attempt < MAX_RETRIES:

@@ -22,6 +22,7 @@ class TestIODAFetcher:
             "access_grade": "A",
             "bias_grade": 1,
             "bucket": "internet_monitoring",
+            "urls": ["https://api.ioda.inetintel.cc.gatech.edu/v2/signals/raw/country/IR"],
         }
 
     def test_normalize_score_normal(self, config):
@@ -143,7 +144,7 @@ class TestIODAFetcher:
         """Test that evidence doc has required fields."""
         fetcher = IODAFetcher(config)
 
-        with patch('requests.get') as mock_get:
+        with patch('src.ingest.fetch_ioda._session.get') as mock_get:
             mock_response = MagicMock()
             mock_response.json.return_value = {
                 "data": [

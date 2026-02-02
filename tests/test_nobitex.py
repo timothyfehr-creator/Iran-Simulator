@@ -15,6 +15,7 @@ def nobitex_config():
         "bucket": "econ_fx",
         "access_grade": "B",
         "bias_grade": 1,
+        "urls": ["https://api.nobitex.ir/market/stats"],
     }
 
 
@@ -99,3 +100,25 @@ class TestNobitexFetcher:
 
         sd = docs[0]["structured_data"]
         assert sd["source_timestamp_utc"] is not None
+
+    def test_missing_urls_raises_valueerror(self):
+        from src.ingest.fetch_nobitex import NobitexFetcher
+
+        config = {"id": "nobitex", "name": "Nobitex", "bucket": "econ_fx"}
+        fetcher = NobitexFetcher(config)
+        with pytest.raises(ValueError, match="urls.*missing"):
+            fetcher._require_url()
+
+    def test_url_from_config(self, nobitex_config, mock_nobitex_response):
+        from src.ingest.fetch_nobitex import NobitexFetcher
+
+        with patch("src.ingest.fetch_nobitex.requests.post") as mock_post:
+            mock_resp = MagicMock()
+            mock_resp.json.return_value = mock_nobitex_response
+            mock_resp.raise_for_status.return_value = None
+            mock_post.return_value = mock_resp
+
+            fetcher = NobitexFetcher(nobitex_config)
+            fetcher.fetch()
+
+        assert mock_post.call_args[0][0] == "https://api.nobitex.ir/market/stats"

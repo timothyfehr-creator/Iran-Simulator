@@ -18,8 +18,6 @@ from .base_fetcher import BaseFetcher, FetchError
 
 logger = logging.getLogger(__name__)
 
-# IODA API configuration
-IODA_BASE_URL = "https://api.ioda.inetintel.cc.gatech.edu/v2"
 IRAN_COUNTRY_CODE = "IR"
 REQUEST_TIMEOUT = (10, 30)
 
@@ -51,8 +49,7 @@ class IODAFetcher(BaseFetcher):
 
         now = datetime.now(timezone.utc)
 
-        # URL from config/sources.yaml, falling back to module default
-        url = self.config.get("urls", [f"{IODA_BASE_URL}/signals/raw/country/{IRAN_COUNTRY_CODE}"])[0]
+        url = self._require_url()
         params = {
             "from": int(since.timestamp()),
             "until": int(now.timestamp()),
@@ -130,7 +127,7 @@ class IODAFetcher(BaseFetcher):
 
         # Create evidence doc
         doc = self.create_evidence_doc(
-            url=f"{IODA_BASE_URL}/signals/raw/country/{IRAN_COUNTRY_CODE}",
+            url=url,
             title=f"Iran Internet Connectivity - {published_at.strftime('%Y-%m-%d')}",
             published_at=published_at.isoformat(),
             raw_text=raw_text,

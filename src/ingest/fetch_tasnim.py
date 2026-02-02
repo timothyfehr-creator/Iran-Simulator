@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 import re
+from urllib.parse import urljoin
 from .base_fetcher import BaseFetcher, FetchError, MAX_DOC_TEXT_LENGTH
 
 logger = logging.getLogger(__name__)
@@ -18,8 +19,7 @@ class TasnimFetcher(BaseFetcher):
         """Fetch Tasnim Iran articles from homepage."""
         evidence_docs = []
 
-        # URL from config/sources.yaml, falling back to default
-        url = self.config.get("urls", ["https://www.tasnimnews.com/en"])[0]
+        url = self._require_url()
         response = requests.get(url, timeout=30, headers={
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         })
@@ -39,7 +39,7 @@ class TasnimFetcher(BaseFetcher):
 
                 # Make absolute URL
                 if article_url.startswith('/'):
-                    article_url = f"https://www.tasnimnews.com{article_url}"
+                    article_url = urljoin(url, article_url)
 
                 # Skip if already processed
                 if article_url in seen_urls:

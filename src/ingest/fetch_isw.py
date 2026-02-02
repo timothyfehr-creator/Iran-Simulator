@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
+from urllib.parse import urljoin
 from .base_fetcher import BaseFetcher, FetchError, MAX_DOC_TEXT_LENGTH
 
 logger = logging.getLogger(__name__)
@@ -17,8 +18,7 @@ class ISWFetcher(BaseFetcher):
         """Fetch ISW Iran Updates from homepage."""
         evidence_docs = []
 
-        # URL from config/sources.yaml, falling back to default
-        url = self.config.get("urls", ["https://understandingwar.org/"])[0]
+        url = self._require_url()
         response = requests.get(url, timeout=30, headers={
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         })
@@ -66,6 +66,9 @@ class ISWFetcher(BaseFetcher):
                 # Filter by date
                 if since and pub_date < since:
                     continue
+
+                # Ensure absolute URL
+                article_url = urljoin(url, article_url)
 
                 # Fetch full article content
                 raw_text = self._fetch_article_content(article_url)

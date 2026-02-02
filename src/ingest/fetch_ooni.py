@@ -13,9 +13,6 @@ logger = logging.getLogger(__name__)
 # Request timeout (connect, read) in seconds
 REQUEST_TIMEOUT = (10, 30)
 
-# OONI API base URL
-OONI_API_BASE = "https://api.ooni.io/api/v1"
-
 # Session-level retry for network transients
 _retry = Retry(total=1, allowed_methods=["GET"], backoff_factor=1, status_forcelist=[502, 503, 504])
 _session = requests.Session()
@@ -45,8 +42,7 @@ class OONIFetcher(BaseFetcher):
         }
 
         try:
-            # URL from config/sources.yaml, falling back to module default
-            api_url = self.config.get("urls", [f"{OONI_API_BASE}/measurements"])[0]
+            api_url = self._require_url()
             response = _session.get(
                 api_url,
                 params=params,

@@ -13,7 +13,6 @@ from typing import Any, Dict, List, Optional
 from .base_fetcher import BaseFetcher
 
 
-NOBITEX_STATS_URL = "https://api.nobitex.ir/market/stats"
 REQUEST_TIMEOUT = 30
 
 
@@ -26,8 +25,9 @@ class NobitexFetcher(BaseFetcher):
         Returns:
             List with single evidence doc containing rate data
         """
+        url = self._require_url()
         resp = requests.post(
-            NOBITEX_STATS_URL,
+            url,
             json={"srcCurrency": "usdt", "dstCurrency": "rls"},
             headers={"Content-Type": "application/json"},
             timeout=REQUEST_TIMEOUT,
@@ -71,7 +71,7 @@ class NobitexFetcher(BaseFetcher):
         )
 
         doc = self.create_evidence_doc(
-            url=NOBITEX_STATS_URL,
+            url=url,
             title=f"Nobitex USDT/IRT - {pub_date.strftime('%Y-%m-%d %H:%M')}",
             published_at=pub_date.isoformat(),
             raw_text=raw_text,

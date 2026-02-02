@@ -23,9 +23,6 @@ logger = logging.getLogger(__name__)
 
 # Request timeout (connect, read) in seconds
 REQUEST_TIMEOUT = (10, 30)
-BONBAST_URL = "https://www.bonbast.com/"
-BONBAST_JSON_URL = "https://www.bonbast.com/json"
-
 # Toman to Rial conversion
 TOMAN_TO_RIAL = 10
 
@@ -53,9 +50,9 @@ class BonbastFetcher(BaseFetcher):
         }
 
         # Step 1: Fetch main page to get token
-        # URL from config/sources.yaml, falling back to module default
-        base_url = self.config.get("urls", [BONBAST_URL])[0]
-        json_url = base_url.rstrip("/") + "/json"
+        base_url = self._require_url()
+        stripped = base_url.rstrip("/")
+        json_url = stripped if stripped.endswith("/json") else stripped + "/json"
 
         try:
             resp = session.get(base_url, headers=headers, timeout=REQUEST_TIMEOUT)
@@ -146,7 +143,7 @@ Note: Rates reflect black market/unofficial rates, not official CBI rates.
 
         # Create evidence doc
         doc = self.create_evidence_doc(
-            url=BONBAST_URL,
+            url=base_url,
             title=f"Iran Exchange Rates - {pub_date.strftime('%Y-%m-%d %H:%M')}",
             published_at=pub_date.isoformat(),
             raw_text=raw_text,
