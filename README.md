@@ -112,7 +112,8 @@ iran_simulation/
 │   ├── logging_config.py   # Shared structured logging setup
 │   ├── simulation.py       # State-machine Monte Carlo (no silent fallbacks)
 │   ├── forecasting/        # Oracle layer (catalog, ensembles, baselines, scoring)
-│   ├── ingest/             # Evidence fetching (ISW, HRANA, BBC, etc.)
+│   ├── ingest/             # Evidence fetching — all URLs from config/sources.yaml via _require_url()
+│   │   ├── base_fetcher.py # BaseFetcher ABC with retry, _require_url(), ConfigError
 │   │   ├── live_wire/      # 6-hourly signal pipeline (quality, rules, EMA, runner)
 │   │   ├── fetch_nobitex.py# Nobitex USDT/IRR exchange rate
 │   │   └── fetch_bonbast.py# Bonbast black-market Rial rate
@@ -120,7 +121,7 @@ iran_simulation/
 │   ├── pipeline/           # Intel compilation, diff reports, path registry
 │   ├── priors/             # Priors contract and resolution
 │   └── report/             # Report generation
-├── tests/                  # Pytest suite (764 tests)
+├── tests/                  # Pytest suite (766 tests)
 ├── dashboard.py            # Streamlit entry point
 └── requirements.txt
 ```

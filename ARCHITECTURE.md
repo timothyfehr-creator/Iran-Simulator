@@ -115,7 +115,7 @@ sequenceDiagram
 
 **Code:** `src/ingest/`
 
-The coordinator (`coordinator.py`) runs 10+ source-specific fetchers in parallel. Each fetcher scrapes or queries a single source and returns structured evidence documents.
+The coordinator (`coordinator.py`) runs 10+ source-specific fetchers in parallel. Each fetcher extends `BaseFetcher` and reads its endpoint URL from `config/sources.yaml` via `_require_url()` — no hardcoded URLs or silent fallbacks. Missing config raises `ConfigError` (non-retriable).
 
 | Fetcher | Source | Data |
 |---------|--------|------|
@@ -390,6 +390,7 @@ frontend/src/
 | `config/event_catalog.json` | Event definitions, types, outcomes, resolution rules |
 | `config/ensemble_config.json` | Forecaster weights and combination policy |
 | `config/baseline_config.json` | History window, smoothing alpha, persistence stickiness |
+| `config/sources.yaml` | Source definitions: IDs, fetcher modules, URLs (source of truth for all fetch endpoints) |
 | `config/ingest.yaml` | Source limits, retry policy, coverage-fail behavior, Live Wire schedule |
 | `config/live_wire.json` | Signal endpoints, staleness thresholds, rule thresholds, hysteresis cycles |
 | `config/path_registry_v2.json` | Environment-independent path resolution |
@@ -424,3 +425,4 @@ The `run_manifest.json` includes SHA-256 hashes of all inputs and an optional se
 6. **No economic fabrication** — `_get_economic_stress()` raises `ValueError` on missing data rather than substituting hardcoded defaults. The gate prevents this from being reached.
 7. **R2 is source of truth for Live Wire** — `data/live_wire/` and `latest/` are ephemeral local working copies (.gitignored). State, snapshots, and public artifacts are persisted exclusively in R2. No Live Wire data is committed to main.
 8. **No signal fabrication** — all classifiers return `None` on `None` input. Failed signals carry `last_good_value`, never invented values.
+9. **No hardcoded URLs** — all fetch endpoints come from `config/sources.yaml` via `BaseFetcher._require_url()`. Config errors raise `ConfigError` and skip retries. URL constants in fetcher modules are forbidden.
