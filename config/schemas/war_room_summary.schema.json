@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "War Room Summary",
+  "description": "Public artifact summarizing simulation state, live wire, and forecasts",
+  "type": "object",
+  "required": ["_schema_version", "generated_at_utc", "defcon_status", "headline_kpis", "headline_chart", "map_data"],
+  "properties": {
+    "_schema_version": {"type": "string"},
+    "generated_at_utc": {"type": "string", "format": "date-time"},
+    "defcon_status": {
+      "type": "string",
+      "enum": ["GREEN", "YELLOW", "ORANGE", "RED", "UNKNOWN"]
+    },
+    "headline_kpis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "value"],
+        "properties": {
+          "label": {"type": "string"},
+          "value": {"type": ["number", "string", "null"]},
+          "format": {"type": "string"},
+          "units": {"type": "string"}
+        }
+      }
+    },
+    "headline_chart": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {"type": "string"},
+          "rial_usd_rate": {"type": ["number", "null"]}
+        }
+      }
+    },
+    "live_wire_summary": {
+      "type": ["object", "null"],
+      "properties": {
+        "economic_stress": {"type": ["string", "null"]},
+        "internet_status": {"type": ["string", "null"]},
+        "news_activity": {"type": ["string", "null"]}
+      }
+    },
+    "forecast_summary": {
+      "type": ["object", "null"],
+      "properties": {
+        "brier_score": {"type": ["number", "null"]},
+        "calibration_error": {"type": ["number", "null"]},
+        "total_forecasts": {"type": "integer"}
+      }
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "message"],
+        "properties": {
+          "type": {"type": "string"},
+          "signal": {"type": "string"},
+          "consecutive_failures": {"type": "integer"},
+          "message": {"type": "string"}
+        }
+      }
+    },
+    "map_data": {
+      "type": "object",
+      "required": ["regions"],
+      "properties": {
+        "regions": {"type": "array"}
+      }
+    }
+  }
+}

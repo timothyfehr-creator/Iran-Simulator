@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Leaderboard",
+  "description": "Public forecast leaderboard artifact",
+  "type": "object",
+  "required": ["_schema_version", "generated_at_utc", "metrics", "top_forecasters", "question_groups"],
+  "properties": {
+    "_schema_version": {"type": "string"},
+    "generated_at_utc": {"type": "string", "format": "date-time"},
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "primary": {"type": "string"}
+      }
+    },
+    "top_forecasters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["forecaster_id", "primary_brier"],
+        "properties": {
+          "forecaster_id": {"type": "string"},
+          "primary_brier": {"type": ["number", "null"]},
+          "skill_score": {"type": ["number", "null"]},
+          "resolved_n": {"type": "integer"}
+        }
+      }
+    },
+    "question_groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["event_type", "horizon_days"],
+        "properties": {
+          "event_type": {"type": "string"},
+          "horizon_days": {"type": "integer"},
+          "avg_brier": {"type": ["number", "null"]},
+          "forecaster_count": {"type": "integer"}
+        }
+      }
+    }
+  }
+}

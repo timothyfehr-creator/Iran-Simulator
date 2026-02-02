@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Live Wire State",
+  "description": "Real-time signal state for Iran crisis monitoring",
+  "type": "object",
+  "required": ["_schema_version", "rule_version", "snapshot_id", "generated_at_utc", "signals", "signal_quality", "derived_states"],
+  "properties": {
+    "_schema_version": {"type": "string"},
+    "rule_version": {"type": "string"},
+    "snapshot_id": {"type": "string"},
+    "generated_at_utc": {"type": "string", "format": "date-time"},
+    "signals": {
+      "type": "object",
+      "properties": {
+        "rial_usd_rate": {
+          "type": "object",
+          "required": ["value", "units", "source"],
+          "properties": {
+            "value": {"type": ["number", "null"]},
+            "units": {"const": "IRR"},
+            "source": {"type": "string"}
+          }
+        },
+        "usdt_irt_rate": {
+          "type": "object",
+          "required": ["value", "units", "source"],
+          "properties": {
+            "value": {"type": ["number", "null"]},
+            "units": {"const": "IRR"},
+            "source": {"type": "string"}
+          }
+        },
+        "connectivity_index": {
+          "type": "object",
+          "required": ["value", "source"],
+          "properties": {
+            "value": {"type": ["number", "null"]},
+            "units": {"type": "string"},
+            "source": {"type": "string"}
+          }
+        },
+        "news_volume": {
+          "type": "object",
+          "required": ["value", "source"],
+          "properties": {
+            "value": {"type": ["number", "null"]},
+            "units": {"type": "string"},
+            "source": {"type": "string"},
+            "avg_tone": {"type": "null"}
+          }
+        }
+      }
+    },
+    "signal_quality": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "value", "freshness", "confidence"],
+        "properties": {
+          "status": {"enum": ["OK", "STALE", "FAILED"]},
+          "value": {"type": ["number", "null"]},
+          "fetched_at_utc": {"type": "string"},
+          "source_timestamp_utc": {"type": ["string", "null"]},
+          "freshness": {"enum": ["source_verified", "fetch_time_only"]},
+          "confidence": {"enum": ["high", "medium", "low"]},
+          "last_good_value": {"type": ["number", "null"]},
+          "last_good_at": {"type": ["string", "null"]},
+          "consecutive_failures": {"type": "integer"}
+        }
+      }
+    },
+    "smoothed": {"type": "object"},
+    "derived_states": {
+      "type": "object",
+      "properties": {
+        "economic_stress": {"type": ["string", "null"]},
+        "internet_status": {"type": ["string", "null"]},
+        "news_activity": {"type": ["string", "null"]}
+      }
+    },
+    "hysteresis": {"type": "object"}
+  }
+}
