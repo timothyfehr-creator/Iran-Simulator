@@ -12,6 +12,7 @@ export interface HeadlineKpi {
 export interface ChartPoint {
   date: string;
   rial_usd_rate: number | null;
+  connectivity_index: number | null;
 }
 
 export interface Alert {
