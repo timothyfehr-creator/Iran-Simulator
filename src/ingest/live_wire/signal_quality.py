@@ -76,7 +76,10 @@ def update_signal_quality(
         )
 
     # Value fetched successfully - check staleness
-    age_hours = (fetched_at - staleness_ref).total_seconds() / 3600
+    # For fetch_time_only sources (no source timestamp), compare against
+    # current time rather than fetched_at to avoid always computing 0.
+    now = datetime.now(timezone.utc)
+    age_hours = (now - staleness_ref).total_seconds() / 3600
     if age_hours > stale_threshold_hours:
         # Stale source data
         max_confidence = "medium" if freshness == "fetch_time_only" else "medium"

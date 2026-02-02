@@ -53,7 +53,6 @@ logging.basicConfig(
 logger = logging.getLogger("live_wire")
 
 CONFIG_PATH = "config/live_wire.json"
-TOMAN_TO_RIAL = 10
 
 
 def load_config(path: str = CONFIG_PATH) -> dict:
