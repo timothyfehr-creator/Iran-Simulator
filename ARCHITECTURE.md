@@ -175,6 +175,8 @@ source_grade → triangulated → confidence → published_at → claim_id
 
 Conflicts are logged in `merge_report.json`. A QA pass checks completeness.
 
+**Economic enrichment** (`scripts/enrich_economic_data.py`) runs after compilation to inject live Bonbast data (Rial/USD, Rial/EUR, gold prices) and seed a baseline inflation estimate (42% SCI anchor, 2025–2026 range) when claim extraction hasn't provided one. The script loads its Bonbast config from `config/sources.yaml` via `_load_source_config()` — consistent with the no-hardcoded-URLs invariant.
+
 **Baseline knowledge** (`src/pipeline/compile_baseline.py`) packages stable reference data (regime structure, protest history, ethnic composition) separately for analyst anchoring.
 
 ## Stage 4: Analyst Priors
@@ -192,7 +194,7 @@ Before simulation runs, a unified gate checks 5 independent conditions. If any r
 | Gate key | What it checks | FAIL condition |
 |----------|---------------|----------------|
 | `coverage` | Source freshness per bucket | Critical buckets stale (when `on_coverage_fail=skip_simulation`) |
-| `econ_enrichment` | Economic data enrichment | `enrich_economic_data.py` exits non-zero |
+| `econ_enrichment` | Economic data enrichment | `enrich_economic_data.py` exits non-zero (loads Bonbast config from `sources.yaml` via `_load_source_config()`) |
 | `econ_priors` | `analyst_priors.json` economic config | Missing/invalid `economic_thresholds` or `economic_modifiers` |
 | `qa` | Compiled intel QA | Schema violations, duplicate claim IDs, unexplained null values |
 | `claims` | Claim extraction | API key set + 0 claims extracted (auto-ingest only) |
@@ -425,4 +427,5 @@ The `run_manifest.json` includes SHA-256 hashes of all inputs and an optional se
 6. **No economic fabrication** — `_get_economic_stress()` raises `ValueError` on missing data rather than substituting hardcoded defaults. The gate prevents this from being reached.
 7. **R2 is source of truth for Live Wire** — `data/live_wire/` and `latest/` are ephemeral local working copies (.gitignored). State, snapshots, and public artifacts are persisted exclusively in R2. No Live Wire data is committed to main.
 8. **No signal fabrication** — all classifiers return `None` on `None` input. Failed signals carry `last_good_value`, never invented values.
-9. **No hardcoded URLs** — all fetch endpoints come from `config/sources.yaml` via `BaseFetcher._require_url()`. Config errors raise `ConfigError` and skip retries. URL constants in fetcher modules are forbidden.
+9. **No hardcoded URLs** — all fetch endpoints come from `config/sources.yaml` via `BaseFetcher._require_url()`. Config errors raise `ConfigError` and skip retries. URL constants in fetcher modules are forbidden. Scripts that use fetchers (e.g., `enrich_economic_data.py`) load config from `sources.yaml` via `_load_source_config()`.
+10. **Analyst-anchored baselines** — when claim extraction or live sources cannot fill a required field (e.g., inflation), the enrichment pipeline seeds a documented analyst baseline rather than fabricating or leaving it null. Baselines are tagged with `source: "baseline_anchor"` and can be overridden by subsequent claim extraction.

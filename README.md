@@ -17,7 +17,7 @@ Ingests multi-source OSINT, compiles structured intelligence, calibrates probabi
 - **OSINT ingestion** — fetches evidence from ISW, HRANA, Amnesty, HRW, BBC Persian, regime outlets, and economic indicators (Bonbast, Nobitex, TGJU, IODA)
 - **Live Wire pipeline** — 6-hourly real-time signals (Nobitex USDT/IRR, Bonbast, IODA connectivity, GDELT news volume) with signal quality tracking, EMA smoothing, rule-based classification, and N-cycle hysteresis. State persisted in R2.
 - **Claim extraction** — GPT-4 extracts discrete factual claims with source grading and conflict preservation
-- **Intelligence compilation** — merges claims into a schema-validated intel package with baseline anchoring
+- **Intelligence compilation** — merges claims into a schema-validated intel package with baseline anchoring and economic enrichment (Bonbast rates + SCI-anchored inflation baseline)
 - **Unified pre-simulation gate** — validates coverage, economic enrichment, economic priors (sub-key + ordering), QA, and claim extraction before simulation runs; any FAIL skips simulation and records `gate_decision=SKIP_SIMULATION` in the run manifest
 - **Dual simulation engines** — state-machine Monte Carlo *and* a 10,000-agent ABM with small-world network dynamics, defection cascades, and economic stress modifiers
 - **Oracle forecasting layer** — catalog of 18 events, Dirichlet-smoothed baselines, static ensembles, multinomial Brier scoring, and a leaderboard
@@ -105,6 +105,7 @@ iran_simulation/
 ├── prompts/                # Agent prompts (research, analyst, red-team)
 ├── scripts/
 │   ├── daily_update.py     # Main daily pipeline orchestrator (unified gate + validate_econ_priors)
+│   ├── enrich_economic_data.py  # Bonbast enrichment + baseline inflation seeding (config from sources.yaml)
 │   ├── generate_public_artifacts.py  # Produces war_room_summary, leaderboard, live_wire JSONs
 │   └── pull_live_wire.py   # Local dev helper: download live wire data from R2
 ├── src/
