@@ -16,6 +16,8 @@ jobs:
   live-wire:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v6
 
@@ -58,6 +60,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
 
       - name: Upload latest to R2
+        if: env.R2_ACCOUNT_ID != ''
         run: |
           aws s3 cp data/live_wire/latest.json "s3://$R2_BUCKET/latest/live_wire_state.json" \
             --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
@@ -69,6 +72,7 @@ jobs:
           R2_BUCKET: ${{ secrets.R2_BUCKET_NAME }}
 
       - name: Upload state to R2
+        if: env.R2_ACCOUNT_ID != ''
         run: |
           aws s3 cp data/live_wire/state.json "s3://$R2_BUCKET/state/live_wire_state.json" \
             --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
@@ -79,6 +83,7 @@ jobs:
           R2_BUCKET: ${{ secrets.R2_BUCKET_NAME }}
 
       - name: Upload snapshots to R2
+        if: env.R2_ACCOUNT_ID != ''
         run: |
           if ls data/live_wire/snapshots/*.jsonl.gz 1>/dev/null 2>&1; then
             aws s3 cp data/live_wire/snapshots/ "s3://$R2_BUCKET/snapshots/" \

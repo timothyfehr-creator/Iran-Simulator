@@ -12,6 +12,8 @@ jobs:
   simulate:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v6
 
@@ -46,6 +48,7 @@ jobs:
       # If R2 has nothing (first-ever run), the artifact generator
       # gracefully degrades to UNKNOWN/empty.
       - name: Download live wire from R2
+        if: env.R2_ACCOUNT_ID != ''
         run: |
           mkdir -p data/live_wire
           aws s3 cp "s3://$R2_BUCKET/latest/live_wire_state.json" data/live_wire/latest.json \
@@ -76,6 +79,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
 
       - name: Upload artifacts to R2
+        if: env.R2_ACCOUNT_ID != ''
         run: |
           if [ -d latest/ ]; then
             aws s3 cp latest/ "s3://$R2_BUCKET/latest/" --recursive \
