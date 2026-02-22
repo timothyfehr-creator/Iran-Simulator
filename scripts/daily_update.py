@@ -813,9 +813,9 @@ def main():
             previous_run_dir = os.path.join('runs', previous_run)
             logger.info(f"Comparing to previous run: {previous_run}")
             diff_result = run_stage(
-            build_stage_cmd('diff', previous_run=previous_run_dir, current_run=run_dir), "Diff"
-        )
-        if diff_result.status == "OK":
+                build_stage_cmd('diff', previous_run=previous_run_dir, current_run=run_dir), "Diff"
+            )
+            if diff_result.status == "OK":
                 # Generate markdown summary
                 try:
                     subprocess.run([
