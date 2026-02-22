@@ -141,7 +141,7 @@ class StageResult:
 
 
 # Default stage timeout in seconds
-STAGE_TIMEOUT = 300
+STAGE_TIMEOUT = 600
 
 
 def run_stage(cmd: List[str], label: str, timeout: int = STAGE_TIMEOUT) -> StageResult:
