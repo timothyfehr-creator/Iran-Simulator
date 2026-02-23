@@ -1,0 +1,33 @@
+{
+  "git_commit": "1a5d45e2f32b581562033ee4b8ec906266d308c5",
+  "data_cutoff_utc": "2026-02-23T23:59:59+00:00",
+  "ingest_since_utc": "2026-02-19T07:15:40.586382+00:00",
+  "seed": 42,
+  "deterministic_tiebreaks": [
+    "source_grade",
+    "triangulated",
+    "confidence",
+    "latest_published_at",
+    "claim_id"
+  ],
+  "hashes": {
+    "evidence_docs.jsonl": "sha256:47dc2b7b23c05d3fd8a6fb21adbee616b5b6c0b7edbc309b5207a916813cf0ac",
+    "claims_deep_research.jsonl": "sha256:42f58be978a9d632ce3d48b399a5d6f3aa645a5f92b016e940cd79fd4cb4abc1",
+    "compiled_intel.json": "sha256:981271886219ff44641ae84885682f64173ee138078db1caee0c473391f95d2a",
+    "priors_resolved.json": "sha256:50d27da400c446ac635bd8931d228e737ee3c4a9738fd92d2e60f90d15fbb3ab",
+    "simulation_results.json": "sha256:7b0d49ea75b46c5d8b34d3391d42d6611ed589a1ee5aeb390a7c4ea9103bd19b",
+    "claims.jsonl": "sha256:42f58be978a9d632ce3d48b399a5d6f3aa645a5f92b016e940cd79fd4cb4abc1"
+  },
+  "coverage_status": "WARN",
+  "run_reliable": true,
+  "generated_at_utc": "2026-02-23T07:15:40.588762+00:00",
+  "run_id": "RUN_20260223_daily",
+  "as_of_utc": "2026-02-23T07:15:40.586487+00:00",
+  "n_sims": 10000,
+  "qa_status": "OK",
+  "econ_enrichment_status": "OK",
+  "econ_priors_status": "OK",
+  "claims_status": "OK",
+  "claims_count": 66,
+  "gate_decision": "PASS"
+}
