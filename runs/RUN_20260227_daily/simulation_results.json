@@ -1,0 +1,170 @@
+{
+  "n_runs": 10000,
+  "outcome_distribution": {
+    "REGIME_SURVIVES_STATUS_QUO": {
+      "count": 9779,
+      "probability": 0.9779,
+      "ci_low": 0.9748298215283058,
+      "ci_high": 0.9806031393454449
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "count": 75,
+      "probability": 0.0075,
+      "ci_low": 0.005987873201081926,
+      "ci_high": 0.009390379089518116
+    },
+    "MANAGED_TRANSITION": {
+      "count": 146,
+      "probability": 0.0146,
+      "ci_low": 0.012428546627434934,
+      "ci_high": 0.017144252685980823
+    }
+  },
+  "outcome_timing": {
+    "REGIME_SURVIVES_STATUS_QUO": {
+      "mean_day": 20.93915533285612,
+      "median_day": 21,
+      "min_day": 20,
+      "max_day": 22
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "mean_day": 10.693333333333333,
+      "median_day": 11,
+      "min_day": 1,
+      "max_day": 21
+    },
+    "MANAGED_TRANSITION": {
+      "mean_day": 10.815068493150685,
+      "median_day": 10.5,
+      "min_day": 1,
+      "max_day": 21
+    }
+  },
+  "key_event_rates": {
+    "us_soft_intervention": 0.745,
+    "us_hard_intervention": 0.0532,
+    "security_force_defection": 0.0,
+    "khamenei_death": 0.0221,
+    "ethnic_uprising": 0.0
+  },
+  "regional_cascade_rates": {
+    "iraq_crisis": 0.0,
+    "syria_crisis": 0.0,
+    "israel_strikes": 0.0,
+    "iraq_proxy_activation": 0.0226,
+    "syria_proxy_activation": 0.0203,
+    "gulf_realignment": 0.0,
+    "russia_support": 0.0967
+  },
+  "economic_analysis": {
+    "stress_level": "critical",
+    "rial_rate_used": 1656000.0,
+    "inflation_used": 42.0,
+    "modifiers_applied": {
+      "protest_escalation": 1.2,
+      "elite_fracture": 1.3,
+      "security_defection": 1.15
+    }
+  },
+  "sample_trajectories": [
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 41.8%)",
+        "Day 21: Protests collapse (ABM: 1.4%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 41.7%)",
+        "Day 11: US escalates economic pressure",
+        "Day 21: Protests collapse (ABM: 1.8%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 41.4%)",
+        "Day 1: US begins information operations support",
+        "Day 12: US escalates economic pressure",
+        "Day 21: Protests collapse (ABM: 1.6%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 41.3%)",
+        "Day 6: US escalates economic pressure",
+        "Day 21: Protests collapse (ABM: 1.4%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 41.2%)",
+        "Day 7: Mass casualty crackdown - 159 total dead",
+        "Day 7: US escalates economic pressure",
+        "Day 21: Protests collapse (ABM: 1.1%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 41.2%)",
+        "Day 21: Protests collapse (ABM: 1.4%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 41.3%)",
+        "Day 21: Protests collapse (ABM: 1.6%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 42.5%)",
+        "Day 15: US escalates economic pressure",
+        "Day 21: Protests collapse (ABM: 1.9%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 41.4%)",
+        "Day 10: US escalates economic pressure",
+        "Day 21: Protests collapse (ABM: 1.5%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 1: Protests escalate (ABM: 40.2%)",
+        "Day 9: US begins information operations support",
+        "Day 21: Protests collapse (ABM: 1.5%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    }
+  ]
+}
