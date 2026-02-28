@@ -649,6 +649,9 @@ class IranCrisisSimulation:
         # Initialize from current intel
         state.protester_casualties = self._get_initial_casualties()
 
+        # Initialize pre-existing US intervention state from intel
+        self._init_us_intervention_state(state)
+
         for day in range(1, 91):
             state.day = day
             
@@ -1196,6 +1199,37 @@ class IranCrisisSimulation:
         except (KeyError, TypeError):
             return 36  # Default from current reporting
     
+    def _init_us_intervention_state(self, state: SimulationState) -> None:
+        """Initialize pre-existing US intervention state from compiled intel.
+
+        If intel contains current_state.us_intervention with posture set to
+        KINETIC or higher, the simulation starts from that state rather than
+        computing escalation probabilistically.
+        """
+        try:
+            us_section = self.intel["current_state"]["us_intervention"]
+        except (KeyError, TypeError):
+            return  # No pre-existing intervention state
+
+        posture_name = (us_section.get("current_posture") or "").upper()
+        posture_map = {p.name: p for p in USPosture}
+        posture = posture_map.get(posture_name)
+        if posture is None:
+            return
+
+        state.us_posture = posture
+        if posture in US_HARD_POSTURES:
+            state.us_hard_intervened = True
+        if posture in US_SOFT_POSTURES:
+            state.us_soft_intervened = True
+
+        kinetic_day = us_section.get("kinetic_strike_day")
+        if kinetic_day is not None:
+            state.us_kinetic_day = int(kinetic_day)
+
+        # Log the pre-set state
+        state.events.append(f"Day 0: US intervention pre-set to {posture.name} (from intel)")
+
     def run_monte_carlo(self, n_runs: int = 10000) -> dict:
         """Run full Monte Carlo simulation"""
         results = []
