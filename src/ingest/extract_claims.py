@@ -83,6 +83,13 @@ VALID PATHS (use ONLY these, with units in parentheses):
 - current_situation.regime_response.arrests (integer, units: count)
 - current_situation.defections.confirmed_count (integer, units: count)
 - external_actors.united_states.stated_position.quotes (string, units: text)
+- current_state.leadership.supreme_leader_status (enum: ALIVE, DEAD, INCAPACITATED, UNKNOWN; units: enum)
+- current_state.leadership.supreme_leader_cause_of_death (string, units: text)
+- current_state.leadership.succession_status (enum: NONE, CRISIS, INTERIM_APPOINTED, SUCCESSOR_CONFIRMED; units: enum)
+- current_state.leadership.acting_leader (string, units: text)
+- current_state.military_conflict.us_strikes_confirmed (boolean, units: boolean)
+- current_state.military_conflict.strike_targets (string, units: text)
+- current_state.military_conflict.regime_casualties_estimate (integer, units: people)
 
 CLAIM STRUCTURE:
 {{

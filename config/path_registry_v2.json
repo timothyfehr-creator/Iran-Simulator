@@ -91,6 +91,24 @@
     "current_state.defections.count": "current_situation.defections.confirmed_count",
     "current_state.defections.occurred": "current_situation.regime_response.defections",
 
+    "_section_leadership": "=== LEADERSHIP STATUS ALIASES ===",
+    "current_state.khamenei_status.dead": "current_state.leadership.supreme_leader_status",
+    "current_state.khamenei_status.alive": "current_state.leadership.supreme_leader_status",
+    "current_state.khamenei_status.status": "current_state.leadership.supreme_leader_status",
+    "current_state.regime_leadership.supreme_leader_alive": "current_state.leadership.supreme_leader_status",
+    "current_state.regime_leadership.khamenei_alive": "current_state.leadership.supreme_leader_status",
+    "current_state.regime_leadership.succession": "current_state.leadership.succession_status",
+    "current_state.regime_leadership.successor": "current_state.leadership.acting_leader",
+    "current_state.leadership.khamenei_dead": "current_state.leadership.supreme_leader_status",
+    "current_state.leadership.khamenei_status": "current_state.leadership.supreme_leader_status",
+
+    "_section_military_conflict": "=== MILITARY CONFLICT ALIASES ===",
+    "current_state.military.us_strikes": "current_state.military_conflict.us_strikes_confirmed",
+    "current_state.military.strikes": "current_state.military_conflict.us_strikes_confirmed",
+    "current_state.regime_response.us_strike": "current_state.military_conflict.us_strikes_confirmed",
+    "current_state.military.strike_targets": "current_state.military_conflict.strike_targets",
+    "current_state.military.casualties": "current_state.military_conflict.regime_casualties_estimate",
+
     "_section_baseline": "=== BASELINE ALIASES ===",
     "regime.khamenei.health": "baseline.regime_structure.supreme_leader.health_baseline",
     "regime.khamenei.age": "baseline.regime_structure.supreme_leader.age"
@@ -581,6 +599,51 @@
       "units": "text",
       "description": "Current sanctions status if applicable"
     },
+    "_leadership_comment": "=== LEADERSHIP STATUS PATHS ===",
+
+    "current_state.leadership.supreme_leader_status": {
+      "type": "enum",
+      "enum_values": ["ALIVE", "DEAD", "INCAPACITATED", "UNKNOWN"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Status of Supreme Leader (alive, dead, incapacitated, or unknown)"
+    },
+    "current_state.leadership.supreme_leader_cause_of_death": {
+      "type": "string",
+      "units": "text",
+      "description": "Cause of death if Supreme Leader confirmed dead"
+    },
+    "current_state.leadership.succession_status": {
+      "type": "enum",
+      "enum_values": ["NONE", "CRISIS", "INTERIM_APPOINTED", "SUCCESSOR_CONFIRMED"],
+      "units": "enum",
+      "normalize_uppercase": true,
+      "description": "Status of succession process"
+    },
+    "current_state.leadership.acting_leader": {
+      "type": "string",
+      "units": "text",
+      "description": "Name of acting or interim leader if applicable"
+    },
+
+    "_military_conflict_comment": "=== MILITARY CONFLICT PATHS ===",
+
+    "current_state.military_conflict.us_strikes_confirmed": {
+      "type": "boolean",
+      "units": "boolean",
+      "description": "Whether US military strikes on Iran have been confirmed"
+    },
+    "current_state.military_conflict.strike_targets": {
+      "type": "string",
+      "units": "text",
+      "description": "Description of confirmed strike targets"
+    },
+    "current_state.military_conflict.regime_casualties_estimate": {
+      "type": "integer",
+      "units": "people",
+      "description": "Estimated regime/military casualties from strikes"
+    },
+
     "live_wire.economic_stress": {
       "type": "string",
       "units": "enum:STABLE|PRESSURED|CRITICAL",

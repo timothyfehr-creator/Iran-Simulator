@@ -7,6 +7,7 @@
 #   persian_services (72h): Iran International, Radio Farda, BBC Persian
 #   internet_monitoring (72h): NetBlocks
 #   econ_fx (72h): Rial/inflation proxies
+#   leadership_watch (12h): High-priority leadership/succession/strike monitoring
 #
 # Access grades: A (high quality) to D (low quality)
 # Bias grades: 1 (neutral) to 5 (highly biased)
@@ -366,6 +367,72 @@ sources:
     fetcher: src.ingest.fetch_web
     enabled: true
     notes: "Gold/currency prices; may need custom parser"
+
+  # =========================================================================
+  # LEADERSHIP WATCH (12h window - high priority)
+  # =========================================================================
+  - id: aljazeera_leadership
+    name: "Al Jazeera (Leadership Watch)"
+    type: rss
+    bucket: leadership_watch
+    urls:
+      - https://www.aljazeera.com/xml/rss/all.xml
+    filters:
+      - keyword: "khamenei"
+      - keyword: "supreme leader"
+      - keyword: "succession"
+      - keyword: "assassinated"
+      - keyword: "decapitation"
+      - keyword: "iran strike"
+    access_grade: A
+    bias_grade: 2
+    language: en
+    fetcher: src.ingest.fetch_rss
+    enabled: true
+    notes: "Leadership-focused filter on Al Jazeera. 12h window for rapid detection."
+
+  - id: bbc_leadership
+    name: "BBC News (Leadership Watch)"
+    type: rss
+    bucket: leadership_watch
+    urls:
+      - http://feeds.bbci.co.uk/news/world/middle_east/rss.xml
+    filters:
+      - keyword: "khamenei"
+      - keyword: "supreme leader"
+      - keyword: "iran leader"
+      - keyword: "succession"
+      - keyword: "iran strike"
+    access_grade: A
+    bias_grade: 1
+    language: en
+    fetcher: src.ingest.fetch_rss
+    enabled: true
+    notes: "BBC Middle East RSS with leadership keyword filter. 12h window."
+
+  - id: iran_intl_leadership
+    name: "Iran International (Leadership Watch)"
+    type: web
+    bucket: leadership_watch
+    urls:
+      - https://www.iranintl.com/en
+    selectors:
+      article: "article.post"
+      title: "h2 a"
+      date: "time"
+      content: ".content"
+    filters:
+      - keyword: "khamenei"
+      - keyword: "supreme leader"
+      - keyword: "succession"
+      - keyword: "killed"
+      - keyword: "strike"
+    access_grade: B
+    bias_grade: 2
+    language: en
+    fetcher: src.ingest.fetch_web
+    enabled: true
+    notes: "Iran Intl with leadership keyword filter. Best coverage of regime internal politics."
 
   # =========================================================================
   # WIRE SERVICES (manual - require license)

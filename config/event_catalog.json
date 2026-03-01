@@ -439,6 +439,83 @@
     },
 
     {
+      "event_id": "leadership.supreme_leader_dead",
+      "name": "Supreme Leader confirmed dead",
+      "category": "leadership",
+      "event_type": "binary",
+      "enabled": true,
+      "horizons_days": [1, 7, 15, 30],
+      "allowed_outcomes": ["YES", "NO", "UNKNOWN"],
+      "description": "Supreme Leader confirmed killed or dead within horizon.",
+      "auto_resolve": true,
+      "requires_manual_resolution": false,
+      "forecast_source": {
+        "type": "simulation_output",
+        "field": "key_event_rates.khamenei_death"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.leadership.supreme_leader_status",
+        "rule": "enum_equals",
+        "value": "DEAD"
+      },
+      "allowed_sources": ["wires", "osint_think_tank", "persian_services", "regime_outlets"],
+      "unknown_conditions": ["only_rumor_grade_sources", "missing_path"],
+      "max_resolution_lag_days": 1,
+      "effective_from_utc": "2026-03-01T00:00:00Z"
+    },
+
+    {
+      "event_id": "leadership.succession_status",
+      "name": "Succession process status",
+      "event_type": "categorical",
+      "category": "leadership",
+      "enabled": true,
+      "horizons_days": [7, 15, 30],
+      "allowed_outcomes": ["NONE", "CRISIS", "INTERIM_APPOINTED", "SUCCESSOR_CONFIRMED", "UNKNOWN"],
+      "description": "Status of succession process following Supreme Leader death or incapacitation.",
+      "auto_resolve": true,
+      "requires_manual_resolution": false,
+      "forecast_source": {
+        "type": "diagnostic_only",
+        "note": "Track for correlation with simulation succession scenarios"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.leadership.succession_status",
+        "rule": "enum_match"
+      },
+      "allowed_sources": ["wires", "osint_think_tank", "persian_services", "regime_outlets"],
+      "effective_from_utc": "2026-03-01T00:00:00Z"
+    },
+
+    {
+      "event_id": "external.us_strikes_confirmed",
+      "name": "US military strikes on Iran confirmed",
+      "category": "external",
+      "event_type": "binary",
+      "enabled": true,
+      "horizons_days": [1, 7, 15, 30],
+      "allowed_outcomes": ["YES", "NO", "UNKNOWN"],
+      "description": "Confirmed US kinetic military action against Iranian targets within horizon.",
+      "auto_resolve": true,
+      "requires_manual_resolution": false,
+      "forecast_source": {
+        "type": "diagnostic_only",
+        "note": "Track for correlation with simulation kinetic scenarios"
+      },
+      "resolution_source": {
+        "type": "compiled_intel",
+        "path": "current_state.military_conflict.us_strikes_confirmed",
+        "rule": "boolean_true"
+      },
+      "allowed_sources": ["wires", "osint_think_tank"],
+      "unknown_conditions": ["only_rumor_grade_sources", "missing_path"],
+      "max_resolution_lag_days": 1,
+      "effective_from_utc": "2026-03-01T00:00:00Z"
+    },
+
+    {
       "event_id": "energy.export_band",
       "name": "Oil export volume band",
       "event_type": "binned_continuous",
