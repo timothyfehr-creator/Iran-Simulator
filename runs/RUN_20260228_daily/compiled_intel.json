@@ -76,6 +76,12 @@
         }
       }
     },
+    "khamenei_status": {
+      "dead": true,
+      "confirmed_at_utc": "2026-02-28T00:00:00Z",
+      "cause": "US kinetic strike / decapitation",
+      "description": "Supreme Leader Khamenei confirmed killed in US strikes"
+    },
     "us_intervention": {
       "current_posture": "KINETIC",
       "kinetic_strikes_occurred": true,

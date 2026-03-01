@@ -652,6 +652,9 @@ class IranCrisisSimulation:
         # Initialize pre-existing US intervention state from intel
         self._init_us_intervention_state(state)
 
+        # Initialize Khamenei death if confirmed in intel
+        self._init_khamenei_death_state(state)
+
         for day in range(1, 91):
             state.day = day
             
@@ -1229,6 +1232,40 @@ class IranCrisisSimulation:
 
         # Log the pre-set state
         state.events.append(f"Day 0: US intervention pre-set to {posture.name} (from intel)")
+
+    def _init_khamenei_death_state(self, state: SimulationState) -> None:
+        """Initialize Khamenei death as a confirmed fact from intel.
+
+        If intel contains current_state.khamenei_status.dead == true,
+        the simulation starts with khamenei_dead=True and immediately
+        resolves the succession outcome (orderly vs chaotic) using the
+        same stochastic logic as _simulate_day.
+        """
+        try:
+            kh_section = self.intel["current_state"]["khamenei_status"]
+        except (KeyError, TypeError):
+            return
+
+        if not kh_section.get("dead", False):
+            return
+
+        state.khamenei_dead = True
+        state.khamenei_death_day = 0
+        state.events.append("Day 0: Khamenei confirmed dead (from intel)")
+
+        # Resolve succession outcome (mirrors _simulate_day logic)
+        orderly_prob = self.sampler.sample("transition", "orderly_succession_given_khamenei_death")
+        if random.random() < orderly_prob:
+            state.regime_state = RegimeState.TRANSITION
+            state.final_outcome = "MANAGED_TRANSITION"
+            state.outcome_day = 1
+            state.events.append("Day 1: Orderly succession process begins")
+        else:
+            state.regime_state = RegimeState.COLLAPSE
+            state.final_outcome = "REGIME_COLLAPSE_CHAOTIC"
+            state.outcome_day = 1
+            state.collapse_day = 1
+            state.events.append("Day 1: Succession crisis triggers regime collapse")
 
     def run_monte_carlo(self, n_runs: int = 10000) -> dict:
         """Run full Monte Carlo simulation"""
