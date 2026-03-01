@@ -1,0 +1,341 @@
+{
+  "run_id": "INGEST_20260301_1943",
+  "generated_at": "2026-03-01T19:43:36.276490+00:00",
+  "status": "FAIL",
+  "summary": {
+    "total_alerts": 34,
+    "critical": 6,
+    "warning": 6,
+    "info": 22,
+    "buckets_missing": 6,
+    "buckets_present": 0
+  },
+  "alerts": [
+    {
+      "alert_type": "MISSING_BUCKET",
+      "severity": "CRITICAL",
+      "message": "No documents in window for bucket: osint_thinktank",
+      "bucket": "osint_thinktank",
+      "details": {
+        "window_hours": 36
+      },
+      "timestamp": "2026-03-01T19:43:36.276311+00:00"
+    },
+    {
+      "alert_type": "MISSING_BUCKET",
+      "severity": "CRITICAL",
+      "message": "No documents in window for bucket: ngo_rights",
+      "bucket": "ngo_rights",
+      "details": {
+        "window_hours": 72
+      },
+      "timestamp": "2026-03-01T19:43:36.276324+00:00"
+    },
+    {
+      "alert_type": "MISSING_BUCKET",
+      "severity": "CRITICAL",
+      "message": "No documents in window for bucket: regime_outlets",
+      "bucket": "regime_outlets",
+      "details": {
+        "window_hours": 72
+      },
+      "timestamp": "2026-03-01T19:43:36.276327+00:00"
+    },
+    {
+      "alert_type": "MISSING_BUCKET",
+      "severity": "CRITICAL",
+      "message": "No documents in window for bucket: persian_services",
+      "bucket": "persian_services",
+      "details": {
+        "window_hours": 72
+      },
+      "timestamp": "2026-03-01T19:43:36.276331+00:00"
+    },
+    {
+      "alert_type": "MISSING_BUCKET",
+      "severity": "CRITICAL",
+      "message": "No documents in window for bucket: internet_monitoring",
+      "bucket": "internet_monitoring",
+      "details": {
+        "window_hours": 72
+      },
+      "timestamp": "2026-03-01T19:43:36.276335+00:00"
+    },
+    {
+      "alert_type": "MISSING_BUCKET",
+      "severity": "CRITICAL",
+      "message": "No documents in window for bucket: econ_fx",
+      "bucket": "econ_fx",
+      "details": {
+        "window_hours": 72
+      },
+      "timestamp": "2026-03-01T19:43:36.276339+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for isw: HTTPSConnectionPool(host='understandingwar.org', port=443): Max retries exceeded with url: / (Caused",
+      "source_id": "isw",
+      "details": {
+        "error": "HTTPSConnectionPool(host='understandingwar.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+      },
+      "timestamp": "2026-03-01T19:43:36.276346+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for ctp: ctp: Web fetch failed for https://www.criticalthreats.org/analysis: HTTPSConnectionPool(host='www.cr",
+      "source_id": "ctp",
+      "details": {
+        "error": "ctp: Web fetch failed for https://www.criticalthreats.org/analysis: HTTPSConnectionPool(host='www.criticalthreats.org', port=443): Max retries exceeded with url: /analysis (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+      },
+      "timestamp": "2026-03-01T19:43:36.276356+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for hrana: playwright is not installed. Run: pip install playwright && playwright install chromium",
+      "source_id": "hrana",
+      "details": {
+        "error": "playwright is not installed. Run: pip install playwright && playwright install chromium"
+      },
+      "timestamp": "2026-03-01T19:43:36.276361+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for ihr: playwright is not installed. Run: pip install playwright && playwright install chromium",
+      "source_id": "ihr",
+      "details": {
+        "error": "playwright is not installed. Run: pip install playwright && playwright install chromium"
+      },
+      "timestamp": "2026-03-01T19:43:36.276365+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for amnesty: No module named 'feedparser'",
+      "source_id": "amnesty",
+      "details": {
+        "error": "No module named 'feedparser'"
+      },
+      "timestamp": "2026-03-01T19:43:36.276369+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for hrw: No module named 'feedparser'",
+      "source_id": "hrw",
+      "details": {
+        "error": "No module named 'feedparser'"
+      },
+      "timestamp": "2026-03-01T19:43:36.276372+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for irna: playwright is not installed. Run: pip install playwright && playwright install chromium",
+      "source_id": "irna",
+      "details": {
+        "error": "playwright is not installed. Run: pip install playwright && playwright install chromium"
+      },
+      "timestamp": "2026-03-01T19:43:36.276376+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for mehr: playwright is not installed. Run: pip install playwright && playwright install chromium",
+      "source_id": "mehr",
+      "details": {
+        "error": "playwright is not installed. Run: pip install playwright && playwright install chromium"
+      },
+      "timestamp": "2026-03-01T19:43:36.276379+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for presstv: No module named 'feedparser'",
+      "source_id": "presstv",
+      "details": {
+        "error": "No module named 'feedparser'"
+      },
+      "timestamp": "2026-03-01T19:43:36.276382+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for iran_intl: iran_intl: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.",
+      "source_id": "iran_intl",
+      "details": {
+        "error": "iran_intl: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+      },
+      "timestamp": "2026-03-01T19:43:36.276386+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for bbc_persian: No module named 'feedparser'",
+      "source_id": "bbc_persian",
+      "details": {
+        "error": "No module named 'feedparser'"
+      },
+      "timestamp": "2026-03-01T19:43:36.276389+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for aljazeera: No module named 'feedparser'",
+      "source_id": "aljazeera",
+      "details": {
+        "error": "No module named 'feedparser'"
+      },
+      "timestamp": "2026-03-01T19:43:36.276392+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for france24: No module named 'feedparser'",
+      "source_id": "france24",
+      "details": {
+        "error": "No module named 'feedparser'"
+      },
+      "timestamp": "2026-03-01T19:43:36.276396+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for netblocks: No module named 'feedparser'",
+      "source_id": "netblocks",
+      "details": {
+        "error": "No module named 'feedparser'"
+      },
+      "timestamp": "2026-03-01T19:43:36.276399+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for ooni: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceed",
+      "source_id": "ooni",
+      "details": {
+        "error": "ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-02-25&until=2026-03-02&limit=200 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+      },
+      "timestamp": "2026-03-01T19:43:36.276403+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for ioda: ioda: IODA API request failed: HTTPSConnectionPool(host='api.ioda.inetintel.cc.gatech.edu', port=443",
+      "source_id": "ioda",
+      "details": {
+        "error": "ioda: IODA API request failed: HTTPSConnectionPool(host='api.ioda.inetintel.cc.gatech.edu', port=443): Max retries exceeded with url: /v2/signals/raw/country/IR?from=1772048536&until=1772394192 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+      },
+      "timestamp": "2026-03-01T19:43:36.276406+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for nobitex: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (",
+      "source_id": "nobitex",
+      "details": {
+        "error": "HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+      },
+      "timestamp": "2026-03-01T19:43:36.276410+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for bonbast: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Ma",
+      "source_id": "bonbast",
+      "details": {
+        "error": "bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+      },
+      "timestamp": "2026-03-01T19:43:36.276413+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for tgju: tgju: Web fetch failed for https://www.tgju.org/: HTTPSConnectionPool(host='www.tgju.org', port=443)",
+      "source_id": "tgju",
+      "details": {
+        "error": "tgju: Web fetch failed for https://www.tgju.org/: HTTPSConnectionPool(host='www.tgju.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+      },
+      "timestamp": "2026-03-01T19:43:36.276416+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for aljazeera_leadership: No module named 'feedparser'",
+      "source_id": "aljazeera_leadership",
+      "details": {
+        "error": "No module named 'feedparser'"
+      },
+      "timestamp": "2026-03-01T19:43:36.276419+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for bbc_leadership: No module named 'feedparser'",
+      "source_id": "bbc_leadership",
+      "details": {
+        "error": "No module named 'feedparser'"
+      },
+      "timestamp": "2026-03-01T19:43:36.276423+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for iran_intl_leadership: iran_intl_leadership: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='ww",
+      "source_id": "iran_intl_leadership",
+      "details": {
+        "error": "iran_intl_leadership: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+      },
+      "timestamp": "2026-03-01T19:43:36.276426+00:00"
+    },
+    {
+      "alert_type": "COVERAGE_DROP",
+      "severity": "WARNING",
+      "message": "Coverage dropped: bucket 'econ_fx' was covered, now missing",
+      "bucket": "econ_fx",
+      "timestamp": "2026-03-01T19:43:36.276437+00:00"
+    },
+    {
+      "alert_type": "COVERAGE_DROP",
+      "severity": "WARNING",
+      "message": "Coverage dropped: bucket 'osint_thinktank' was covered, now missing",
+      "bucket": "osint_thinktank",
+      "timestamp": "2026-03-01T19:43:36.276440+00:00"
+    },
+    {
+      "alert_type": "COVERAGE_DROP",
+      "severity": "WARNING",
+      "message": "Coverage dropped: bucket 'persian_services' was covered, now missing",
+      "bucket": "persian_services",
+      "timestamp": "2026-03-01T19:43:36.276442+00:00"
+    },
+    {
+      "alert_type": "COVERAGE_DROP",
+      "severity": "WARNING",
+      "message": "Coverage dropped: bucket 'regime_outlets' was covered, now missing",
+      "bucket": "regime_outlets",
+      "timestamp": "2026-03-01T19:43:36.276445+00:00"
+    },
+    {
+      "alert_type": "COVERAGE_DROP",
+      "severity": "WARNING",
+      "message": "Coverage dropped: bucket 'internet_monitoring' was covered, now missing",
+      "bucket": "internet_monitoring",
+      "timestamp": "2026-03-01T19:43:36.276447+00:00"
+    },
+    {
+      "alert_type": "COVERAGE_DROP",
+      "severity": "WARNING",
+      "message": "Document count dropped 100% (131 -> 0)",
+      "details": {
+        "prior_total": 131,
+        "current_total": 0,
+        "drop_percent": 100.0
+      },
+      "timestamp": "2026-03-01T19:43:36.276459+00:00"
+    }
+  ]
+}

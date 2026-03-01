@@ -1,0 +1,92 @@
+{
+  "run_id": "INGEST_20260301_1943",
+  "evaluated_at_utc": "2026-03-01T19:43:36.272998+00:00",
+  "reference_time_utc": "2026-03-01T19:43:36.272992+00:00",
+  "buckets_present": [],
+  "buckets_missing": [
+    "osint_thinktank",
+    "ngo_rights",
+    "regime_outlets",
+    "persian_services",
+    "internet_monitoring",
+    "econ_fx"
+  ],
+  "counts_by_bucket": {
+    "osint_thinktank": 0,
+    "ngo_rights": 0,
+    "regime_outlets": 0,
+    "persian_services": 0,
+    "internet_monitoring": 0,
+    "econ_fx": 0
+  },
+  "bucket_details": {
+    "osint_thinktank": {
+      "bucket": "osint_thinktank",
+      "window_hours": 36,
+      "docs_in_window": 0,
+      "oldest_doc_age_hours": null,
+      "newest_doc_age_hours": null,
+      "sources_contributing": [],
+      "covered": false
+    },
+    "ngo_rights": {
+      "bucket": "ngo_rights",
+      "window_hours": 72,
+      "docs_in_window": 0,
+      "oldest_doc_age_hours": null,
+      "newest_doc_age_hours": null,
+      "sources_contributing": [],
+      "covered": false
+    },
+    "regime_outlets": {
+      "bucket": "regime_outlets",
+      "window_hours": 72,
+      "docs_in_window": 0,
+      "oldest_doc_age_hours": null,
+      "newest_doc_age_hours": null,
+      "sources_contributing": [],
+      "covered": false
+    },
+    "persian_services": {
+      "bucket": "persian_services",
+      "window_hours": 72,
+      "docs_in_window": 0,
+      "oldest_doc_age_hours": null,
+      "newest_doc_age_hours": null,
+      "sources_contributing": [],
+      "covered": false
+    },
+    "internet_monitoring": {
+      "bucket": "internet_monitoring",
+      "window_hours": 72,
+      "docs_in_window": 0,
+      "oldest_doc_age_hours": null,
+      "newest_doc_age_hours": null,
+      "sources_contributing": [],
+      "covered": false
+    },
+    "econ_fx": {
+      "bucket": "econ_fx",
+      "window_hours": 72,
+      "docs_in_window": 0,
+      "oldest_doc_age_hours": null,
+      "newest_doc_age_hours": null,
+      "sources_contributing": [],
+      "covered": false
+    }
+  },
+  "total_docs": 0,
+  "status": "FAIL",
+  "status_reason": "Missing 4 critical buckets: osint_thinktank, ngo_rights, regime_outlets, persian_services",
+  "health_summary": {
+    "total_sources": 22,
+    "status_counts": {
+      "OK": 22,
+      "DEGRADED": 0,
+      "DOWN": 0
+    },
+    "degraded_sources": [],
+    "down_sources": [],
+    "overall_status": "OK"
+  }
+}

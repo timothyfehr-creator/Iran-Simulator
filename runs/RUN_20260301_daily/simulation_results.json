@@ -1,0 +1,149 @@
+{
+  "n_runs": 10000,
+  "outcome_distribution": {
+    "MANAGED_TRANSITION": {
+      "count": 6866,
+      "probability": 0.6866,
+      "ci_low": 0.6774378477616112,
+      "ci_high": 0.6956188387816862
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "count": 3134,
+      "probability": 0.3134,
+      "ci_low": 0.30438116121831366,
+      "ci_high": 0.32256215223838874
+    }
+  },
+  "outcome_timing": {
+    "MANAGED_TRANSITION": {
+      "mean_day": 1,
+      "median_day": 1.0,
+      "min_day": 1,
+      "max_day": 1
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "mean_day": 1,
+      "median_day": 1.0,
+      "min_day": 1,
+      "max_day": 1
+    }
+  },
+  "key_event_rates": {
+    "us_soft_intervention": 0.0,
+    "us_hard_intervention": 1.0,
+    "security_force_defection": 0.0,
+    "khamenei_death": 1.0,
+    "ethnic_uprising": 0.0
+  },
+  "regional_cascade_rates": {
+    "iraq_crisis": 0.0,
+    "syria_crisis": 0.0,
+    "israel_strikes": 0.0,
+    "iraq_proxy_activation": 0.0,
+    "syria_proxy_activation": 0.0,
+    "gulf_realignment": 0.0,
+    "russia_support": 0.0
+  },
+  "economic_analysis": {
+    "stress_level": "critical",
+    "rial_rate_used": 1657000.0,
+    "inflation_used": 42.0,
+    "modifiers_applied": {
+      "protest_escalation": 1.2,
+      "elite_fracture": 1.3,
+      "security_defection": 1.15
+    }
+  },
+  "sample_trajectories": [
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Orderly succession process begins"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Orderly succession process begins"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Orderly succession process begins"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Orderly succession process begins"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Orderly succession process begins"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Orderly succession process begins"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Orderly succession process begins"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Orderly succession process begins"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Orderly succession process begins"
+      ]
+    },
+    {
+      "outcome": "REGIME_COLLAPSE_CHAOTIC",
+      "outcome_day": 1,
+      "events": [
+        "Day 0: US intervention pre-set to KINETIC (from intel)",
+        "Day 0: Khamenei confirmed dead (from intel)",
+        "Day 1: Succession crisis triggers regime collapse"
+      ]
+    }
+  ]
+}

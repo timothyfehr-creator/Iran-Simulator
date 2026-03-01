@@ -1,0 +1,118 @@
+{
+  "comparison": {
+    "previous_run": "RUN_20260228_daily",
+    "current_run": "RUN_20260301_daily",
+    "generated_at": "2026-03-01T19:53:48.366363+00:00"
+  },
+  "outcome_changes": {
+    "MANAGED_TRANSITION": {
+      "previous": 1.45,
+      "current": 68.66,
+      "delta": 67.21,
+      "direction": "INCREASED",
+      "ci_overlap": false,
+      "significant": true
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "previous": 0.77,
+      "current": 31.34,
+      "delta": 30.57,
+      "direction": "INCREASED",
+      "ci_overlap": false,
+      "significant": true
+    }
+  },
+  "event_rate_changes": {
+    "us_soft_intervention": {
+      "previous": 73.52,
+      "current": 0.0,
+      "delta": -73.52,
+      "direction": "DECREASED",
+      "significance": "HIGH"
+    },
+    "us_hard_intervention": {
+      "previous": 5.45,
+      "current": 100.0,
+      "delta": 94.55,
+      "direction": "INCREASED",
+      "significance": "HIGH"
+    },
+    "security_force_defection": {
+      "previous": 0.0,
+      "current": 0.0,
+      "delta": 0.0,
+      "direction": "UNCHANGED",
+      "significance": "LOW"
+    },
+    "khamenei_death": {
+      "previous": 2.22,
+      "current": 100.0,
+      "delta": 97.78,
+      "direction": "INCREASED",
+      "significance": "HIGH"
+    },
+    "ethnic_uprising": {
+      "previous": 0.0,
+      "current": 0.0,
+      "delta": 0.0,
+      "direction": "UNCHANGED",
+      "significance": "LOW"
+    }
+  },
+  "claim_winner_changes": [],
+  "contested_claims": [],
+  "coverage_changes": {
+    "total_docs": {
+      "previous": 131,
+      "current": 0,
+      "delta": -131
+    },
+    "farsi_docs": {
+      "previous": 0,
+      "current": 0,
+      "delta": 0
+    },
+    "bucket_count": {
+      "previous": 0,
+      "current": 0,
+      "delta": 0
+    },
+    "status_change": "WARN -> FAIL"
+  },
+  "coverage_deltas": {
+    "buckets_missing_now": [
+      "regime_outlets",
+      "internet_monitoring",
+      "ngo_rights",
+      "econ_fx",
+      "persian_services",
+      "osint_thinktank"
+    ],
+    "buckets_missing_prev": [
+      "ngo_rights"
+    ],
+    "buckets_recovered": [],
+    "buckets_lost": [
+      "regime_outlets",
+      "internet_monitoring",
+      "econ_fx",
+      "persian_services",
+      "osint_thinktank"
+    ],
+    "status_current": "FAIL",
+    "status_previous": "WARN"
+  },
+  "health_deltas": {
+    "overall_status": "OK",
+    "transitions": [],
+    "sources_degraded": [],
+    "sources_down": []
+  },
+  "summary": {
+    "major_changes": 5,
+    "minor_changes": 0,
+    "overall_assessment": "Increased instability signals",
+    "contested_claim_count": 0,
+    "health_transitions": 0
+  }
+}

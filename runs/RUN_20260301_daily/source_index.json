@@ -1,0 +1,227 @@
+[
+  {
+    "source_id": "SRC_ISW",
+    "organization": "Institute for the Study of War",
+    "default_access_grade": "B",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "osint_thinktank",
+    "notes": "osint_thinktank - web"
+  },
+  {
+    "source_id": "SRC_CTP",
+    "organization": "Critical Threats Project",
+    "default_access_grade": "B",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "osint_thinktank",
+    "notes": "osint_thinktank - web"
+  },
+  {
+    "source_id": "SRC_HRANA",
+    "organization": "Human Rights Activists News Agency",
+    "default_access_grade": "B",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "ngo_rights",
+    "notes": "ngo_rights - web"
+  },
+  {
+    "source_id": "SRC_IHR",
+    "organization": "Iran Human Rights",
+    "default_access_grade": "B",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "ngo_rights",
+    "notes": "ngo_rights - web"
+  },
+  {
+    "source_id": "SRC_AMNESTY",
+    "organization": "Amnesty International",
+    "default_access_grade": "A",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "ngo_rights",
+    "notes": "ngo_rights - rss"
+  },
+  {
+    "source_id": "SRC_HRW",
+    "organization": "Human Rights Watch",
+    "default_access_grade": "A",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "ngo_rights",
+    "notes": "ngo_rights - rss"
+  },
+  {
+    "source_id": "SRC_IRNA",
+    "organization": "Islamic Republic News Agency",
+    "default_access_grade": "C",
+    "default_bias_grade": 4,
+    "language": "en",
+    "bucket": "regime_outlets",
+    "notes": "regime_outlets - web"
+  },
+  {
+    "source_id": "SRC_TASNIM",
+    "organization": "Tasnim News Agency",
+    "default_access_grade": "C",
+    "default_bias_grade": 4,
+    "language": "en",
+    "bucket": "regime_outlets",
+    "notes": "regime_outlets - web"
+  },
+  {
+    "source_id": "SRC_MEHR",
+    "organization": "Mehr News Agency",
+    "default_access_grade": "C",
+    "default_bias_grade": 4,
+    "language": "en",
+    "bucket": "regime_outlets",
+    "notes": "regime_outlets - web"
+  },
+  {
+    "source_id": "SRC_FARS",
+    "organization": "Fars News Agency",
+    "default_access_grade": "C",
+    "default_bias_grade": 5,
+    "language": "en",
+    "bucket": "regime_outlets",
+    "notes": "regime_outlets - web"
+  },
+  {
+    "source_id": "SRC_PRESSTV",
+    "organization": "Press TV",
+    "default_access_grade": "C",
+    "default_bias_grade": 5,
+    "language": "en",
+    "bucket": "regime_outlets",
+    "notes": "regime_outlets - rss"
+  },
+  {
+    "source_id": "SRC_IRAN_INTL",
+    "organization": "Iran International",
+    "default_access_grade": "B",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "persian_services",
+    "notes": "persian_services - web"
+  },
+  {
+    "source_id": "SRC_RADIO_FARDA",
+    "organization": "Radio Farda",
+    "default_access_grade": "B",
+    "default_bias_grade": 2,
+    "language": "fa",
+    "bucket": "persian_services",
+    "notes": "persian_services - rss"
+  },
+  {
+    "source_id": "SRC_BBC_PERSIAN",
+    "organization": "BBC Persian",
+    "default_access_grade": "A",
+    "default_bias_grade": 2,
+    "language": "fa",
+    "bucket": "persian_services",
+    "notes": "persian_services - rss"
+  },
+  {
+    "source_id": "SRC_ALJAZEERA",
+    "organization": "Al Jazeera",
+    "default_access_grade": "A",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "wires",
+    "notes": "wires - rss"
+  },
+  {
+    "source_id": "SRC_FRANCE24",
+    "organization": "France 24",
+    "default_access_grade": "A",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "wires",
+    "notes": "wires - rss"
+  },
+  {
+    "source_id": "SRC_NETBLOCKS",
+    "organization": "NetBlocks",
+    "default_access_grade": "A",
+    "default_bias_grade": 1,
+    "language": "en",
+    "bucket": "internet_monitoring",
+    "notes": "internet_monitoring - rss"
+  },
+  {
+    "source_id": "SRC_OONI",
+    "organization": "OONI (Open Observatory of Network Interference)",
+    "default_access_grade": "A",
+    "default_bias_grade": 1,
+    "language": "en",
+    "bucket": "internet_monitoring",
+    "notes": "internet_monitoring - api"
+  },
+  {
+    "source_id": "SRC_IODA",
+    "organization": "IODA Internet Observatory",
+    "default_access_grade": "A",
+    "default_bias_grade": 1,
+    "language": "en",
+    "bucket": "internet_monitoring",
+    "notes": "internet_monitoring - api"
+  },
+  {
+    "source_id": "SRC_NOBITEX",
+    "organization": "Nobitex (USDT/IRT)",
+    "default_access_grade": "B",
+    "default_bias_grade": 1,
+    "language": "en",
+    "bucket": "econ_fx",
+    "notes": "econ_fx - api"
+  },
+  {
+    "source_id": "SRC_BONBAST",
+    "organization": "Bonbast (Rial Rates)",
+    "default_access_grade": "B",
+    "default_bias_grade": 1,
+    "language": "en",
+    "bucket": "econ_fx",
+    "notes": "econ_fx - api"
+  },
+  {
+    "source_id": "SRC_TGJU",
+    "organization": "TGJU (Tehran Gold & Jewelry)",
+    "default_access_grade": "B",
+    "default_bias_grade": 1,
+    "language": "fa",
+    "bucket": "econ_fx",
+    "notes": "econ_fx - web"
+  },
+  {
+    "source_id": "SRC_ALJAZEERA_LEADERSHIP",
+    "organization": "Al Jazeera (Leadership Watch)",
+    "default_access_grade": "A",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "leadership_watch",
+    "notes": "leadership_watch - rss"
+  },
+  {
+    "source_id": "SRC_BBC_LEADERSHIP",
+    "organization": "BBC News (Leadership Watch)",
+    "default_access_grade": "A",
+    "default_bias_grade": 1,
+    "language": "en",
+    "bucket": "leadership_watch",
+    "notes": "leadership_watch - rss"
+  },
+  {
+    "source_id": "SRC_IRAN_INTL_LEADERSHIP",
+    "organization": "Iran International (Leadership Watch)",
+    "default_access_grade": "B",
+    "default_bias_grade": 2,
+    "language": "en",
+    "bucket": "leadership_watch",
+    "notes": "leadership_watch - web"
+  }
+]

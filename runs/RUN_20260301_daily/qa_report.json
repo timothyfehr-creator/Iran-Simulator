@@ -1,0 +1,7 @@
+{
+  "status": "FAIL",
+  "errors": [
+    "claims_ledger.claims missing or empty"
+  ],
+  "warnings": []
+}

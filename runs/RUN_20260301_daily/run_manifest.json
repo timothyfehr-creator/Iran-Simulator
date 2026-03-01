@@ -1,0 +1,31 @@
+{
+  "git_commit": "d098ee64c90fc20e0afd2584890379b9d43aeb1d",
+  "data_cutoff_utc": "2026-03-01T23:59:59+00:00",
+  "ingest_since_utc": "2026-02-25T19:43:42.912067+00:00",
+  "seed": 42,
+  "deterministic_tiebreaks": [
+    "source_grade",
+    "triangulated",
+    "confidence",
+    "latest_published_at",
+    "claim_id"
+  ],
+  "hashes": {
+    "evidence_docs.jsonl": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "claims_deep_research.jsonl": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiled_intel.json": "sha256:5d1fb76089b3968620d594963a0fd5cb4b884e220563c2314c746ab0b1e2787d",
+    "claims.jsonl": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "coverage_status": "FAIL",
+  "run_reliable": false,
+  "generated_at_utc": "2026-03-01T19:43:42.925617+00:00",
+  "run_id": "RUN_20260301_daily",
+  "unreliable_reason": "Coverage FAIL: missing buckets ['osint_thinktank', 'ngo_rights', 'regime_outlets', 'persian_services', 'internet_monitoring', 'econ_fx']; Gate SKIP_SIMULATION: failed [qa, econ_enrichment, coverage]",
+  "as_of_utc": "2026-03-01T19:43:42.912218+00:00",
+  "qa_status": "FAIL",
+  "econ_enrichment_status": "FAIL",
+  "econ_priors_status": "OK",
+  "claims_status": "OK",
+  "claims_count": 0,
+  "gate_decision": "SKIP_SIMULATION"
+}
