@@ -5278,3 +5278,394 @@ Failed after 3 attempts for bonbast: bonbast: Bonbast main page request failed: 
 2026-02-28 15:25:55,244 - INFO -   Output directory: runs/RUN_20260228_daily
 2026-02-28 15:25:55,244 - INFO - 
 --- Daily Summary ---
+2026-03-01 19:42:16,431 - INFO - No cutoff specified, using end-of-day: 2026-03-01T23:59:59+00:00
+2026-03-01 19:42:16,431 - INFO - Auto-ingest mode: fetching from all sources...
+2026-03-01 19:42:16,460 - INFO - Fetching from Institute for the Study of War...
+2026-03-01 19:42:17,680 - WARNING - Retry 1/3 for isw in 2s: HTTPSConnectionPool(host='understandingwar.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:42:19,830 - WARNING - Retry 2/3 for isw in 4s: HTTPSConnectionPool(host='understandingwar.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:42:23,840 - ERROR - Failed after 3 attempts for isw: HTTPSConnectionPool(host='understandingwar.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:42:23,840 - ERROR -   Error fetching isw: HTTPSConnectionPool(host='understandingwar.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Iran-Simulator/src/ingest/fetch_isw.py", line 137, in fetch
+    raise Exception(error)
+Exception: HTTPSConnectionPool(host='understandingwar.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:42:23,843 - INFO - Fetching from Critical Threats Project...
+2026-03-01 19:42:23,851 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /analysis
+2026-03-01 19:42:23,854 - WARNING - Retry 1/3 for ctp in 2s: ctp: Web fetch failed for https://www.criticalthreats.org/analysis: HTTPSConnectionPool(host='www.criticalthreats.org', port=443): Max retries exceeded with url: /analysis (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:42:25,861 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /analysis
+2026-03-01 19:42:25,864 - WARNING - Retry 2/3 for ctp in 4s: ctp: Web fetch failed for https://www.criticalthreats.org/analysis: HTTPSConnectionPool(host='www.criticalthreats.org', port=443): Max retries exceeded with url: /analysis (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:42:29,872 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /analysis
+2026-03-01 19:42:29,875 - ERROR - Failed after 3 attempts for ctp: ctp: Web fetch failed for https://www.criticalthreats.org/analysis: HTTPSConnectionPool(host='www.criticalthreats.org', port=443): Max retries exceeded with url: /analysis (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:42:29,875 - WARNING -   Failed: ctp: Web fetch failed for https://www.criticalthreats.org/analysis: HTTPSConnectionPool(host='www.criticalthreats.org', port=443): Max retries exceeded with url: /analysis (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:42:29,875 - INFO - Fetching from Human Rights Activists News Agency...
+2026-03-01 19:42:29,916 - WARNING - Retry 1/3 for hrana in 2s: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:31,918 - WARNING - Retry 2/3 for hrana in 4s: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:35,920 - ERROR - Failed after 3 attempts for hrana: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:35,920 - ERROR -   Error fetching hrana: playwright is not installed. Run: pip install playwright && playwright install chromium
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Iran-Simulator/src/ingest/fetch_playwright.py", line 163, in fetch
+    raise Exception(error)
+Exception: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:35,922 - INFO - Fetching from Iran Human Rights...
+2026-03-01 19:42:35,923 - WARNING - Retry 1/3 for ihr in 2s: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:37,925 - WARNING - Retry 2/3 for ihr in 4s: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:41,927 - ERROR - Failed after 3 attempts for ihr: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:41,928 - ERROR -   Error fetching ihr: playwright is not installed. Run: pip install playwright && playwright install chromium
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Iran-Simulator/src/ingest/fetch_playwright.py", line 163, in fetch
+    raise Exception(error)
+Exception: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:41,928 - INFO - Fetching from Amnesty International...
+2026-03-01 19:42:41,930 - ERROR -   Error fetching amnesty: No module named 'feedparser'
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 237, in fetch_all
+    module = importlib.import_module(fetcher_module)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/user/Iran-Simulator/src/ingest/fetch_rss.py", line 3, in <module>
+    import feedparser
+ModuleNotFoundError: No module named 'feedparser'
+2026-03-01 19:42:41,962 - INFO - Fetching from Human Rights Watch...
+2026-03-01 19:42:41,964 - ERROR -   Error fetching hrw: No module named 'feedparser'
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 237, in fetch_all
+    module = importlib.import_module(fetcher_module)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/user/Iran-Simulator/src/ingest/fetch_rss.py", line 3, in <module>
+    import feedparser
+ModuleNotFoundError: No module named 'feedparser'
+2026-03-01 19:42:41,964 - INFO - Fetching from Islamic Republic News Agency...
+2026-03-01 19:42:41,965 - WARNING - Retry 1/3 for irna in 2s: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:43,968 - WARNING - Retry 2/3 for irna in 4s: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:47,970 - ERROR - Failed after 3 attempts for irna: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:47,970 - ERROR -   Error fetching irna: playwright is not installed. Run: pip install playwright && playwright install chromium
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Iran-Simulator/src/ingest/fetch_playwright.py", line 163, in fetch
+    raise Exception(error)
+Exception: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:47,971 - INFO - Fetching from Mehr News Agency...
+2026-03-01 19:42:47,972 - WARNING - Retry 1/3 for mehr in 2s: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:49,974 - WARNING - Retry 2/3 for mehr in 4s: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:53,976 - ERROR - Failed after 3 attempts for mehr: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:53,977 - ERROR -   Error fetching mehr: playwright is not installed. Run: pip install playwright && playwright install chromium
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Iran-Simulator/src/ingest/fetch_playwright.py", line 163, in fetch
+    raise Exception(error)
+Exception: playwright is not installed. Run: pip install playwright && playwright install chromium
+2026-03-01 19:42:53,977 - INFO - Fetching from Press TV...
+2026-03-01 19:42:53,979 - ERROR -   Error fetching presstv: No module named 'feedparser'
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 237, in fetch_all
+    module = importlib.import_module(fetcher_module)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/user/Iran-Simulator/src/ingest/fetch_rss.py", line 3, in <module>
+    import feedparser
+ModuleNotFoundError: No module named 'feedparser'
+2026-03-01 19:42:53,980 - INFO - Fetching from Iran International...
+2026-03-01 19:42:53,986 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /en
+2026-03-01 19:42:53,989 - WARNING - Retry 1/3 for iran_intl in 2s: iran_intl: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:42:55,997 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /en
+2026-03-01 19:42:56,000 - WARNING - Retry 2/3 for iran_intl in 4s: iran_intl: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:00,009 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /en
+2026-03-01 19:43:00,012 - ERROR - Failed after 3 attempts for iran_intl: iran_intl: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:00,012 - WARNING -   Failed: iran_intl: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:00,012 - INFO - Fetching from BBC Persian...
+2026-03-01 19:43:00,014 - ERROR -   Error fetching bbc_persian: No module named 'feedparser'
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 237, in fetch_all
+    module = importlib.import_module(fetcher_module)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/user/Iran-Simulator/src/ingest/fetch_rss.py", line 3, in <module>
+    import feedparser
+ModuleNotFoundError: No module named 'feedparser'
+2026-03-01 19:43:00,015 - INFO - Fetching from Al Jazeera...
+2026-03-01 19:43:00,017 - ERROR -   Error fetching aljazeera: No module named 'feedparser'
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 237, in fetch_all
+    module = importlib.import_module(fetcher_module)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/user/Iran-Simulator/src/ingest/fetch_rss.py", line 3, in <module>
+    import feedparser
+ModuleNotFoundError: No module named 'feedparser'
+2026-03-01 19:43:00,018 - INFO - Fetching from France 24...
+2026-03-01 19:43:00,020 - ERROR -   Error fetching france24: No module named 'feedparser'
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 237, in fetch_all
+    module = importlib.import_module(fetcher_module)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/user/Iran-Simulator/src/ingest/fetch_rss.py", line 3, in <module>
+    import feedparser
+ModuleNotFoundError: No module named 'feedparser'
+2026-03-01 19:43:00,021 - INFO - Fetching from NetBlocks...
+2026-03-01 19:43:00,022 - ERROR -   Error fetching netblocks: No module named 'feedparser'
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 237, in fetch_all
+    module = importlib.import_module(fetcher_module)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/user/Iran-Simulator/src/ingest/fetch_rss.py", line 3, in <module>
+    import feedparser
+ModuleNotFoundError: No module named 'feedparser'
+2026-03-01 19:43:00,023 - INFO - Fetching from OONI (Open Observatory of Network Interference)...
+2026-03-01 19:43:00,031 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /api/v1/measurements?probe_cc=IR&since=2026-02-25&until=2026-03-02&limit=200
+2026-03-01 19:43:00,034 - WARNING - Retry 1/3 for ooni in 2s: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-02-25&until=2026-03-02&limit=200 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:02,043 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /api/v1/measurements?probe_cc=IR&since=2026-02-25&until=2026-03-02&limit=200
+2026-03-01 19:43:02,046 - WARNING - Retry 2/3 for ooni in 4s: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-02-25&until=2026-03-02&limit=200 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:06,053 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /api/v1/measurements?probe_cc=IR&since=2026-02-25&until=2026-03-02&limit=200
+2026-03-01 19:43:06,056 - ERROR - Failed after 3 attempts for ooni: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-02-25&until=2026-03-02&limit=200 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:06,057 - ERROR -   Error fetching ooni: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-02-25&until=2026-03-02&limit=200 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Iran-Simulator/src/ingest/fetch_ooni.py", line 136, in fetch
+    raise Exception(error)
+Exception: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-02-25&until=2026-03-02&limit=200 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:06,058 - INFO - Fetching from IODA Internet Observatory...
+2026-03-01 19:43:06,066 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /v2/signals/raw/country/IR?from=1772048536&until=1772394186
+2026-03-01 19:43:06,069 - WARNING - Retry 1/3 for ioda in 2s: ioda: IODA API request failed: HTTPSConnectionPool(host='api.ioda.inetintel.cc.gatech.edu', port=443): Max retries exceeded with url: /v2/signals/raw/country/IR?from=1772048536&until=1772394186 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:08,077 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /v2/signals/raw/country/IR?from=1772048536&until=1772394188
+2026-03-01 19:43:08,080 - WARNING - Retry 2/3 for ioda in 4s: ioda: IODA API request failed: HTTPSConnectionPool(host='api.ioda.inetintel.cc.gatech.edu', port=443): Max retries exceeded with url: /v2/signals/raw/country/IR?from=1772048536&until=1772394188 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:12,088 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /v2/signals/raw/country/IR?from=1772048536&until=1772394192
+2026-03-01 19:43:12,091 - ERROR - Failed after 3 attempts for ioda: ioda: IODA API request failed: HTTPSConnectionPool(host='api.ioda.inetintel.cc.gatech.edu', port=443): Max retries exceeded with url: /v2/signals/raw/country/IR?from=1772048536&until=1772394192 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:12,091 - ERROR -   Error fetching ioda: ioda: IODA API request failed: HTTPSConnectionPool(host='api.ioda.inetintel.cc.gatech.edu', port=443): Max retries exceeded with url: /v2/signals/raw/country/IR?from=1772048536&until=1772394192 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Iran-Simulator/src/ingest/fetch_ioda.py", line 189, in fetch
+    raise Exception(error)
+Exception: ioda: IODA API request failed: HTTPSConnectionPool(host='api.ioda.inetintel.cc.gatech.edu', port=443): Max retries exceeded with url: /v2/signals/raw/country/IR?from=1772048536&until=1772394192 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:12,092 - INFO - Fetching from Nobitex (USDT/IRT)...
+2026-03-01 19:43:12,101 - WARNING - Retry 1/3 for nobitex in 2s: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:14,108 - WARNING - Retry 2/3 for nobitex in 4s: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:18,117 - ERROR - Failed after 3 attempts for nobitex: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:18,117 - ERROR -   Error fetching nobitex: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Iran-Simulator/src/ingest/fetch_nobitex.py", line 103, in fetch
+    raise Exception(error)
+Exception: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:18,119 - INFO - Fetching from Bonbast (Rial Rates)...
+2026-03-01 19:43:18,127 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /
+2026-03-01 19:43:18,130 - WARNING - Retry 1/3 for bonbast in 2s: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:20,139 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /
+2026-03-01 19:43:20,142 - WARNING - Retry 2/3 for bonbast in 4s: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:24,154 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /
+2026-03-01 19:43:24,157 - ERROR - Failed after 3 attempts for bonbast: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:24,158 - ERROR -   Error fetching bonbast: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Iran-Simulator/src/ingest/fetch_bonbast.py", line 190, in fetch
+    raise Exception(error)
+Exception: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:24,159 - INFO - Fetching from TGJU (Tehran Gold & Jewelry)...
+2026-03-01 19:43:24,164 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /
+2026-03-01 19:43:24,167 - WARNING - Retry 1/3 for tgju in 2s: tgju: Web fetch failed for https://www.tgju.org/: HTTPSConnectionPool(host='www.tgju.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:26,174 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /
+2026-03-01 19:43:26,177 - WARNING - Retry 2/3 for tgju in 4s: tgju: Web fetch failed for https://www.tgju.org/: HTTPSConnectionPool(host='www.tgju.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:30,184 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /
+2026-03-01 19:43:30,187 - ERROR - Failed after 3 attempts for tgju: tgju: Web fetch failed for https://www.tgju.org/: HTTPSConnectionPool(host='www.tgju.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:30,187 - WARNING -   Failed: tgju: Web fetch failed for https://www.tgju.org/: HTTPSConnectionPool(host='www.tgju.org', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:30,187 - INFO - Fetching from Al Jazeera (Leadership Watch)...
+2026-03-01 19:43:30,189 - ERROR -   Error fetching aljazeera_leadership: No module named 'feedparser'
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 237, in fetch_all
+    module = importlib.import_module(fetcher_module)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/user/Iran-Simulator/src/ingest/fetch_rss.py", line 3, in <module>
+    import feedparser
+ModuleNotFoundError: No module named 'feedparser'
+2026-03-01 19:43:30,190 - INFO - Fetching from BBC News (Leadership Watch)...
+2026-03-01 19:43:30,192 - ERROR -   Error fetching bbc_leadership: No module named 'feedparser'
+Traceback (most recent call last):
+  File "/home/user/Iran-Simulator/src/ingest/coordinator.py", line 237, in fetch_all
+    module = importlib.import_module(fetcher_module)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/user/Iran-Simulator/src/ingest/fetch_rss.py", line 3, in <module>
+    import feedparser
+ModuleNotFoundError: No module named 'feedparser'
+2026-03-01 19:43:30,193 - INFO - Fetching from Iran International (Leadership Watch)...
+2026-03-01 19:43:30,198 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /en
+2026-03-01 19:43:30,201 - WARNING - Retry 1/3 for iran_intl_leadership in 2s: iran_intl_leadership: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:32,208 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /en
+2026-03-01 19:43:32,210 - WARNING - Retry 2/3 for iran_intl_leadership in 4s: iran_intl_leadership: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:36,218 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'OSError('Tunnel connection failed: 403 Forbidden')': /en
+2026-03-01 19:43:36,221 - ERROR - Failed after 3 attempts for iran_intl_leadership: iran_intl_leadership: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:36,221 - WARNING -   Failed: iran_intl_leadership: Web fetch failed for https://www.iranintl.com/en: HTTPSConnectionPool(host='www.iranintl.com', port=443): Max retries exceeded with url: /en (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:36,249 - INFO - Total: 0 unique docs from 0 sources
+2026-03-01 19:43:36,249 - INFO - Fetch summary: 0 succeeded, 22 failed, 5 skipped
+2026-03-01 19:43:36,249 - INFO - Wrote evidence_docs.jsonl: ingest/auto_fetched/evidence_docs.jsonl
+2026-03-01 19:43:36,274 - INFO - Coverage: FAIL - Missing 4 critical buckets: osint_thinktank, ngo_rights, regime_outlets, persian_services
+2026-03-01 19:43:36,274 - INFO - Source health: OK
+2026-03-01 19:43:36,278 - INFO - Alerts: {'total_alerts': 34, 'critical': 6, 'warning': 6, 'info': 22, 'buckets_missing': 6, 'buckets_present': 0}
+2026-03-01 19:43:36,278 - WARNING - No OPENAI_API_KEY found, skipping claim extraction
+2026-03-01 19:43:36,280 - INFO - ✓ Auto-generated bundle: ingest/auto_fetched/bundle_auto_ingest.json
+2026-03-01 19:43:36,280 - INFO - Starting daily update: RUN_20260301_daily
+2026-03-01 19:43:36,280 - INFO -   Bundle: ingest/auto_fetched/bundle_auto_ingest.json
+2026-03-01 19:43:36,280 - INFO -   Cutoff: 2026-03-01T23:59:59+00:00
+2026-03-01 19:43:36,280 - INFO -   Output: runs/RUN_20260301_daily
+2026-03-01 19:43:36,280 - INFO - 
+=== STAGE 1: Import Bundle ===
+2026-03-01 19:43:36,280 - INFO - Running Import Bundle: /usr/local/bin/python -m src.pipeline.import_deep_research_bundle_v3 --bundle ingest/auto_fetched/bundle_auto_ingest.json --out_dir runs/RUN_20260301_daily
+2026-03-01 19:43:36,443 - INFO - Validating 0 evidence docs...
+  - Kept 0 docs, dropped 0 docs
+Validating 0 candidate claims...
+  - Checking path registry and normalizing enums...
+  - Kept 0 claims, dropped 0 claims
+Checking quality gates...
+  - Quality gates status: FAIL
+  - FAILURES:
+    ✗ Insufficient evidence: 0 docs (minimum: 40)
+    ✗ Insufficient Farsi docs: 0 (minimum: 10)
+  - WARNINGS:
+    ⚠ Limited source diversity: 0 buckets (recommended: 3+)
+Checking rolling-window coverage...
+  - Window coverage status: FAIL
+    ⚠ CRITICAL: No docs in osint_thinktank bucket (window: 36h)
+    ⚠ CRITICAL: No docs in ngo_rights bucket (window: 72h)
+    ⚠ CRITICAL: No docs in regime_outlets bucket (window: 72h)
+    ⚠ CRITICAL: No docs in persian_services bucket (window: 72h)
+    ⚠ No docs in internet_monitoring bucket (window: 72h)
+    ⚠ No docs in econ_fx bucket (window: 72h)
+  - Buckets missing: osint_thinktank, ngo_rights, regime_outlets, persian_services, internet_monitoring, econ_fx
+Wrote 0 evidence docs to runs/RUN_20260301_daily/evidence_docs.jsonl
+Wrote 0 claims to runs/RUN_20260301_daily/claims_deep_research.jsonl
+Wrote source index to runs/RUN_20260301_daily/source_index.json
+Wrote run manifest to runs/RUN_20260301_daily/run_manifest.json
+Wrote import warnings to runs/RUN_20260301_daily/import_warnings.json
+Wrote coverage report to runs/RUN_20260301_daily/coverage_report.json
+
+✓ Import successful. Output in runs/RUN_20260301_daily
+  ✗ COVERAGE GATES FAILED - see coverage_report.json
+2026-03-01 19:43:36,444 - INFO - [OK] Import Bundle completed successfully
+2026-03-01 19:43:36,446 - INFO - Copied coverage_report.json to run directory
+2026-03-01 19:43:36,450 - INFO - Copied alerts.json to run directory
+2026-03-01 19:43:36,450 - INFO - 
+=== STAGE 2: Compile Intel ===
+2026-03-01 19:43:36,450 - INFO - Running Compile Intel: /usr/local/bin/python -m src.pipeline.compile_intel_v2 --claims runs/RUN_20260301_daily/claims_deep_research.jsonl --template data/iran_crisis_intel.json --outdir runs/RUN_20260301_daily
+2026-03-01 19:43:36,558 - INFO - QA warnings present: claims_ledger.claims missing or empty
+Wrote: runs/RUN_20260301_daily/compiled_intel.json
+Wrote: runs/RUN_20260301_daily/merge_report.json
+Wrote: runs/RUN_20260301_daily/qa_report.json
+2026-03-01 19:43:36,558 - INFO - [OK] Compile Intel completed successfully
+2026-03-01 19:43:36,559 - INFO - 
+=== STAGE 2.5: Economic Enrichment ===
+2026-03-01 19:43:36,559 - INFO - Running Economic Enrichment: /usr/local/bin/python scripts/enrich_economic_data.py --intel runs/RUN_20260301_daily/compiled_intel.json --no-backup
+2026-03-01 19:43:42,907 - INFO - Fetching economic data from Bonbast...
+WARNING: Bonbast fetch failed: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+WARNING: No economic data available, skipping enrichment
+2026-03-01 19:43:42,908 - WARNING - Retry 1/3 for bonbast in 2s: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+Retry 2/3 for bonbast in 4s: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+Failed after 3 attempts for bonbast: bonbast: Bonbast main page request failed: HTTPSConnectionPool(host='www.bonbast.com', port=443): Max retries exceeded with url: / (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+2026-03-01 19:43:42,908 - WARNING - [FAIL] Economic Enrichment soft-failed (exit 2)
+2026-03-01 19:43:42,911 - WARNING - Unified gate: SKIP_SIMULATION — failed gates: ['econ_enrichment', 'qa']
+2026-03-01 19:43:42,912 - INFO - 
+=== Generating Run Manifest ===
+2026-03-01 19:43:42,926 - INFO - ✓ Wrote run manifest: runs/RUN_20260301_daily/run_manifest.json
+2026-03-01 19:43:42,926 - INFO -   Git commit: d098ee64...
+2026-03-01 19:43:42,926 - INFO -   Run reliable: False
+2026-03-01 19:43:42,926 - WARNING -   Unreliable reason: Coverage FAIL: missing buckets ['osint_thinktank', 'ngo_rights', 'regime_outlets', 'persian_services', 'internet_monitoring', 'econ_fx']; Gate SKIP_SIMULATION: failed [qa, econ_enrichment, coverage]
+2026-03-01 19:43:42,926 - INFO - 
+=== Simulation skipped (gate: SKIP_SIMULATION) ===
+2026-03-01 19:43:42,926 - INFO - 
+✓ Daily update complete: RUN_20260301_daily
+2026-03-01 19:43:42,926 - INFO -   Output directory: runs/RUN_20260301_daily
