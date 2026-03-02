@@ -1,0 +1,431 @@
+{
+  "comparison": {
+    "previous_run": "RUN_20260301_daily",
+    "current_run": "RUN_20260302_daily",
+    "generated_at": "2026-03-02T07:15:11.341546+00:00"
+  },
+  "outcome_changes": {
+    "REGIME_SURVIVES_STATUS_QUO": {
+      "previous": 97.96,
+      "current": 98.22,
+      "delta": 0.26,
+      "direction": "INCREASED",
+      "ci_overlap": false,
+      "significant": false
+    },
+    "MANAGED_TRANSITION": {
+      "previous": 1.44,
+      "current": 1.22,
+      "delta": -0.22,
+      "direction": "DECREASED",
+      "ci_overlap": false,
+      "significant": false
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "previous": 0.6,
+      "current": 0.56,
+      "delta": -0.04,
+      "direction": "DECREASED",
+      "ci_overlap": false,
+      "significant": false
+    }
+  },
+  "event_rate_changes": {
+    "us_soft_intervention": {
+      "previous": 73.51,
+      "current": 73.88,
+      "delta": 0.37,
+      "direction": "INCREASED",
+      "significance": "LOW"
+    },
+    "us_hard_intervention": {
+      "previous": 5.65,
+      "current": 5.69,
+      "delta": 0.04,
+      "direction": "INCREASED",
+      "significance": "LOW"
+    },
+    "security_force_defection": {
+      "previous": 0.0,
+      "current": 0.0,
+      "delta": 0.0,
+      "direction": "UNCHANGED",
+      "significance": "LOW"
+    },
+    "khamenei_death": {
+      "previous": 2.04,
+      "current": 1.78,
+      "delta": -0.26,
+      "direction": "DECREASED",
+      "significance": "LOW"
+    },
+    "ethnic_uprising": {
+      "previous": 0.0,
+      "current": 0.0,
+      "delta": 0.0,
+      "direction": "UNCHANGED",
+      "significance": "LOW"
+    }
+  },
+  "claim_winner_changes": [
+    {
+      "path": "current_state.casualties.security_forces.killed.total",
+      "previous_winner": "CLM_c05955b5_0001",
+      "current_winner": "CLM_ff9cd50c_0001",
+      "selector": null
+    },
+    {
+      "path": "current_state.information_environment.internet_status.current",
+      "previous_winner": "CLM_fd50d499_0001",
+      "current_winner": "CLM_ff9cd50c_0002",
+      "selector": null
+    },
+    {
+      "path": "current_state.information_environment.internet_connectivity_index",
+      "previous_winner": "CLM_3715f4a0_0001",
+      "current_winner": "CLM_c9da6e85_0003",
+      "selector": null
+    },
+    {
+      "path": "current_state.protest_metrics.current_snapshot.intensity_trend",
+      "previous_winner": "CLM_fe49cfc7_0002",
+      "current_winner": "CLM_ff9cd50c_0003",
+      "selector": null
+    },
+    {
+      "path": "current_state.casualties.protesters.killed.mid",
+      "previous_winner": "CLM_e330eee2_0001",
+      "current_winner": "CLM_ff4196b0_0001",
+      "selector": null
+    },
+    {
+      "path": "current_state.casualties.protesters.detained.estimate",
+      "previous_winner": "CLM_cde4d377_0002",
+      "current_winner": "CLM_ff4196b0_0002",
+      "selector": null
+    },
+    {
+      "path": "current_state.casualties.protesters.killed.high",
+      "previous_winner": "CLM_a4b5e0a4_0002",
+      "current_winner": "CLM_fdaa6930_0003",
+      "selector": null
+    },
+    {
+      "path": "current_state.economic_conditions.rial_usd_rate.market",
+      "previous_winner": "CLM_fe790bed_0001",
+      "current_winner": "CLM_fe790bed_0003",
+      "selector": null
+    },
+    {
+      "path": "external_actors.united_states.stated_position.quotes",
+      "previous_winner": "CLM_fd04cf18_0001",
+      "current_winner": "CLM_5f13d107_0001",
+      "selector": null
+    },
+    {
+      "path": "current_state.casualties.protesters.killed.low",
+      "previous_winner": "CLM_913fde2f_0002",
+      "current_winner": "CLM_fdaa6930_0002",
+      "selector": null
+    },
+    {
+      "path": "current_state.protest_metrics.protest_character.cross_class_coalition",
+      "previous_winner": "CLM_fd6a2ac8_0003",
+      "current_winner": "CLM_8fe3ee53_0003",
+      "selector": null
+    },
+    {
+      "path": "current_state.protest_metrics.current_snapshot.cities_affected.value",
+      "previous_winner": "CLM_c36803e4_0003",
+      "current_winner": "CLM_94c8b7cb_0001",
+      "selector": null
+    },
+    {
+      "path": "current_situation.regime_response.internet_shutdown",
+      "previous_winner": "CLM_cc68f7d2_0001",
+      "current_winner": "CLM_5c13c690_0002",
+      "selector": null
+    }
+  ],
+  "contested_claims": [
+    {
+      "path": "current_state.casualties.security_forces.killed.total",
+      "conflict_group": [
+        "CLM_ff9cd50c_0001",
+        "CLM_d1cbab24_0002",
+        "CLM_c9da6e85_0001",
+        "CLM_c08c73be_0002",
+        "CLM_9aafeed7_0003",
+        "CLM_78189778_0002",
+        "CLM_78189778_0001",
+        "CLM_63e6949f_0001",
+        "CLM_4ef13e91_0001",
+        "CLM_4cc762c3_0002",
+        "CLM_2d9d51bd_0002",
+        "CLM_22f9e503_0001",
+        "CLM_0c4cad69_0001"
+      ],
+      "winner": "CLM_ff9cd50c_0001",
+      "reason": "High candidate count (13 claims)",
+      "candidates": 13
+    },
+    {
+      "path": "current_state.information_environment.internet_status.current",
+      "conflict_group": [
+        "CLM_ff9cd50c_0002",
+        "CLM_db967235_0001",
+        "CLM_d2a25e3a_0001",
+        "CLM_d1cbab24_0001",
+        "CLM_c9da6e85_0002",
+        "CLM_c08c73be_0001",
+        "CLM_c025c802_0001",
+        "CLM_bba9eb7a_0002",
+        "CLM_ab4ab684_0001",
+        "CLM_8fe3ee53_0002",
+        "CLM_80c9d7cc_0001",
+        "CLM_80c9382e_0001",
+        "CLM_68ac5d41_0002",
+        "CLM_5caf6b13_0002",
+        "CLM_5c13c690_0001",
+        "CLM_45a4ac47_0003",
+        "CLM_27dc7ce5_0001",
+        "CLM_238677a4_0001"
+      ],
+      "winner": "CLM_ff9cd50c_0002",
+      "reason": "High candidate count (18 claims)",
+      "candidates": 18
+    },
+    {
+      "path": "current_state.information_environment.internet_connectivity_index",
+      "conflict_group": [
+        "CLM_c9da6e85_0003",
+        "CLM_c025c802_0002",
+        "CLM_3715f4a0_0001"
+      ],
+      "winner": "CLM_c9da6e85_0003",
+      "reason": "High candidate count (3 claims)",
+      "candidates": 3
+    },
+    {
+      "path": "current_state.protest_metrics.current_snapshot.intensity_trend",
+      "conflict_group": [
+        "CLM_ff9cd50c_0003",
+        "CLM_ff4196b0_0003",
+        "CLM_fd6a2ac8_0002",
+        "CLM_f6ac41c1_0003",
+        "CLM_efb7a25c_0003",
+        "CLM_ef862b73_0001",
+        "CLM_df394608_0003",
+        "CLM_d42a361b_0003",
+        "CLM_d1cbab24_0003",
+        "CLM_d0737208_0003",
+        "CLM_ce5b79c1_0003",
+        "CLM_ca21c305_0005",
+        "CLM_c9da6e85_0004",
+        "CLM_c1991686_0003",
+        "CLM_c08c73be_0003",
+        "CLM_bba9eb7a_0001",
+        "CLM_ba12147d_0003",
+        "CLM_ab4ab684_0002",
+        "CLM_a5922b9c_0003",
+        "CLM_a0f69255_0003",
+        "CLM_9aafeed7_0004",
+        "CLM_94c8b7cb_0003",
+        "CLM_919325ad_0002",
+        "CLM_8fe3ee53_0001",
+        "CLM_839834ec_0003",
+        "CLM_80c9d7cc_0002",
+        "CLM_80c9382e_0003",
+        "CLM_74611d5f_0003",
+        "CLM_68ac5d41_0003",
+        "CLM_64320bc2_0003",
+        "CLM_5caf6b13_0003",
+        "CLM_4cc762c3_0003",
+        "CLM_45a4ac47_0002",
+        "CLM_2d9d51bd_0003",
+        "CLM_22f9e503_0003",
+        "CLM_206e5f97_0003",
+        "CLM_15ae49ee_0003",
+        "CLM_0ad0caf5_0001"
+      ],
+      "winner": "CLM_ff9cd50c_0003",
+      "reason": "High candidate count (38 claims)",
+      "candidates": 38
+    },
+    {
+      "path": "current_state.casualties.protesters.killed.mid",
+      "conflict_group": [
+        "CLM_ff4196b0_0001",
+        "CLM_fdaa6930_0001",
+        "CLM_f6ac41c1_0001",
+        "CLM_efb7a25c_0001",
+        "CLM_ec3e3208_0001",
+        "CLM_df394608_0001",
+        "CLM_d42a361b_0001",
+        "CLM_d0737208_0001",
+        "CLM_ce5b79c1_0001",
+        "CLM_ca21c305_0001",
+        "CLM_c1991686_0001",
+        "CLM_ba12147d_0001",
+        "CLM_aa6da7e9_0001",
+        "CLM_a5922b9c_0001",
+        "CLM_a4b5e0a4_0001",
+        "CLM_a0f69255_0001",
+        "CLM_9aafeed7_0001",
+        "CLM_919325ad_0001",
+        "CLM_839834ec_0001",
+        "CLM_80c9d7cc_0003",
+        "CLM_7d135318_0001",
+        "CLM_74611d5f_0001",
+        "CLM_68ac5d41_0001",
+        "CLM_64320bc2_0001",
+        "CLM_58055a64_0001",
+        "CLM_4cc762c3_0001",
+        "CLM_3869f523_0001",
+        "CLM_2d9d51bd_0001",
+        "CLM_2c684cc8_0001",
+        "CLM_22f9e503_0002",
+        "CLM_206e5f97_0001",
+        "CLM_1b1c0589_0001",
+        "CLM_15ae49ee_0001",
+        "CLM_00e0f90f_0001"
+      ],
+      "winner": "CLM_ff4196b0_0001",
+      "reason": "High candidate count (34 claims)",
+      "candidates": 34
+    },
+    {
+      "path": "current_state.casualties.protesters.detained.estimate",
+      "conflict_group": [
+        "CLM_ff4196b0_0002",
+        "CLM_f6ac41c1_0002",
+        "CLM_efb7a25c_0002",
+        "CLM_df394608_0002",
+        "CLM_d42a361b_0002",
+        "CLM_d0737208_0002",
+        "CLM_ce5b79c1_0002",
+        "CLM_ca21c305_0004",
+        "CLM_c1991686_0002",
+        "CLM_ba12147d_0002",
+        "CLM_a5922b9c_0002",
+        "CLM_839834ec_0002",
+        "CLM_74611d5f_0002",
+        "CLM_206e5f97_0002",
+        "CLM_15ae49ee_0002"
+      ],
+      "winner": "CLM_ff4196b0_0002",
+      "reason": "High candidate count (15 claims)",
+      "candidates": 15
+    },
+    {
+      "path": "current_state.casualties.protesters.killed.high",
+      "conflict_group": [
+        "CLM_fdaa6930_0003",
+        "CLM_ca21c305_0003",
+        "CLM_a4b5e0a4_0002",
+        "CLM_9aafeed7_0002",
+        "CLM_7d135318_0003",
+        "CLM_1b1c0589_0003"
+      ],
+      "winner": "CLM_fdaa6930_0003",
+      "reason": "High candidate count (6 claims)",
+      "candidates": 6
+    },
+    {
+      "path": "current_state.economic_conditions.rial_usd_rate.market",
+      "conflict_group": [
+        "CLM_fe790bed_0003",
+        "CLM_fe790bed_0002",
+        "CLM_fe790bed_0001",
+        "CLM_fd6a2ac8_0001",
+        "CLM_db967235_0002",
+        "CLM_80c9382e_0002",
+        "CLM_45a4ac47_0001",
+        "CLM_0ce85e68_0001"
+      ],
+      "winner": "CLM_fe790bed_0003",
+      "reason": "High candidate count (8 claims)",
+      "candidates": 8
+    },
+    {
+      "path": "external_actors.united_states.stated_position.quotes",
+      "conflict_group": [
+        "CLM_5f13d107_0001",
+        "CLM_3d4247ad_0001",
+        "CLM_2aeb2a69_0001",
+        "CLM_29e9fed2_0001"
+      ],
+      "winner": "CLM_5f13d107_0001",
+      "reason": "High candidate count (4 claims)",
+      "candidates": 4
+    },
+    {
+      "path": "current_state.casualties.protesters.killed.low",
+      "conflict_group": [
+        "CLM_fdaa6930_0002",
+        "CLM_ca21c305_0002",
+        "CLM_a0f69255_0002",
+        "CLM_7d135318_0002",
+        "CLM_1b1c0589_0002"
+      ],
+      "winner": "CLM_fdaa6930_0002",
+      "reason": "High candidate count (5 claims)",
+      "candidates": 5
+    },
+    {
+      "path": "current_state.protest_metrics.current_snapshot.cities_affected.value",
+      "conflict_group": [
+        "CLM_94c8b7cb_0001",
+        "CLM_919325ad_0003",
+        "CLM_64320bc2_0002",
+        "CLM_5caf6b13_0001"
+      ],
+      "winner": "CLM_94c8b7cb_0001",
+      "reason": "High candidate count (4 claims)",
+      "candidates": 4
+    }
+  ],
+  "coverage_changes": {
+    "total_docs": {
+      "previous": 87,
+      "current": 93,
+      "delta": 6
+    },
+    "farsi_docs": {
+      "previous": 0,
+      "current": 0,
+      "delta": 0
+    },
+    "bucket_count": {
+      "previous": 0,
+      "current": 0,
+      "delta": 0
+    },
+    "status_change": null
+  },
+  "coverage_deltas": {
+    "buckets_missing_now": [
+      "ngo_rights"
+    ],
+    "buckets_missing_prev": [
+      "ngo_rights"
+    ],
+    "buckets_recovered": [],
+    "buckets_lost": [],
+    "status_current": "WARN",
+    "status_previous": "WARN"
+  },
+  "health_deltas": {
+    "overall_status": "OK",
+    "transitions": [],
+    "sources_degraded": [],
+    "sources_down": []
+  },
+  "summary": {
+    "major_changes": 13,
+    "minor_changes": 6,
+    "overall_assessment": "Major shifts in crisis dynamics",
+    "contested_claim_count": 11,
+    "health_transitions": 0
+  }
+}

@@ -1,0 +1,1262 @@
+{
+  "merge_notes": [
+    {
+      "path": "current_state.casualties.security_forces.killed.total",
+      "selector": null,
+      "winner_claim_id": "CLM_ff9cd50c_0001",
+      "conflict": false,
+      "candidates": 13,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_ff9cd50c_0001"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_ff9cd50c_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_d1cbab24_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_c9da6e85_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 22
+        },
+        {
+          "claim_id": "CLM_c08c73be_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 3
+        },
+        {
+          "claim_id": "CLM_9aafeed7_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 20
+        },
+        {
+          "claim_id": "CLM_78189778_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 5
+        },
+        {
+          "claim_id": "CLM_78189778_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 3
+        },
+        {
+          "claim_id": "CLM_63e6949f_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1
+        },
+        {
+          "claim_id": "CLM_4ef13e91_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1
+        },
+        {
+          "claim_id": "CLM_4cc762c3_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_2d9d51bd_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1
+        },
+        {
+          "claim_id": "CLM_22f9e503_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 5
+        },
+        {
+          "claim_id": "CLM_0c4cad69_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "path": "current_state.information_environment.internet_status.current",
+      "selector": null,
+      "winner_claim_id": "CLM_ff9cd50c_0002",
+      "conflict": false,
+      "candidates": 18,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_ff9cd50c_0002"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_ff9cd50c_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "FUNCTIONAL"
+        },
+        {
+          "claim_id": "CLM_db967235_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "FUNCTIONAL"
+        },
+        {
+          "claim_id": "CLM_d2a25e3a_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "SEVERELY_DEGRADED"
+        },
+        {
+          "claim_id": "CLM_d1cbab24_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "FUNCTIONAL"
+        },
+        {
+          "claim_id": "CLM_c9da6e85_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "BLACKOUT"
+        },
+        {
+          "claim_id": "CLM_c08c73be_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "PARTIAL"
+        },
+        {
+          "claim_id": "CLM_c025c802_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "SEVERELY_DEGRADED"
+        },
+        {
+          "claim_id": "CLM_bba9eb7a_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "SEVERELY_DEGRADED"
+        },
+        {
+          "claim_id": "CLM_ab4ab684_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "FUNCTIONAL"
+        },
+        {
+          "claim_id": "CLM_8fe3ee53_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "SEVERELY_DEGRADED"
+        },
+        {
+          "claim_id": "CLM_80c9d7cc_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "FUNCTIONAL"
+        },
+        {
+          "claim_id": "CLM_80c9382e_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "FUNCTIONAL"
+        },
+        {
+          "claim_id": "CLM_68ac5d41_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "SEVERELY_DEGRADED"
+        },
+        {
+          "claim_id": "CLM_5caf6b13_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "PARTIAL"
+        },
+        {
+          "claim_id": "CLM_5c13c690_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "SEVERELY_DEGRADED"
+        },
+        {
+          "claim_id": "CLM_45a4ac47_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "SEVERELY_DEGRADED"
+        },
+        {
+          "claim_id": "CLM_27dc7ce5_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "SEVERELY_DEGRADED"
+        },
+        {
+          "claim_id": "CLM_238677a4_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "FUNCTIONAL"
+        }
+      ]
+    },
+    {
+      "path": "current_state.information_environment.internet_connectivity_index",
+      "selector": null,
+      "winner_claim_id": "CLM_c9da6e85_0003",
+      "conflict": false,
+      "candidates": 3,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_c9da6e85_0003"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_c9da6e85_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1
+        },
+        {
+          "claim_id": "CLM_c025c802_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_3715f4a0_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 4.1
+        }
+      ]
+    },
+    {
+      "path": "current_state.protest_metrics.current_snapshot.intensity_trend",
+      "selector": null,
+      "winner_claim_id": "CLM_ff9cd50c_0003",
+      "conflict": false,
+      "candidates": 38,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_ff9cd50c_0003"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_ff9cd50c_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_ff4196b0_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_fd6a2ac8_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_f6ac41c1_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_efb7a25c_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_ef862b73_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "PLATEAUED"
+        },
+        {
+          "claim_id": "CLM_df394608_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_d42a361b_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_d1cbab24_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_d0737208_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_ce5b79c1_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_ca21c305_0005",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_c9da6e85_0004",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_c1991686_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_c08c73be_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_bba9eb7a_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_ba12147d_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_ab4ab684_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_a5922b9c_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_a0f69255_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_9aafeed7_0004",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_94c8b7cb_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_919325ad_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_8fe3ee53_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_839834ec_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_80c9d7cc_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_80c9382e_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_74611d5f_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_68ac5d41_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_64320bc2_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_5caf6b13_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_4cc762c3_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_45a4ac47_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_2d9d51bd_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_22f9e503_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_206e5f97_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_15ae49ee_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        },
+        {
+          "claim_id": "CLM_0ad0caf5_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "ESCALATING"
+        }
+      ]
+    },
+    {
+      "path": "current_state.casualties.protesters.killed.mid",
+      "selector": null,
+      "winner_claim_id": "CLM_ff4196b0_0001",
+      "conflict": false,
+      "candidates": 34,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_ff4196b0_0001"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_ff4196b0_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_fdaa6930_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2
+        },
+        {
+          "claim_id": "CLM_f6ac41c1_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_efb7a25c_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_ec3e3208_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_df394608_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_d42a361b_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_d0737208_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_ce5b79c1_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_ca21c305_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_c1991686_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_ba12147d_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_aa6da7e9_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_a5922b9c_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_a4b5e0a4_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 3000
+        },
+        {
+          "claim_id": "CLM_a0f69255_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_9aafeed7_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_919325ad_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_839834ec_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_80c9d7cc_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_7d135318_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_74611d5f_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_68ac5d41_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_64320bc2_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 9
+        },
+        {
+          "claim_id": "CLM_58055a64_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_4cc762c3_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_3869f523_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 100
+        },
+        {
+          "claim_id": "CLM_2d9d51bd_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1
+        },
+        {
+          "claim_id": "CLM_2c684cc8_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 8
+        },
+        {
+          "claim_id": "CLM_22f9e503_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 10
+        },
+        {
+          "claim_id": "CLM_206e5f97_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_1b1c0589_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 165
+        },
+        {
+          "claim_id": "CLM_15ae49ee_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 50
+        },
+        {
+          "claim_id": "CLM_00e0f90f_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 9
+        }
+      ]
+    },
+    {
+      "path": "current_state.casualties.protesters.detained.estimate",
+      "selector": null,
+      "winner_claim_id": "CLM_ff4196b0_0002",
+      "conflict": false,
+      "candidates": 15,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_ff4196b0_0002"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_ff4196b0_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2000
+        },
+        {
+          "claim_id": "CLM_f6ac41c1_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 200
+        },
+        {
+          "claim_id": "CLM_efb7a25c_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2000
+        },
+        {
+          "claim_id": "CLM_df394608_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2000
+        },
+        {
+          "claim_id": "CLM_d42a361b_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2000
+        },
+        {
+          "claim_id": "CLM_d0737208_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2000
+        },
+        {
+          "claim_id": "CLM_ce5b79c1_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2000
+        },
+        {
+          "claim_id": "CLM_ca21c305_0004",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 200
+        },
+        {
+          "claim_id": "CLM_c1991686_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 200
+        },
+        {
+          "claim_id": "CLM_ba12147d_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_a5922b9c_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 200
+        },
+        {
+          "claim_id": "CLM_839834ec_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 200
+        },
+        {
+          "claim_id": "CLM_74611d5f_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2000
+        },
+        {
+          "claim_id": "CLM_206e5f97_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2000
+        },
+        {
+          "claim_id": "CLM_15ae49ee_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2000
+        }
+      ]
+    },
+    {
+      "path": "current_state.casualties.protesters.killed.high",
+      "selector": null,
+      "winner_claim_id": "CLM_fdaa6930_0003",
+      "conflict": false,
+      "candidates": 6,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_fdaa6930_0003"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_fdaa6930_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2
+        },
+        {
+          "claim_id": "CLM_ca21c305_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 100
+        },
+        {
+          "claim_id": "CLM_a4b5e0a4_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1000
+        },
+        {
+          "claim_id": "CLM_9aafeed7_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 100
+        },
+        {
+          "claim_id": "CLM_7d135318_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_1b1c0589_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 165
+        }
+      ]
+    },
+    {
+      "path": "current_state.economic_conditions.rial_usd_rate.market",
+      "selector": null,
+      "winner_claim_id": "CLM_fe790bed_0003",
+      "conflict": false,
+      "candidates": 8,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_fe790bed_0003"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_fe790bed_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1679500
+        },
+        {
+          "claim_id": "CLM_fe790bed_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1678500
+        },
+        {
+          "claim_id": "CLM_fe790bed_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1679000
+        },
+        {
+          "claim_id": "CLM_fd6a2ac8_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 420000
+        },
+        {
+          "claim_id": "CLM_db967235_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 42000
+        },
+        {
+          "claim_id": "CLM_80c9382e_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 42000
+        },
+        {
+          "claim_id": "CLM_45a4ac47_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 42000
+        },
+        {
+          "claim_id": "CLM_0ce85e68_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 80
+        }
+      ]
+    },
+    {
+      "path": "external_actors.united_states.stated_position.quotes",
+      "selector": null,
+      "winner_claim_id": "CLM_5f13d107_0001",
+      "conflict": false,
+      "candidates": 4,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_5f13d107_0001"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_5f13d107_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "Trump vows to continue attacks on Iran, says more US troops \u2018likely\u2019 to die"
+        },
+        {
+          "claim_id": "CLM_3d4247ad_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "Donald Trump announced that the US and Israeli armies had killed Iran's supreme leader Ayatollah Ali Khamenei."
+        },
+        {
+          "claim_id": "CLM_2aeb2a69_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "President Donald Trump has warned combat operations against Iran will continue until \u2018all objectives are achieved\u2019."
+        },
+        {
+          "claim_id": "CLM_29e9fed2_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": "Hezbollah offers condolences to Iranian nation over Leader\u2019s martyrdom"
+        }
+      ]
+    },
+    {
+      "path": "current_state.casualties.protesters.killed.low",
+      "selector": null,
+      "winner_claim_id": "CLM_fdaa6930_0002",
+      "conflict": false,
+      "candidates": 5,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_fdaa6930_0002"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_fdaa6930_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2
+        },
+        {
+          "claim_id": "CLM_ca21c305_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 30
+        },
+        {
+          "claim_id": "CLM_a0f69255_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 30
+        },
+        {
+          "claim_id": "CLM_7d135318_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 0
+        },
+        {
+          "claim_id": "CLM_1b1c0589_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 165
+        }
+      ]
+    },
+    {
+      "path": "current_state.economic_conditions.inflation.official_annual_percent",
+      "selector": null,
+      "winner_claim_id": "CLM_0ce85e68_0002",
+      "conflict": false,
+      "candidates": 1
+    },
+    {
+      "path": "current_state.protest_metrics.protest_character.organizational_level",
+      "selector": null,
+      "winner_claim_id": "CLM_0ad0caf5_0002",
+      "conflict": false,
+      "candidates": 1
+    },
+    {
+      "path": "current_situation.regime_response.crackdown_severity",
+      "selector": null,
+      "winner_claim_id": "CLM_ab4ab684_0003",
+      "conflict": false,
+      "candidates": 1
+    },
+    {
+      "path": "current_state.protest_metrics.protest_character.cross_class_coalition",
+      "selector": null,
+      "winner_claim_id": "CLM_8fe3ee53_0003",
+      "conflict": false,
+      "candidates": 1
+    },
+    {
+      "path": "current_state.protest_metrics.current_snapshot.cities_affected.value",
+      "selector": null,
+      "winner_claim_id": "CLM_94c8b7cb_0001",
+      "conflict": false,
+      "candidates": 4,
+      "winner_reasons": {
+        "source_grade": "B2",
+        "triangulated": false,
+        "confidence": "MEDIUM",
+        "latest_published": "",
+        "claim_id": "CLM_94c8b7cb_0001"
+      },
+      "all_candidates": [
+        {
+          "claim_id": "CLM_94c8b7cb_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 100
+        },
+        {
+          "claim_id": "CLM_919325ad_0003",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1
+        },
+        {
+          "claim_id": "CLM_64320bc2_0002",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 2
+        },
+        {
+          "claim_id": "CLM_5caf6b13_0001",
+          "source_grade": "B2",
+          "triangulated": false,
+          "confidence": "MEDIUM",
+          "value": 1000
+        }
+      ]
+    },
+    {
+      "path": "current_state.protest_metrics.current_snapshot.provinces_affected.value",
+      "selector": null,
+      "winner_claim_id": "CLM_94c8b7cb_0002",
+      "conflict": false,
+      "candidates": 1
+    },
+    {
+      "path": "current_situation.regime_response.internet_shutdown",
+      "selector": null,
+      "winner_claim_id": "CLM_5c13c690_0002",
+      "conflict": false,
+      "candidates": 1
+    }
+  ],
+  "claim_count": 154,
+  "winner_count": 17,
+  "conflicts_detected": 0,
+  "gap_notes": []
+}
