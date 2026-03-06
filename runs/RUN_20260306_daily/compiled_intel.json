@@ -1,0 +1,431 @@
+{
+  "_comment": "PLACEHOLDER - Replace with output from Deep Research using prompts/01_research_prompt.md",
+  "_schema_version": "1.0",
+  "metadata": {
+    "requirement_id": "IRAN-2026-001",
+    "generated_date": null,
+    "data_cutoff": null,
+    "crisis_day_count": 14,
+    "analyst_notes": "PLACEHOLDER - Run research prompt to populate"
+  },
+  "kiq_summaries": {
+    "kiq_1_regime_stability": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_2_protest_trajectory": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_3_ethnic_fragmentation": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_4_us_intervention": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_5_regional_cascade": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    }
+  },
+  "current_state": {
+    "as_of": null,
+    "protest_metrics": {
+      "time_series": [],
+      "current_snapshot": {
+        "provinces_affected": {
+          "value": 27,
+          "of_total": 31,
+          "source_grade": "B2"
+        },
+        "cities_affected": {
+          "value": 100,
+          "source_grade": "B2"
+        },
+        "estimated_participants_current": {
+          "low": null,
+          "high": null
+        }
+      }
+    },
+    "casualties": {
+      "protesters": {
+        "killed": {
+          "low": 30,
+          "mid": 36,
+          "high": 50,
+          "source_grade": "B2"
+        }
+      },
+      "security_forces": {
+        "killed": {
+          "total": 12,
+          "source_grade": "B3"
+        }
+      }
+    },
+    "economic_conditions": {
+      "rial_usd_rate": {
+        "market": 1539000,
+        "sell": 1539500,
+        "buy": 1538500,
+        "date": "March 06, 2026 06:55",
+        "source": "bonbast"
+      },
+      "rial_eur_rate": {
+        "sell": 1787500,
+        "buy": 1785500
+      },
+      "gold_18k_per_gram_rial": 191910980,
+      "inflation": {
+        "official_annual_percent": 42,
+        "source": "baseline_anchor",
+        "note": "SCI-reported range 40-50% (2025-2026). Override via claim extraction."
+      },
+      "_enrichment_metadata": {
+        "source": "bonbast",
+        "enriched_at_utc": "2026-03-06T06:56:14.601117+00:00",
+        "original_timestamp": "March 06, 2026 06:55"
+      }
+    }
+  },
+  "geographic_data": {
+    "provinces": [
+      {
+        "name": "Tehran",
+        "population_millions": 14.0,
+        "primary_ethnicity": "Persian",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": [
+          "Tehran"
+        ],
+        "strategic_features": "Capital, government center",
+        "borders": []
+      },
+      {
+        "name": "Kermanshah",
+        "population_millions": 2.0,
+        "primary_ethnicity": "Kurdish",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": [
+          "Kermanshah"
+        ],
+        "strategic_features": "Kurdish region, Iraq border",
+        "borders": [
+          "Iraq"
+        ]
+      },
+      {
+        "name": "Lorestan",
+        "population_millions": 1.8,
+        "primary_ethnicity": "Lur",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": [
+          "Lordegan",
+          "Borujerd"
+        ],
+        "strategic_features": "Western Iran",
+        "borders": []
+      },
+      {
+        "name": "Sistan and Baluchestan",
+        "population_millions": 2.9,
+        "primary_ethnicity": "Baloch",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": [
+          "Zahedan",
+          "Iranshahr"
+        ],
+        "strategic_features": "Baloch region, Pakistan border, Sunni majority",
+        "borders": [
+          "Pakistan",
+          "Afghanistan"
+        ]
+      }
+    ]
+  },
+  "claims_ledger": {
+    "claims": [
+      {
+        "claim_id": "CLM_f6a4aec7_0001",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.protesters.killed.mid",
+        "value": 0,
+        "units": "people",
+        "as_of_utc": "2026-03-05T19:34:49Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "FRANCE24_20260306_0646_f6a4aec7",
+            "quote": "no casualties reported"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "HIGH",
+        "triangulated": false,
+        "notes": "No casualties were reported during the interceptions."
+      },
+      {
+        "claim_id": "CLM_ba246935_0004",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.protest_metrics.current_snapshot.cities_affected.value",
+        "value": 10,
+        "units": "count",
+        "as_of_utc": "2026-01-10T18:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "PRESSTV_20260306_0646_ba246935",
+            "quote": "Protests have affected at least 10 cities across the country."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "Count of cities impacted by the protests."
+      },
+      {
+        "claim_id": "CLM_85bccddc_0001",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.protest_metrics.current_snapshot.provinces_affected.value",
+        "value": 1,
+        "units": "count",
+        "as_of_utc": "2026-03-03T18:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "BBC_PERSIAN_20260306_0646_85bccddc",
+            "quote": "\u0647\u0645\u200c\u067e\u06cc\u0645\u0627\u0646\u06cc \u0646\u06cc\u0631\u0648\u0647\u0627\u06cc \u0633\u06cc\u0627\u0633\u06cc \u06a9\u0631\u062f\u0633\u062a\u0627\u0646 \u0627\u06cc\u0631\u0627\u0646"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The statement indicates political activity in the Kurdistan province."
+      },
+      {
+        "claim_id": "CLM_ff56e3ac_0001",
+        "claim_class": "ASSESSMENT",
+        "path": "current_state.protest_metrics.current_snapshot.intensity_trend",
+        "value": "ESCALATING",
+        "units": "enum",
+        "as_of_utc": "2026-03-04T22:06:11Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "BBC_PERSIAN_20260306_0646_ff56e3ac",
+            "quote": "\u062f\u0631 \u062d\u0627\u0644\u06cc \u06a9\u0647 \u062c\u0646\u06af \u0622\u0645\u0631\u06cc\u06a9\u0627 \u0648 \u0627\u0633\u0631\u0627\u0626\u064a\u0644 \u0639\u0644\u06cc\u0647 \u0627\u06cc\u0631\u0627\u0646 \u0648\u0627\u0631\u062f \u0634\u0634\u0645\u06cc\u0646 \u0631\u0648\u0632 \u062e\u0648\u062f \u0645\u06cc\u200c\u0634\u0648\u062f"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The intensity of the conflict is assessed to be escalating."
+      },
+      {
+        "claim_id": "CLM_f3d4b2d1_0001",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.security_forces.killed.total",
+        "value": 0,
+        "units": "people",
+        "as_of_utc": "2026-03-05T17:58:57Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "BBC_PERSIAN_20260306_0646_f3d4b2d1",
+            "quote": "\u0646\u0627\u0648\u0686\u0647 \u062f\u0646\u0627 \u06a9\u0647 \u0686\u0646\u062f \u0631\u0648\u0632 \u067e\u06cc\u0634 \u0627\u0632 \u062d\u0645\u0644\u0647 \u0622\u0645\u0631\u06cc\u06a9\u0627 \u0648 \u0627\u0633\u0631\u0627\u0626\u06cc\u0644 \u0628\u0647 \u0627\u06cc\u0631\u0627\u0646\u060c \u0628\u0631\u0627\u06cc \u0634\u0631\u06a9\u062a \u062f\u0631 \u06cc\u06a9 \u0631\u0632\u0645\u0627\u06cc\u0634 \u0628\u06cc\u0646\u200c\u0627\u0644\u0645\u0644\u0644\u06cc \u0628\u0647 \u0645\u06cc\u0632\u0628\u0627\u0646\u06cc \u0646\u06cc\u0631\u0648\u06cc \u062f\u0631\u06cc\u0627\u06cc\u06cc \u0647\u0646\u062f\u060c \u0628\u0647 \u0627\u06cc\u0646 \u0645\u0646\u0637\u0642\u0647 \u0631\u0641\u062a\u0647 \u0628\u0648\u062f\u060c \u062f\u0631 \u0622\u0628\u200c\u0647\u0627\u06cc \u0628\u06cc\u0646\u200c\u0627\u0644\u0645\u0644\u0644\u06cc \u0646\u0632\u062f\u06cc\u06a9 \u0633\u0631\u06cc\u0644\u0627\u0646\u06a9\u0627 \u0647\u062f\u0641 \u0627\u0698\u062f\u0631 \u06cc\u06a9 \u0632\u06cc\u0631\u062f\u0631\u06cc\u0627\u06cc\u06cc \u0622\u0645\u0631\u06cc\u06a9\u0627\u06cc\u06cc \u0642\u0631\u0627\u0631 \u06af\u0631\u0641\u062a \u0648 \u063a\u0631\u0642 \u0634\u062f."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "No casualties reported among security forces from the incident."
+      },
+      {
+        "claim_id": "CLM_fbed5ce9_0001",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.information_environment.internet_status.current",
+        "value": "SEVERELY_DEGRADED",
+        "units": "enum",
+        "as_of_utc": "2026-03-06T01:53:37Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "OONI_20260306_0646_fbed5ce9",
+            "quote": "OONI censorship measurement."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The internet status in Iran is reported as severely degraded."
+      },
+      {
+        "claim_id": "CLM_8f5d79e0_0002",
+        "claim_class": "ASSESSMENT",
+        "path": "current_state.protest_metrics.protest_character.cross_class_coalition",
+        "value": "EMERGING",
+        "units": "enum",
+        "as_of_utc": "2026-03-03T12:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "BBC_PERSIAN_20260306_0646_8f5d79e0",
+            "quote": "\u0627\u06af\u0631 \u0627\u06cc\u0646 \u0627\u0645\u0631 \u0628\u0647 \u062a\u063a\u06cc\u06cc\u0631 \u0645\u0646\u062c\u0631 \u0634\u0648\u062f\u060c \u0645\u0645\u06a9\u0646 \u0627\u0633\u062a \u0627\u0632 \u0633\u0648\u06cc \u0645\u0631\u062f\u0645 \u0627\u06cc\u0631\u0627\u0646 \u0645\u0648\u0631\u062f \u0627\u0633\u062a\u0642\u0628\u0627\u0644 \u0642\u0631\u0627\u0631 \u06af\u06cc\u0631\u062f."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The potential for a coalition among different societal classes is suggested."
+      },
+      {
+        "claim_id": "CLM_8507ca62_0002",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.protesters.killed.low",
+        "value": 10,
+        "units": "people",
+        "as_of_utc": "2026-03-02T16:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "AMNESTY_20260306_0646_8507ca62",
+            "quote": "at least ten protesters were killed and 96 injured outside the US Consulate in Karachi"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "Minimum reported deaths of protesters in Karachi."
+      },
+      {
+        "claim_id": "CLM_8507ca62_0003",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.protesters.killed.high",
+        "value": 14,
+        "units": "people",
+        "as_of_utc": "2026-03-02T16:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "AMNESTY_20260306_0646_8507ca62",
+            "quote": "Fourteen people, including a soldier, were killed in Skardu."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "Maximum reported deaths of protesters in Skardu."
+      },
+      {
+        "claim_id": "CLM_ff56e3ac_0003",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.protesters.detained.estimate",
+        "value": 200,
+        "units": "people",
+        "as_of_utc": "2026-03-04T22:06:11Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "BBC_PERSIAN_20260306_0646_ff56e3ac",
+            "quote": "\u062a\u0628\u0644\u06cc\u063a\u0627\u062a \u062c\u0646\u06af \u0627\u0632 \u062f\u0648\u0637\u0631\u0641 \u0627\u06cc\u062c\u0627\u0628 \u0645\u06cc\u200c\u06a9\u0646\u062f \u06a9\u0647 \u062f\u0633\u062a \u062e\u0648\u062f \u0631\u0627 \u062f\u0631 \u0645\u06cc\u0632\u0627\u0646 \u062a\u0648\u0627\u0646\u0627\u06cc\u06cc \u062f\u0641\u0627\u0639\u06cc"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "Estimated number of protesters detained during the ongoing conflict."
+      },
+      {
+        "claim_id": "CLM_e58ce144_0001",
+        "claim_class": "HARD_FACT",
+        "path": "external_actors.united_states.stated_position.quotes",
+        "value": "Iran FM warns US invasion would be \u2018big disaster for them\u2019",
+        "units": "text",
+        "as_of_utc": "2026-01-10T18:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "PRESSTV_20260306_0646_e58ce144",
+            "quote": "Iran FM warns US invasion would be \u2018big disaster for them\u2019"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "Statement from Iran's Foreign Minister regarding potential US military action."
+      },
+      {
+        "claim_id": "CLM_fe790bed_0003",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.economic_conditions.rial_usd_rate.market",
+        "value": 1538500,
+        "units": "count",
+        "as_of_utc": "2026-03-06T06:46:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "BONBAST_20260306_0646_fe790bed",
+            "quote": "USD/IRR (US Dollar): Buy: 1,538,500 IRR"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The buy exchange rate for USD to IRR in the black market."
+      },
+      {
+        "claim_id": "CLM_bb4511df_0002",
+        "claim_class": "ASSESSMENT",
+        "path": "current_situation.regime_response.crackdown_severity",
+        "value": "NONE",
+        "units": "enum",
+        "as_of_utc": "2026-03-05T18:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "FRANCE24_20260306_0646_bb4511df",
+            "quote": "Without a coherent plan, does Iran risk a similar fate to Iraq or Afghanistan?"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The text implies a lack of severe regime response at this time."
+      },
+      {
+        "claim_id": "CLM_fbed5ce9_0002",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.information_environment.internet_connectivity_index",
+        "value": 0,
+        "units": "percent",
+        "as_of_utc": "2026-03-06T01:53:37Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "OONI_20260306_0646_fbed5ce9",
+            "quote": "Anomaly detected"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The internet connectivity index indicates a complete lack of connectivity."
+      }
+    ]
+  },
+  "compiled_fields": {
+    "current_state.casualties.protesters.killed.mid": 0,
+    "current_state.protest_metrics.current_snapshot.cities_affected.value": 10,
+    "current_state.protest_metrics.current_snapshot.provinces_affected.value": 1,
+    "current_state.protest_metrics.current_snapshot.intensity_trend": "ESCALATING",
+    "current_state.casualties.security_forces.killed.total": 0,
+    "current_state.information_environment.internet_status.current": "SEVERELY_DEGRADED",
+    "current_state.protest_metrics.protest_character.cross_class_coalition": "EMERGING",
+    "current_state.casualties.protesters.killed.low": 10,
+    "current_state.casualties.protesters.killed.high": 14,
+    "current_state.casualties.protesters.detained.estimate": 200,
+    "external_actors.united_states.stated_position.quotes": "Iran FM warns US invasion would be \u2018big disaster for them\u2019",
+    "current_state.economic_conditions.rial_usd_rate.market": 1538500,
+    "current_situation.regime_response.crackdown_severity": "NONE",
+    "current_state.information_environment.internet_connectivity_index": 0
+  }
+}
