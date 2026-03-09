@@ -28,6 +28,8 @@ ANCHOR_ALLOWED = {
     # Regional cascade anchors
     "us_kinetic_day",
     "israel_strike_day",
+    # Succession anchors
+    "succession_resolution_day",
 }
 
 DEFAULT_DIST = "beta_pert"
@@ -84,6 +86,9 @@ def resolve_priors(priors: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, An
         "regime_collapse_given_defection",
         "ethnic_coordination_given_protests_30d",
         "fragmentation_outcome_given_ethnic_uprising",
+        "quick_succession_given_death",
+        "succession_resolution_given_contested",
+        "consolidation_success_given_conditions_met",
     ]
     required_us_keys = [
         "information_ops",
@@ -182,6 +187,23 @@ def resolve_priors(priors: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, An
                 errors.append(f"transition_probabilities.{k}.probability missing or not dict")
             else:
                 resolve_prob(f"transition_probabilities.{k}.probability", prob)
+
+    # Validate categorical priors (different structure — distribution, not probability)
+    categorical_keys = ["mourning_type_given_assassination"]
+    for k in categorical_keys:
+        if k not in tp:
+            errors.append(f"Missing transition_probabilities.{k}")
+        else:
+            entry = tp[k]
+            if entry.get("distribution") != "categorical":
+                errors.append(f"transition_probabilities.{k}: expected distribution=categorical")
+            cats = entry.get("categories", {})
+            if not cats:
+                errors.append(f"transition_probabilities.{k}: empty categories")
+            else:
+                total = sum(c.get("probability", 0) for c in cats.values())
+                if not (0.95 <= total <= 1.05):
+                    errors.append(f"transition_probabilities.{k}: category probabilities sum to {total:.3f}, expected ~1.0")
 
     # Resolve US intervention probabilities
     up = pri.get("us_intervention_probabilities", {})

@@ -45,6 +45,8 @@ class RegimeState(Enum):
     COLLAPSE = "collapse"                         # Regime collapse
     TRANSITION = "transition"                     # Managed succession
     SUPPRESSED = "suppressed"                     # Protests crushed, regime stable
+    SUCCESSION_CONTESTED = "succession_contested"       # No clear successor, elite infighting
+    SUCCESSION_CONSOLIDATING = "succession_consolidating"  # Successor named, consolidating power
 
 
 class EconomicStress(Enum):
@@ -187,6 +189,18 @@ class SimulationState:
     ethnic_uprising: bool = False
     us_soft_intervened: bool = False
     us_hard_intervened: bool = False
+
+    # Succession phase state
+    succession_resolved: bool = False
+    succession_resolution_day: Optional[int] = None
+    successor_legitimacy: float = 0.0
+    elite_cohesion: float = 1.0
+    security_loyalty_modifier: float = 1.0
+    mourning_type: Optional[str] = None
+    mourning_days_remaining: int = 0
+    succession_type: Optional[str] = None
+    economic_shock_applied: bool = False
+    rial_rate_current: float = 0.0
 
     # Outcome
     final_outcome: Optional[str] = None
@@ -579,6 +593,8 @@ class IranCrisisSimulation:
             return state.khamenei_death_day
         if anchor == "collapse_day":
             return state.collapse_day
+        if anchor == "succession_resolution_day":
+            return state.succession_resolution_day
         # Regional cascade anchors
         if anchor == "us_kinetic_day":
             return state.us_kinetic_day
@@ -649,6 +665,21 @@ class IranCrisisSimulation:
         # Initialize from current intel
         state.protester_casualties = self._get_initial_casualties()
 
+        # Apply observed events (facts, not forecasts)
+        observed = self.priors.get("observed_events", {})
+        if observed.get("us_kinetic_strike", {}).get("occurred"):
+            state.us_posture = USPosture.KINETIC
+            state.us_soft_intervened = True
+            state.us_hard_intervened = True
+            state.us_kinetic_day = observed["us_kinetic_strike"].get("day", 0)
+            state.events.append("Day 0: US kinetic strikes on Iran (observed)")
+
+        if observed.get("khamenei_death", {}).get("occurred"):
+            state.khamenei_dead = True
+            state.khamenei_death_day = 0
+            state.events.append("Day 0: Khamenei killed (observed)")
+            self._init_succession_phase(state)
+
         for day in range(1, 91):
             state.day = day
             
@@ -676,33 +707,24 @@ class IranCrisisSimulation:
                 state.khamenei_dead = True
                 state.events.append(f"Day {state.day}: Khamenei dies")
                 state.khamenei_death_day = state.day
+                self._init_succession_phase(state)
 
-                # Succession: modeled as orderly vs disorderly
-                orderly_prob = self.sampler.sample("transition", "orderly_succession_given_khamenei_death")
-                if random.random() < orderly_prob:
-                    state.regime_state = RegimeState.TRANSITION
-                    state.final_outcome = "MANAGED_TRANSITION"
-                    state.outcome_day = state.day
-                    return
-
-                # Disorderly succession crisis: treat as chaotic collapse (simple placeholder)
-                state.regime_state = RegimeState.COLLAPSE
-                state.final_outcome = "REGIME_COLLAPSE_CHAOTIC"
-                state.outcome_day = state.day
-                state.collapse_day = state.day
-                state.events.append(f"Day {state.day}: Succession crisis triggers regime collapse")
+        # 1b. Succession state update (runs every day after Khamenei's death)
+        if state.khamenei_dead and not state.final_outcome:
+            self._update_succession_state(state)
+            if state.final_outcome:
                 return
 
         # 2. Protest trajectory - ABM or state machine
         if self.use_abm and self.abm is not None:
-            # Build global context for ABM
+            # Build global context for ABM (succession-aware)
             abm_context = {
                 "protest_state": state.protest_state.value.upper(),
                 "regime_state": state.regime_state.value.upper(),
-                "rial_rate": self._economic_data["rial_rate"],
-                "crackdown_intensity": 0.8 if state.regime_state == RegimeState.CRACKDOWN else 0.2,
+                "rial_rate": state.rial_rate_current if state.rial_rate_current > 0 else self._economic_data["rial_rate"],
+                "crackdown_intensity": self._get_crackdown_intensity(state),
                 "concessions_offered": state.regime_state == RegimeState.CONCESSIONS,
-                "internet_blackout": state.regime_state == RegimeState.CRACKDOWN,
+                "internet_blackout": self._get_internet_blackout(state),
             }
 
             # Run ABM step
@@ -740,7 +762,8 @@ class IranCrisisSimulation:
             return
 
         # 4. Security force loyalty
-        if state.regime_state in [RegimeState.STATUS_QUO, RegimeState.CRACKDOWN, RegimeState.CONCESSIONS]:
+        if state.regime_state in [RegimeState.STATUS_QUO, RegimeState.CRACKDOWN, RegimeState.CONCESSIONS,
+                                  RegimeState.SUCCESSION_CONTESTED, RegimeState.SUCCESSION_CONSOLIDATING]:
             self._check_defection(state)
         # Defection may lead to collapse within a window after it occurs
         self._check_regime_collapse_after_defection(state)
@@ -822,6 +845,270 @@ class IranCrisisSimulation:
                     state.protest_state = ProtestState.COLLAPSED
                     state.events.append(f"Day {state.day}: Protests collapse after concessions")
     
+    # ------------------------------------------------------------------
+    # SUCCESSION PHASE
+    # ------------------------------------------------------------------
+
+    def _init_succession_phase(self, state: SimulationState) -> None:
+        """Initialize post-succession dynamics when Khamenei dies.
+
+        Replaces the old instant coin-flip with mourning + succession branching
+        that lets the day loop continue with full dynamics.
+        """
+        # 1. Sample mourning type (categorical)
+        mourning_cats = self.priors["transition_probabilities"]["mourning_type_given_assassination"]["categories"]
+        r = random.random()
+        cumulative = 0.0
+        for mtype, mdata in mourning_cats.items():
+            cumulative += mdata["probability"]
+            if r < cumulative:
+                state.mourning_type = mtype
+                state.mourning_days_remaining = mdata["mourning_duration_days"]
+                break
+        else:
+            # Fallback (floating-point edge case)
+            last_key = list(mourning_cats.keys())[-1]
+            state.mourning_type = last_key
+            state.mourning_days_remaining = mourning_cats[last_key]["mourning_duration_days"]
+        state.events.append(
+            f"Day {state.khamenei_death_day}: Mourning phase begins — {state.mourning_type} "
+            f"({state.mourning_days_remaining} days)"
+        )
+
+        # 2. Sample succession type — regime-state-aware orderly probability
+        base_orderly = self.sampler.sample("transition", "quick_succession_given_death")
+        orderly_prob = base_orderly
+
+        # Mid-sim death: current regime state modifies orderly probability
+        if state.regime_state == RegimeState.ESCALATING:
+            orderly_prob *= 0.7
+        elif state.regime_state == RegimeState.CRACKDOWN:
+            orderly_prob *= 0.5
+        elif state.regime_state == RegimeState.CONCESSIONS:
+            orderly_prob = min(0.95, orderly_prob * 1.2)
+        elif state.regime_state in (RegimeState.DEFECTION, RegimeState.FRAGMENTATION):
+            orderly_prob = 0.0  # Skip smooth path entirely
+
+        if random.random() < orderly_prob:
+            # Smooth succession
+            state.succession_type = "smooth"
+            state.regime_state = RegimeState.SUCCESSION_CONSOLIDATING
+            state.successor_legitimacy = random.uniform(0.5, 0.8)
+            state.elite_cohesion = 0.9
+            state.events.append(
+                f"Day {state.khamenei_death_day}: Smooth succession — "
+                f"Assembly of Experts names successor (legitimacy={state.successor_legitimacy:.2f})"
+            )
+        else:
+            # Contested succession
+            state.succession_type = "contested"
+            state.regime_state = RegimeState.SUCCESSION_CONTESTED
+            state.successor_legitimacy = random.uniform(0.2, 0.4)
+            if state.regime_state == RegimeState.FRAGMENTATION:
+                state.elite_cohesion = 0.4
+            else:
+                state.elite_cohesion = 0.7
+            state.security_loyalty_modifier = 0.85
+            state.events.append(
+                f"Day {state.khamenei_death_day}: Contested succession — "
+                f"no clear successor (legitimacy={state.successor_legitimacy:.2f}, "
+                f"cohesion={state.elite_cohesion:.2f})"
+            )
+
+        # 3. Intel-seeded elite cohesion adjustment
+        compiled_intel = self.intel.get("compiled_intel", self.intel)
+        claims = compiled_intel.get("claims", [])
+        intel_tags = {"elite_fracture", "irgc_split", "guard_loyalty", "faction_rivalry"}
+        matching_claims = 0
+        for claim in claims:
+            claim_tags = set(claim.get("tags", []))
+            if claim_tags & intel_tags:
+                matching_claims += 1
+        if matching_claims > 0:
+            reduction = 0.05 * min(matching_claims, 10)
+            state.elite_cohesion = max(0.5, state.elite_cohesion - reduction)
+            state.events.append(
+                f"Day {state.khamenei_death_day}: Intel suggests elite fracture "
+                f"({matching_claims} claims) — cohesion adjusted to {state.elite_cohesion:.2f}"
+            )
+
+        # 4. Initialize dynamic rial rate
+        state.rial_rate_current = self._economic_data.get("rial_rate", 0)
+
+        # Do NOT set final_outcome — let the day loop run
+
+    def _update_succession_state(self, state: SimulationState) -> None:
+        """Daily succession phase update. Runs every day after Khamenei dies.
+
+        Handles mourning countdown, economic shock, elite cohesion decay,
+        elite fracture check, contested resolution, consolidation check,
+        and legitimacy/loyalty drift.
+        """
+        # Skip if not in a succession state
+        if state.regime_state not in (
+            RegimeState.SUCCESSION_CONTESTED, RegimeState.SUCCESSION_CONSOLIDATING
+        ):
+            return
+
+        # 1. Mourning countdown
+        if state.mourning_days_remaining > 0:
+            state.mourning_days_remaining -= 1
+            if state.mourning_days_remaining == 0:
+                state.events.append(f"Day {state.day}: Mourning period ends")
+
+        # 2. Economic shock (contested only, fires once)
+        if (state.succession_type == "contested"
+                and not state.economic_shock_applied
+                and state.regime_state == RegimeState.SUCCESSION_CONTESTED):
+            state.rial_rate_current *= 1.25
+            state.economic_shock_applied = True
+            state.events.append(
+                f"Day {state.day}: Contested succession triggers rial crash "
+                f"(rate={state.rial_rate_current:.0f})"
+            )
+            # Re-evaluate economic stress with new rial rate
+            self._update_economic_stress_mid_run(state)
+
+        # 3. Elite cohesion decay (contested only)
+        if state.regime_state == RegimeState.SUCCESSION_CONTESTED:
+            decay = 0.015  # Base decay
+            # Economic stress accelerator
+            if self._economic_stress == EconomicStress.CRITICAL:
+                decay += 0.01
+            # Protest pressure accelerator
+            if self.use_abm and self.abm is not None:
+                snap = self.abm.get_snapshot()
+                active_ratio = snap.get("total_protesting", 0)
+                if active_ratio > 0.15:
+                    decay += 0.005
+            state.elite_cohesion = max(0.0, state.elite_cohesion - decay)
+
+        # 4. Elite fracture check (cohesion < 0.3)
+        if state.elite_cohesion < 0.3 and state.regime_state == RegimeState.SUCCESSION_CONTESTED:
+            prob_obj = self.sampler._get_probability("transition", "elite_fracture_given_economic_collapse")
+            if self._window_active(state, prob_obj):
+                daily_frac = self._daily_hazard_from_window_prob(
+                    "transition", "elite_fracture_given_economic_collapse"
+                )
+                daily_frac = self._apply_economic_modifiers(daily_frac, "elite_fracture")
+                if random.random() < daily_frac:
+                    state.regime_state = RegimeState.COLLAPSE
+                    state.collapse_day = state.day
+                    state.final_outcome = "REGIME_COLLAPSE_CHAOTIC"
+                    state.outcome_day = state.day
+                    state.events.append(
+                        f"Day {state.day}: Elite fracture — cohesion collapsed to "
+                        f"{state.elite_cohesion:.2f}, regime collapses"
+                    )
+                    return
+
+        # 5. Contested resolution — daily hazard for contested → consolidating
+        if (state.regime_state == RegimeState.SUCCESSION_CONTESTED
+                and not state.succession_resolved):
+            prob_obj = self.sampler._get_probability(
+                "transition", "succession_resolution_given_contested"
+            )
+            if self._window_active(state, prob_obj):
+                daily_resolve = self._daily_hazard_from_window_prob(
+                    "transition", "succession_resolution_given_contested"
+                )
+                if random.random() < daily_resolve:
+                    state.succession_resolved = True
+                    state.succession_resolution_day = state.day
+                    state.regime_state = RegimeState.SUCCESSION_CONSOLIDATING
+                    state.successor_legitimacy = min(1.0, state.successor_legitimacy + 0.1)
+                    state.events.append(
+                        f"Day {state.day}: Contested succession resolved — "
+                        f"successor named (legitimacy={state.successor_legitimacy:.2f})"
+                    )
+
+        # 6. Consolidation check (condition-gated)
+        if state.regime_state == RegimeState.SUCCESSION_CONSOLIDATING:
+            conditions_met = (
+                state.mourning_days_remaining == 0
+                and state.elite_cohesion > 0.5
+                and not state.defection_occurred
+            )
+            # ABM active_ratio check
+            if conditions_met and self.use_abm and self.abm is not None:
+                snap = self.abm.get_snapshot()
+                if snap.get("total_protesting", 0) >= 0.10:
+                    conditions_met = False
+
+            if conditions_met:
+                # Set anchor for consolidation window if not already set
+                if state.succession_resolution_day is None:
+                    state.succession_resolution_day = state.day
+
+                prob_obj = self.sampler._get_probability(
+                    "transition", "consolidation_success_given_conditions_met"
+                )
+                if self._window_active(state, prob_obj):
+                    daily_consol = self._daily_hazard_from_window_prob(
+                        "transition", "consolidation_success_given_conditions_met"
+                    )
+                    if random.random() < daily_consol:
+                        state.regime_state = RegimeState.TRANSITION
+                        state.final_outcome = "MANAGED_TRANSITION"
+                        state.outcome_day = state.day
+                        state.events.append(
+                            f"Day {state.day}: Successor consolidates power — "
+                            f"managed transition (legitimacy={state.successor_legitimacy:.2f}, "
+                            f"cohesion={state.elite_cohesion:.2f})"
+                        )
+                        return
+
+        # 7. Legitimacy / loyalty drift
+        if state.regime_state == RegimeState.SUCCESSION_CONSOLIDATING:
+            state.successor_legitimacy = min(1.0, state.successor_legitimacy + 0.01)
+            state.security_loyalty_modifier = min(
+                1.0, state.security_loyalty_modifier + 0.005
+            )
+        elif state.regime_state == RegimeState.SUCCESSION_CONTESTED:
+            state.security_loyalty_modifier = max(
+                0.6, state.security_loyalty_modifier - 0.005
+            )
+
+    def _update_economic_stress_mid_run(self, state: SimulationState) -> None:
+        """Re-evaluate economic stress using the current (dynamic) rial rate.
+
+        Called after contested-succession rial shock to enable feedback loop:
+        contested → rial crash → CRITICAL stress → higher protest/defection modifiers.
+        """
+        thresholds = self.priors.get("economic_thresholds", {})
+        rial_critical = int(thresholds.get("rial_critical_threshold", 1_200_000))
+        inflation = self._economic_data.get("inflation", 0)
+        inflation_critical = float(thresholds.get("inflation_critical_threshold", 50))
+
+        if state.rial_rate_current > rial_critical or inflation > inflation_critical:
+            self._economic_stress = EconomicStress.CRITICAL
+        elif state.rial_rate_current > int(thresholds.get("rial_pressured_threshold", 800_000)):
+            self._economic_stress = EconomicStress.PRESSURED
+
+    @staticmethod
+    def _get_crackdown_intensity(state: SimulationState) -> float:
+        """Succession-aware crackdown intensity for ABM context."""
+        base = 0.2
+        if state.regime_state == RegimeState.CRACKDOWN:
+            base = 0.8
+        elif state.regime_state == RegimeState.SUCCESSION_CONTESTED:
+            base = 0.3 * state.security_loyalty_modifier
+        elif state.regime_state == RegimeState.SUCCESSION_CONSOLIDATING:
+            base = 0.5 * state.security_loyalty_modifier
+        # Mourning modifier
+        if state.mourning_type == "nationalist_rally" and state.mourning_days_remaining > 0:
+            base += 0.1
+        return min(1.0, base)
+
+    @staticmethod
+    def _get_internet_blackout(state: SimulationState) -> bool:
+        """Mourning-aware internet blackout for ABM context."""
+        if state.regime_state == RegimeState.CRACKDOWN:
+            return True
+        if state.mourning_type == "paralysis" and state.mourning_days_remaining > 0:
+            return True
+        return False
+
     def _check_regime_transitions(self, state: SimulationState):
         """Check for regime response transitions.
 
@@ -889,6 +1176,10 @@ class IranCrisisSimulation:
 
         if self._protests_active_for_30d_condition(state) and self._window_active(state, prob_obj):
             daily_prob = self._daily_hazard_from_window_prob("transition", "security_force_defection_given_protests_30d")
+
+            # SUCCESSION: lower loyalty modifier = higher defection probability
+            if state.security_loyalty_modifier < 1.0:
+                daily_prob = daily_prob / state.security_loyalty_modifier
 
             # FEEDBACK LOOP: Economic stress increases defection probability
             # Rationale: Economic hardship affects military pay, morale, and family welfare
@@ -1173,13 +1464,27 @@ class IranCrisisSimulation:
 
     def _determine_final_outcome(self, state: SimulationState) -> str:
         """Determine outcome if no terminal state reached by day 90"""
-        
+
         if state.regime_state == RegimeState.TRANSITION:
             return "MANAGED_TRANSITION"
         elif state.regime_state == RegimeState.COLLAPSE:
             return "REGIME_COLLAPSE_CHAOTIC"
         elif state.regime_state == RegimeState.FRAGMENTATION:
             return "ETHNIC_FRAGMENTATION"
+        elif state.regime_state == RegimeState.SUCCESSION_CONSOLIDATING:
+            # Consolidation at day 90: check if conditions are met for managed transition
+            consolidation_conditions = (
+                state.mourning_days_remaining == 0
+                and state.elite_cohesion > 0.5
+                and not state.defection_occurred
+            )
+            if consolidation_conditions:
+                return "MANAGED_TRANSITION"
+            else:
+                return "REGIME_COLLAPSE_CHAOTIC"
+        elif state.regime_state == RegimeState.SUCCESSION_CONTESTED:
+            # Unresolved contested succession at day 90 = instability
+            return "REGIME_COLLAPSE_CHAOTIC"
         elif state.protest_state == ProtestState.COLLAPSED:
             return "REGIME_SURVIVES_STATUS_QUO"
         elif state.regime_state == RegimeState.CONCESSIONS:
@@ -1277,6 +1582,37 @@ class IranCrisisSimulation:
             }
         }
 
+        # Succession metrics
+        succession_types = Counter(r.succession_type for r in results if r.succession_type)
+        mourning_types = Counter(r.mourning_type for r in results if r.mourning_type)
+        cohesion_at_outcome = [r.elite_cohesion for r in results if r.khamenei_dead]
+        consolidation_days = [
+            r.succession_resolution_day for r in results
+            if r.succession_resolution_day is not None
+        ]
+        elite_fracture_count = sum(
+            1 for r in results
+            if r.elite_cohesion < 0.3 and r.final_outcome == "REGIME_COLLAPSE_CHAOTIC"
+            and r.succession_type == "contested"
+        )
+        succession_analysis = {
+            "succession_type_distribution": {
+                k: {"count": v, "probability": v / n}
+                for k, v in succession_types.items()
+            },
+            "mourning_type_distribution": {
+                k: {"count": v, "probability": v / n}
+                for k, v in mourning_types.items()
+            },
+            "mean_cohesion_at_outcome": (
+                statistics.mean(cohesion_at_outcome) if cohesion_at_outcome else None
+            ),
+            "mean_consolidation_day": (
+                statistics.mean(consolidation_days) if consolidation_days else None
+            ),
+            "elite_fracture_collapse_count": elite_fracture_count,
+        }
+
         return {
             "n_runs": n,
             "outcome_distribution": outcome_dist,
@@ -1298,6 +1634,7 @@ class IranCrisisSimulation:
                 "russia_support": russia_support_rate
             },
             "economic_analysis": economic_analysis,
+            "succession_analysis": succession_analysis,
             "sample_trajectories": [
                 {
                     "outcome": r.final_outcome,
@@ -1402,6 +1739,9 @@ def validate_priors(priors: dict) -> None:
         "regime_collapse_given_defection",
         "ethnic_coordination_given_protests_30d",
         "fragmentation_outcome_given_ethnic_uprising",
+        "quick_succession_given_death",
+        "succession_resolution_given_contested",
+        "consolidation_success_given_conditions_met",
     ]
     required_us_keys = [
         "information_ops",

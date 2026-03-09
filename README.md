@@ -111,7 +111,7 @@ iran_simulation/
 ├── src/
 │   ├── abm_engine.py       # Multi-agent ABM (Project Swarm)
 │   ├── logging_config.py   # Shared structured logging setup
-│   ├── simulation.py       # State-machine Monte Carlo (no silent fallbacks)
+│   ├── simulation.py       # State-machine Monte Carlo + post-succession phase
 │   ├── forecasting/        # Oracle layer (catalog, ensembles, baselines, scoring)
 │   ├── ingest/             # Evidence fetching — all URLs from config/sources.yaml via _require_url()
 │   │   ├── base_fetcher.py # BaseFetcher ABC with retry, _require_url(), ConfigError

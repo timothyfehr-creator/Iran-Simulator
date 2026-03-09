@@ -230,22 +230,22 @@
     },
     "khamenei_death_90d": {
       "probability": {
-        "point": 0.08,
-        "low": 0.03,
-        "high": 0.15,
+        "point": 1.0,
+        "low": 1.0,
+        "high": 1.0,
         "window_days": 90,
-        "dist": "beta_pert",
-        "mode": 0.08,
+        "dist": "fixed",
+        "mode": 1.0,
         "time_basis": "window",
         "anchor": "t0",
         "start_offset_days": 0
       },
       "reasoning": {
-        "base_rate_anchor": "PLACEHOLDER - 86 year old male actuarial",
+        "base_rate_anchor": "OBSERVED - Khamenei killed Feb 2026. No longer a forecast.",
         "evidence_for_higher": [],
         "evidence_for_lower": [],
         "analogies_considered": [],
-        "confidence_in_estimate": "LOW"
+        "confidence_in_estimate": "HIGH"
       }
     },
     "orderly_succession_given_khamenei_death": {
@@ -366,6 +366,95 @@
         "analogies_considered": [],
         "confidence_in_estimate": "LOW"
       }
+    },
+    "quick_succession_given_death": {
+      "probability": {
+        "point": 0.55,
+        "low": 0.35,
+        "mode": 0.55,
+        "high": 0.75,
+        "dist": "beta_pert",
+        "time_basis": "instant",
+        "anchor": "khamenei_death_day",
+        "start_offset_days": 0,
+        "window_days": 1
+      },
+      "reasoning": {
+        "base_rate_anchor": "Assembly of Experts constitutional mandate for rapid succession",
+        "evidence_for_higher": ["Mojtaba Khamenei pre-positioned as heir apparent"],
+        "evidence_for_lower": ["Assassination context (vs natural death) creates legitimacy vacuum", "IRGC factions may contest civilian succession"],
+        "analogies_considered": ["Saudi succession 2015 (smooth)", "Soviet post-Stalin succession (contested)"],
+        "confidence_in_estimate": "MODERATE"
+      }
+    },
+    "succession_resolution_given_contested": {
+      "probability": {
+        "point": 0.70,
+        "low": 0.50,
+        "mode": 0.70,
+        "high": 0.85,
+        "dist": "beta_pert",
+        "time_basis": "window",
+        "anchor": "khamenei_death_day",
+        "start_offset_days": 3,
+        "window_days": 21
+      },
+      "reasoning": {
+        "base_rate_anchor": "Historical authoritarian contested successions typically resolve within weeks",
+        "evidence_for_higher": ["Institutional pressure to resolve quickly", "External threats incentivize unity"],
+        "evidence_for_lower": ["IRGC economic interests create factional incentives to prolong"],
+        "analogies_considered": ["Iran 1989 post-Khomeini (resolved in days)", "China post-Mao (months)"],
+        "confidence_in_estimate": "MODERATE"
+      }
+    },
+    "consolidation_success_given_conditions_met": {
+      "probability": {
+        "point": 0.80,
+        "low": 0.65,
+        "mode": 0.80,
+        "high": 0.92,
+        "dist": "beta_pert",
+        "time_basis": "window",
+        "anchor": "succession_resolution_day",
+        "start_offset_days": 0,
+        "window_days": 30
+      },
+      "reasoning": {
+        "base_rate_anchor": "Conditional on protests subsiding + elite cohesion + no defection, new leader has strong position",
+        "evidence_for_higher": ["Iranian institutional continuity is strong when elites agree"],
+        "evidence_for_lower": ["Assassination context may undermine long-term legitimacy"],
+        "analogies_considered": ["Iran 1989 Khamenei consolidation (smooth, all conditions met)"],
+        "confidence_in_estimate": "MODERATE"
+      }
+    },
+    "mourning_type_given_assassination": {
+      "_comment": "Categorical distribution: how population reacts to leader assassination",
+      "distribution": "categorical",
+      "categories": {
+        "nationalist_rally": {
+          "probability": 0.25,
+          "description": "Regime channels grief into anti-US anger; crackdown stays low, grievance reduced",
+          "mourning_duration_days": 10
+        },
+        "revolutionary_surge": {
+          "probability": 0.35,
+          "description": "Population seizes moment; student/merchant thresholds drop, anger overrides grief",
+          "mourning_duration_days": 3
+        },
+        "paralysis": {
+          "probability": 0.40,
+          "description": "Shock freezes political action; internet blackout, all thresholds raised",
+          "mourning_duration_days": 7
+        }
+      },
+      "reasoning": {
+        "base_rate_anchor": "No direct base rate for Iranian supreme leader assassination",
+        "evidence_for_higher_paralysis": ["Assassination shock without precedent in Islamic Republic"],
+        "evidence_for_higher_surge": ["Existing protest momentum + US strike context"],
+        "evidence_for_higher_rally": ["Regime media apparatus can redirect grief"],
+        "analogies_considered": ["Sadat assassination 1981 (paralysis)", "Soleimani killing 2020 (nationalist rally)", "Ceausescu execution 1989 (revolutionary surge)"],
+        "confidence_in_estimate": "LOW"
+      }
     }
   },
   "us_intervention_probabilities": {
@@ -451,22 +540,22 @@
     },
     "kinetic_strike_given_crackdown": {
       "probability": {
-        "point": 0.25,
-        "low": 0.1,
-        "high": 0.45,
-        "dist": "beta_pert",
+        "point": 1.0,
+        "low": 1.0,
+        "high": 1.0,
+        "dist": "fixed",
         "window_days": 14,
-        "mode": 0.25,
+        "mode": 1.0,
         "time_basis": "window",
         "anchor": "crackdown_start",
         "start_offset_days": 0
       },
       "reasoning": {
-        "base_rate_anchor": "PLACEHOLDER - June 2025 precedent",
+        "base_rate_anchor": "OBSERVED - US conducted kinetic strikes on Iran (Feb 2026). No longer a forecast.",
         "evidence_for_higher": [],
         "evidence_for_lower": [],
         "analogies_considered": [],
-        "confidence_in_estimate": "LOW"
+        "confidence_in_estimate": "HIGH"
       }
     },
     "ground_intervention_given_collapse": {
@@ -655,6 +744,19 @@
     "pressured_elite_fracture_multiplier": 1.15,
     "pressured_security_defection_multiplier": 1.08,
     "pressured_regime_concession_multiplier": 1.05
+  },
+  "observed_events": {
+    "_comment": "Events that have already occurred and should be applied to initial simulation state",
+    "us_kinetic_strike": {
+      "occurred": true,
+      "day": 0,
+      "description": "US conducted kinetic strikes on Iran, Feb 2026"
+    },
+    "khamenei_death": {
+      "occurred": true,
+      "day": 0,
+      "description": "Supreme Leader Khamenei killed, Feb 2026"
+    }
   },
   "sensitivity_flags": {
     "highest_uncertainty_estimates": [],
