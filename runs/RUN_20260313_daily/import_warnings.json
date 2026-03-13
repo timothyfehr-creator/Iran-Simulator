@@ -1,0 +1,33 @@
+{
+  "total_warnings": 4,
+  "warnings": [
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_5e001d55_0003",
+      "reason": "path 'current_state.information_environment.internet_status.current' has invalid enum value 'NONE' (allowed: ['BLACKOUT', 'SEVERELY_DEGRADED', 'PARTIAL', 'FUNCTIONAL'])"
+    },
+    {
+      "type": "path_registry_warning",
+      "claim_id": "CLM_fe3cd63a_0001",
+      "warning": "path 'current_state.protest_metrics.protest_character.organizational_level': value 'NONE' (normalized to 'NONE') not in allowed values ['SPONTANEOUS', 'LOOSELY_ORGANIZED', 'COORDINATED', 'HIGHLY_COORDINATED']"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_a28de480_0002",
+      "reason": "path 'current_state.information_environment.internet_status.current' has invalid enum value 'NONE' (allowed: ['BLACKOUT', 'SEVERELY_DEGRADED', 'PARTIAL', 'FUNCTIONAL'])"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_6107e754_0003",
+      "reason": "unknown path 'current_state.regime_response.crackdown_severity' (not in path_registry_v2.json)"
+    }
+  ],
+  "summary": {
+    "dropped_docs": 0,
+    "dropped_claims": 3,
+    "normalized_claim_classes": 0,
+    "normalized_enums": 0,
+    "null_claim_defaults": 0,
+    "timestamp_anomalies": 0
+  }
+}
