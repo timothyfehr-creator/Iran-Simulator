@@ -1,0 +1,18 @@
+{
+  "total_warnings": 1,
+  "warnings": [
+    {
+      "type": "path_registry_warning",
+      "claim_id": "CLM_fe3cd63a_0001",
+      "warning": "path 'current_state.protest_metrics.protest_character.organizational_level': value 'NONE' (normalized to 'NONE') not in allowed values ['SPONTANEOUS', 'LOOSELY_ORGANIZED', 'COORDINATED', 'HIGHLY_COORDINATED']"
+    }
+  ],
+  "summary": {
+    "dropped_docs": 0,
+    "dropped_claims": 0,
+    "normalized_claim_classes": 0,
+    "normalized_enums": 0,
+    "null_claim_defaults": 0,
+    "timestamp_anomalies": 0
+  }
+}
