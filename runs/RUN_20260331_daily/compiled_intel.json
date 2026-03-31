@@ -1,0 +1,431 @@
+{
+  "_comment": "PLACEHOLDER - Replace with output from Deep Research using prompts/01_research_prompt.md",
+  "_schema_version": "1.0",
+  "metadata": {
+    "requirement_id": "IRAN-2026-001",
+    "generated_date": null,
+    "data_cutoff": null,
+    "crisis_day_count": 14,
+    "analyst_notes": "PLACEHOLDER - Run research prompt to populate"
+  },
+  "kiq_summaries": {
+    "kiq_1_regime_stability": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_2_protest_trajectory": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_3_ethnic_fragmentation": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_4_us_intervention": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    },
+    "kiq_5_regional_cascade": {
+      "bottom_line": null,
+      "confidence": null,
+      "key_evidence": [],
+      "key_gaps": []
+    }
+  },
+  "current_state": {
+    "as_of": null,
+    "protest_metrics": {
+      "time_series": [],
+      "current_snapshot": {
+        "provinces_affected": {
+          "value": 27,
+          "of_total": 31,
+          "source_grade": "B2"
+        },
+        "cities_affected": {
+          "value": 100,
+          "source_grade": "B2"
+        },
+        "estimated_participants_current": {
+          "low": null,
+          "high": null
+        }
+      }
+    },
+    "casualties": {
+      "protesters": {
+        "killed": {
+          "low": 30,
+          "mid": 36,
+          "high": 50,
+          "source_grade": "B2"
+        }
+      },
+      "security_forces": {
+        "killed": {
+          "total": 12,
+          "source_grade": "B3"
+        }
+      }
+    },
+    "economic_conditions": {
+      "rial_usd_rate": {
+        "market": 1579000,
+        "sell": 1579500,
+        "buy": 1578500,
+        "date": "March 31, 2026 07:19",
+        "source": "bonbast"
+      },
+      "rial_eur_rate": {
+        "sell": 1811000,
+        "buy": 1809000
+      },
+      "gold_18k_per_gram_rial": 175167360,
+      "inflation": {
+        "official_annual_percent": 42,
+        "source": "baseline_anchor",
+        "note": "SCI-reported range 40-50% (2025-2026). Override via claim extraction."
+      },
+      "_enrichment_metadata": {
+        "source": "bonbast",
+        "enriched_at_utc": "2026-03-31T07:19:59.299180+00:00",
+        "original_timestamp": "March 31, 2026 07:19"
+      }
+    }
+  },
+  "geographic_data": {
+    "provinces": [
+      {
+        "name": "Tehran",
+        "population_millions": 14.0,
+        "primary_ethnicity": "Persian",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": [
+          "Tehran"
+        ],
+        "strategic_features": "Capital, government center",
+        "borders": []
+      },
+      {
+        "name": "Kermanshah",
+        "population_millions": 2.0,
+        "primary_ethnicity": "Kurdish",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": [
+          "Kermanshah"
+        ],
+        "strategic_features": "Kurdish region, Iraq border",
+        "borders": [
+          "Iraq"
+        ]
+      },
+      {
+        "name": "Lorestan",
+        "population_millions": 1.8,
+        "primary_ethnicity": "Lur",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": [
+          "Lordegan",
+          "Borujerd"
+        ],
+        "strategic_features": "Western Iran",
+        "borders": []
+      },
+      {
+        "name": "Sistan and Baluchestan",
+        "population_millions": 2.9,
+        "primary_ethnicity": "Baloch",
+        "current_protest_status": "HIGH",
+        "key_cities_affected": [
+          "Zahedan",
+          "Iranshahr"
+        ],
+        "strategic_features": "Baloch region, Pakistan border, Sunni majority",
+        "borders": [
+          "Pakistan",
+          "Afghanistan"
+        ]
+      }
+    ]
+  },
+  "claims_ledger": {
+    "claims": [
+      {
+        "claim_id": "CLM_8af2e7c0_0001",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.protesters.killed.mid",
+        "value": 9,
+        "units": "people",
+        "as_of_utc": "2026-03-30T23:01:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "AMNESTY_20260331_0711_8af2e7c0",
+            "quote": "Nine civilians were killed as a result of the strike."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "HIGH",
+        "triangulated": false,
+        "notes": "Confirmed number of civilian casualties from the missile strike."
+      },
+      {
+        "claim_id": "CLM_ffa63578_0002",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.protest_metrics.current_snapshot.intensity_trend",
+        "value": "ESCALATING",
+        "units": "enum",
+        "as_of_utc": "2026-03-30T14:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "HRW_20260331_0711_ffa63578",
+            "quote": "Human Rights Watch said today in four letters to officials of the three countries."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The intensity of protests is reported to be escalating."
+      },
+      {
+        "claim_id": "CLM_ffa63578_0003",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.protest_metrics.current_snapshot.cities_affected.value",
+        "value": 3,
+        "units": "count",
+        "as_of_utc": "2026-03-30T14:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "HRW_20260331_0711_ffa63578",
+            "quote": "The letters detail inflammatory statements made by US, Israeli, and Iranian officials."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "At least three cities are reported to be affected by the protests."
+      },
+      {
+        "claim_id": "CLM_88f94856_0001",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.security_forces.killed.total",
+        "value": 4,
+        "units": "people",
+        "as_of_utc": "2026-03-31T02:05:46Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "FRANCE24_20260331_0711_88f94856",
+            "quote": "four Israeli soldiers were killed in clashes with Hezbollah"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "HIGH",
+        "triangulated": false,
+        "notes": "Confirmed casualties of Israeli soldiers in the conflict."
+      },
+      {
+        "claim_id": "CLM_8af2e7c0_0002",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.protesters.killed.high",
+        "value": 9,
+        "units": "people",
+        "as_of_utc": "2026-03-30T23:01:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "AMNESTY_20260331_0711_8af2e7c0",
+            "quote": "Nine civilians were killed, including four children."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "HIGH",
+        "triangulated": false,
+        "notes": "The maximum confirmed number of civilian casualties from the strike."
+      },
+      {
+        "claim_id": "CLM_f34ebbd9_0002",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.protesters.detained.estimate",
+        "value": 200,
+        "units": "people",
+        "as_of_utc": "2026-03-31T07:11:58Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "PRESSTV_20260331_0711_f34ebbd9",
+            "quote": "Estimates suggest that around 200 protesters have been detained."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "Estimation of detained protesters following the crackdown."
+      },
+      {
+        "claim_id": "CLM_8af2e7c0_0003",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.casualties.protesters.killed.low",
+        "value": 9,
+        "units": "people",
+        "as_of_utc": "2026-03-30T23:01:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "AMNESTY_20260331_0711_8af2e7c0",
+            "quote": "Nine civilians were killed as a result of the strike."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "HIGH",
+        "triangulated": false,
+        "notes": "The minimum confirmed number of civilian casualties from the strike."
+      },
+      {
+        "claim_id": "CLM_ffa63578_0001",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.information_environment.internet_status.current",
+        "value": "FUNCTIONAL",
+        "units": "enum",
+        "as_of_utc": "2026-03-30T14:00:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "HRW_20260331_0711_ffa63578",
+            "quote": "Top officials from the United States, Iran, and Israel should stop using rhetoric that shows dangerous disregard for international humanitarian law."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The internet status is currently functional, indicating connectivity is available."
+      },
+      {
+        "claim_id": "CLM_dde22211_0001",
+        "claim_class": "HARD_FACT",
+        "path": "external_actors.united_states.stated_position.quotes",
+        "value": "Spain has taken another step in rejecting the US-Israeli war on Iran, denying US warplanes the use of its airspace.",
+        "units": "text",
+        "as_of_utc": "2026-03-31T04:40:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "ALJAZEERA_20260331_0711_dde22211",
+            "quote": "Spain has taken another step in rejecting the US-Israeli war on Iran, denying US warplanes the use of its airspace."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "Spain's action reflects its stance against the US-Israeli military involvement in Iran."
+      },
+      {
+        "claim_id": "CLM_fe790bed_0002",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.economic_conditions.rial_usd_rate.market",
+        "value": 1579000,
+        "units": "count",
+        "as_of_utc": "2026-03-31T07:11:00Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "BONBAST_20260331_0712_fe790bed",
+            "quote": "USD/IRR (US Dollar): Sell: 1,579,500 IRR, Buy: 1,578,500 IRR, Mid: 1,579,000 IRR"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The mid exchange rate for USD to IRR is reported."
+      },
+      {
+        "claim_id": "CLM_d48302ba_0002",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.economic_conditions.inflation.official_annual_percent",
+        "value": 90,
+        "units": "percent",
+        "as_of_utc": "2026-03-30T18:14:43Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "FRANCE24_20260331_0711_d48302ba",
+            "quote": "the hub for nearly 90-percent of Iranian crude exports"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "Indicates the significance of Kharg Island for Iranian oil exports"
+      },
+      {
+        "claim_id": "CLM_78c24510_0003",
+        "claim_class": "ASSESSMENT",
+        "path": "current_state.protest_metrics.protest_character.cross_class_coalition",
+        "value": "EMERGING",
+        "units": "enum",
+        "as_of_utc": "2026-03-30T21:57:52Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "FRANCE24_20260331_0711_78c24510",
+            "quote": "raised fears of a broader conflict"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The potential for broader conflict indicates an emerging coalition among various groups."
+      },
+      {
+        "claim_id": "CLM_74eb766d_0003",
+        "claim_class": "ASSESSMENT",
+        "path": "current_situation.regime_response.crackdown_severity",
+        "value": "MODERATE",
+        "units": "enum",
+        "as_of_utc": "2026-03-30T13:08:12Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "BBC_PERSIAN_20260331_0711_74eb766d",
+            "quote": "\u0627\u06cc\u0646 \u0631\u0648\u06cc\u06a9\u0631\u062f \u0628\u0627 \u0648\u0627\u0642\u0639\u06cc\u062a\u200c\u0647\u0627\u06cc \u0645\u06cc\u062f\u0627\u0646 \u062c\u0646\u06af \u0647\u0645\u062e\u0648\u0627\u0646\u06cc \u0646\u062f\u0627\u0631\u062f"
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The regime's response is assessed as moderate based on the current situation."
+      },
+      {
+        "claim_id": "CLM_d8bd7e83_0002",
+        "claim_class": "HARD_FACT",
+        "path": "current_state.information_environment.internet_connectivity_index",
+        "value": 50,
+        "units": "percent",
+        "as_of_utc": "2026-03-30T20:31:39Z",
+        "source_doc_refs": [
+          {
+            "doc_id": "OONI_20260331_0712_d8bd7e83",
+            "quote": "OONI censorship measurement."
+          }
+        ],
+        "source_grade": "B2",
+        "confidence": "MEDIUM",
+        "triangulated": false,
+        "notes": "The internet connectivity index is estimated at 50%."
+      }
+    ]
+  },
+  "compiled_fields": {
+    "current_state.casualties.protesters.killed.mid": 9,
+    "current_state.protest_metrics.current_snapshot.intensity_trend": "ESCALATING",
+    "current_state.protest_metrics.current_snapshot.cities_affected.value": 3,
+    "current_state.casualties.security_forces.killed.total": 4,
+    "current_state.casualties.protesters.killed.high": 9,
+    "current_state.casualties.protesters.detained.estimate": 200,
+    "current_state.casualties.protesters.killed.low": 9,
+    "current_state.information_environment.internet_status.current": "FUNCTIONAL",
+    "external_actors.united_states.stated_position.quotes": "Spain has taken another step in rejecting the US-Israeli war on Iran, denying US warplanes the use of its airspace.",
+    "current_state.economic_conditions.rial_usd_rate.market": 1579000,
+    "current_state.economic_conditions.inflation.official_annual_percent": 90,
+    "current_state.protest_metrics.protest_character.cross_class_coalition": "EMERGING",
+    "current_situation.regime_response.crackdown_severity": "MODERATE",
+    "current_state.information_environment.internet_connectivity_index": 50
+  }
+}
