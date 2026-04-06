@@ -1,0 +1,48 @@
+{
+  "total_warnings": 7,
+  "warnings": [
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_4f9ba8e7_0002",
+      "reason": "path 'current_state.information_environment.internet_status.current' has invalid enum value 'NONE' (allowed: ['BLACKOUT', 'SEVERELY_DEGRADED', 'PARTIAL', 'FUNCTIONAL'])"
+    },
+    {
+      "type": "path_registry_warning",
+      "claim_id": "CLM_eabfd2b1_0003",
+      "warning": "path 'current_state.protest_metrics.protest_character.organizational_level': value 'NONE' (normalized to 'NONE') not in allowed values ['SPONTANEOUS', 'LOOSELY_ORGANIZED', 'COORDINATED', 'HIGHLY_COORDINATED']"
+    },
+    {
+      "type": "path_registry_warning",
+      "claim_id": "CLM_65577d5c_0001",
+      "warning": "path 'current_state.protest_metrics.protest_character.organizational_level': value 'NONE' (normalized to 'NONE') not in allowed values ['SPONTANEOUS', 'LOOSELY_ORGANIZED', 'COORDINATED', 'HIGHLY_COORDINATED']"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_e8e18b05_0001",
+      "reason": "references dropped doc_id(s): OONI_20260405_0728_e8e18b05"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_e8e18b05_0002",
+      "reason": "references dropped doc_id(s): OONI_20260405_0728_e8e18b05"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_5d34f3e4_0001",
+      "reason": "references dropped doc_id(s): OONI_20260405_0728_5d34f3e4"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_76e1f428_0001",
+      "reason": "references dropped doc_id(s): OONI_20260405_0728_76e1f428"
+    }
+  ],
+  "summary": {
+    "dropped_docs": 0,
+    "dropped_claims": 5,
+    "normalized_claim_classes": 0,
+    "normalized_enums": 0,
+    "null_claim_defaults": 0,
+    "timestamp_anomalies": 0
+  }
+}
