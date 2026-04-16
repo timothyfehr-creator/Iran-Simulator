@@ -1,0 +1,76 @@
+{
+  "run_id": "INGEST_20260416_0729",
+  "generated_at": "2026-04-16T07:29:52.210957+00:00",
+  "status": "PASS",
+  "summary": {
+    "total_alerts": 6,
+    "critical": 0,
+    "warning": 1,
+    "info": 5,
+    "buckets_missing": 0,
+    "buckets_present": 6
+  },
+  "alerts": [
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for hrana: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_",
+      "source_id": "hrana",
+      "details": {
+        "error": "BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell\n\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\n\u2551 Looks like Playwright was just installed or updated.       \u2551\n\u2551 Please run the following command to download new browsers: \u2551\n\u2551                                                            \u2551\n\u2551     playwright install                                     \u2551\n\u2551                                                            \u2551\n\u2551 <3 Playwright Team                                         \u2551\n\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d"
+      },
+      "timestamp": "2026-04-16T07:29:52.210872+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for ihr: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_",
+      "source_id": "ihr",
+      "details": {
+        "error": "BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell\n\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\n\u2551 Looks like Playwright was just installed or updated.       \u2551\n\u2551 Please run the following command to download new browsers: \u2551\n\u2551                                                            \u2551\n\u2551     playwright install                                     \u2551\n\u2551                                                            \u2551\n\u2551 <3 Playwright Team                                         \u2551\n\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d"
+      },
+      "timestamp": "2026-04-16T07:29:52.210885+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for irna: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_",
+      "source_id": "irna",
+      "details": {
+        "error": "BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell\n\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\n\u2551 Looks like Playwright was just installed or updated.       \u2551\n\u2551 Please run the following command to download new browsers: \u2551\n\u2551                                                            \u2551\n\u2551     playwright install                                     \u2551\n\u2551                                                            \u2551\n\u2551 <3 Playwright Team                                         \u2551\n\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d"
+      },
+      "timestamp": "2026-04-16T07:29:52.210891+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for mehr: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_",
+      "source_id": "mehr",
+      "details": {
+        "error": "BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell\n\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\n\u2551 Looks like Playwright was just installed or updated.       \u2551\n\u2551 Please run the following command to download new browsers: \u2551\n\u2551                                                            \u2551\n\u2551     playwright install                                     \u2551\n\u2551                                                            \u2551\n\u2551 <3 Playwright Team                                         \u2551\n\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d"
+      },
+      "timestamp": "2026-04-16T07:29:52.210896+00:00"
+    },
+    {
+      "alert_type": "FETCH_FAILURE",
+      "severity": "INFO",
+      "message": "Fetch failed for nobitex: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (",
+      "source_id": "nobitex",
+      "details": {
+        "error": "HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by NameResolutionError(\"HTTPSConnection(host='api.nobitex.ir', port=443): Failed to resolve 'api.nobitex.ir' ([Errno -2] Name or service not known)\"))"
+      },
+      "timestamp": "2026-04-16T07:29:52.210900+00:00"
+    },
+    {
+      "alert_type": "COVERAGE_DROP",
+      "severity": "WARNING",
+      "message": "Document count dropped 63% (161 -> 60)",
+      "details": {
+        "prior_total": 161,
+        "current_total": 60,
+        "drop_percent": 62.732919254658384
+      },
+      "timestamp": "2026-04-16T07:29:52.210916+00:00"
+    }
+  ]
+}
