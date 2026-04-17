@@ -1,0 +1,104 @@
+{
+  "run_id": "INGEST_20260417_0730",
+  "evaluated_at_utc": "2026-04-17T07:30:29.425186+00:00",
+  "reference_time_utc": "2026-04-17T07:30:29.425184+00:00",
+  "buckets_present": [
+    "osint_thinktank",
+    "regime_outlets",
+    "persian_services",
+    "internet_monitoring",
+    "econ_fx"
+  ],
+  "buckets_missing": [
+    "ngo_rights"
+  ],
+  "counts_by_bucket": {
+    "osint_thinktank": 3,
+    "ngo_rights": 0,
+    "regime_outlets": 10,
+    "persian_services": 23,
+    "internet_monitoring": 11,
+    "econ_fx": 1
+  },
+  "bucket_details": {
+    "osint_thinktank": {
+      "bucket": "osint_thinktank",
+      "window_hours": 36,
+      "docs_in_window": 3,
+      "oldest_doc_age_hours": 0.012609401944444446,
+      "newest_doc_age_hours": 0.012442809444444444,
+      "sources_contributing": [
+        "SRC_ISW"
+      ],
+      "covered": true
+    },
+    "ngo_rights": {
+      "bucket": "ngo_rights",
+      "window_hours": 72,
+      "docs_in_window": 0,
+      "oldest_doc_age_hours": null,
+      "newest_doc_age_hours": null,
+      "sources_contributing": [],
+      "covered": false
+    },
+    "regime_outlets": {
+      "bucket": "regime_outlets",
+      "window_hours": 72,
+      "docs_in_window": 10,
+      "oldest_doc_age_hours": 0.003717816666666667,
+      "newest_doc_age_hours": 0.0037175875,
+      "sources_contributing": [
+        "SRC_PRESSTV"
+      ],
+      "covered": true
+    },
+    "persian_services": {
+      "bucket": "persian_services",
+      "window_hours": 72,
+      "docs_in_window": 23,
+      "oldest_doc_age_hours": 71.26234032888888,
+      "newest_doc_age_hours": 0.0034808672222222223,
+      "sources_contributing": [
+        "SRC_BBC_PERSIAN"
+      ],
+      "covered": true
+    },
+    "internet_monitoring": {
+      "bucket": "internet_monitoring",
+      "window_hours": 72,
+      "docs_in_window": 11,
+      "oldest_doc_age_hours": 2.008173662222222,
+      "newest_doc_age_hours": 0.23317366222222222,
+      "sources_contributing": [
+        "SRC_IODA",
+        "SRC_OONI"
+      ],
+      "covered": true
+    },
+    "econ_fx": {
+      "bucket": "econ_fx",
+      "window_hours": 72,
+      "docs_in_window": 1,
+      "oldest_doc_age_hours": 0.024840328888888888,
+      "newest_doc_age_hours": 0.024840328888888888,
+      "sources_contributing": [
+        "SRC_BONBAST"
+      ],
+      "covered": true
+    }
+  },
+  "total_docs": 62,
+  "status": "WARN",
+  "status_reason": "Missing 1 buckets: ngo_rights",
+  "health_summary": {
+    "total_sources": 19,
+    "status_counts": {
+      "OK": 19,
+      "DEGRADED": 0,
+      "DOWN": 0
+    },
+    "degraded_sources": [],
+    "down_sources": [],
+    "overall_status": "OK"
+  }
+}
