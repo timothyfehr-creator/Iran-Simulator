@@ -1,0 +1,23 @@
+{
+  "total_warnings": 2,
+  "warnings": [
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_ef2b8558_0001",
+      "reason": "references dropped doc_id(s): BBC_PERSIAN_20260611_1159_ef2b8558"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_ef2b8558_0002",
+      "reason": "references dropped doc_id(s): BBC_PERSIAN_20260611_1159_ef2b8558"
+    }
+  ],
+  "summary": {
+    "dropped_docs": 0,
+    "dropped_claims": 2,
+    "normalized_claim_classes": 0,
+    "normalized_enums": 0,
+    "null_claim_defaults": 0,
+    "timestamp_anomalies": 0
+  }
+}
