@@ -1,0 +1,33 @@
+{
+  "total_warnings": 4,
+  "warnings": [
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260616_1107_13eccf63",
+      "issue": "retrieved_at_utc (2026-06-16T11:07:05.598473+00:00) < published_at_utc (2026-06-16T11:07:07+00:00)"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_858e845d_0001",
+      "reason": "references dropped doc_id(s): HRW_20260614_1106_858e845d"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_858e845d_0002",
+      "reason": "references dropped doc_id(s): HRW_20260614_1106_858e845d"
+    },
+    {
+      "type": "dropped_claim",
+      "claim_id": "CLM_858e845d_0003",
+      "reason": "references dropped doc_id(s): HRW_20260614_1106_858e845d"
+    }
+  ],
+  "summary": {
+    "dropped_docs": 0,
+    "dropped_claims": 3,
+    "normalized_claim_classes": 0,
+    "normalized_enums": 0,
+    "null_claim_defaults": 0,
+    "timestamp_anomalies": 1
+  }
+}
