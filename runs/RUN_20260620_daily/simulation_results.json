@@ -1,0 +1,246 @@
+{
+  "n_runs": 10000,
+  "outcome_distribution": {
+    "REGIME_SURVIVES_STATUS_QUO": {
+      "count": 6195,
+      "probability": 0.6195,
+      "ci_low": 0.6099398353866813,
+      "ci_high": 0.6289683856311327
+    },
+    "MANAGED_TRANSITION": {
+      "count": 3748,
+      "probability": 0.3748,
+      "ci_low": 0.36536198221991106,
+      "ci_high": 0.3843341745045216
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "count": 57,
+      "probability": 0.0057,
+      "ci_low": 0.004402395036688564,
+      "ci_high": 0.007377239698831437
+    }
+  },
+  "outcome_timing": {
+    "REGIME_SURVIVES_STATUS_QUO": {
+      "mean_day": 22.10314769975787,
+      "median_day": 22,
+      "min_day": 20,
+      "max_day": 24
+    },
+    "MANAGED_TRANSITION": {
+      "mean_day": 12.661953041622198,
+      "median_day": 13.0,
+      "min_day": 3,
+      "max_day": 23
+    },
+    "REGIME_COLLAPSE_CHAOTIC": {
+      "mean_day": 19.017543859649123,
+      "median_day": 19,
+      "min_day": 16,
+      "max_day": 23
+    }
+  },
+  "key_event_rates": {
+    "us_soft_intervention": 1.0,
+    "us_hard_intervention": 1.0,
+    "security_force_defection": 0.0,
+    "khamenei_death": 1.0,
+    "ethnic_uprising": 0.0
+  },
+  "regional_cascade_rates": {
+    "iraq_crisis": 0.0,
+    "syria_crisis": 0.0,
+    "israel_strikes": 0.0,
+    "iraq_proxy_activation": 0.5843,
+    "syria_proxy_activation": 0.4944,
+    "gulf_realignment": 0.0,
+    "russia_support": 0.0882
+  },
+  "economic_analysis": {
+    "stress_level": "critical",
+    "rial_rate_used": 1610000.0,
+    "inflation_used": 42.0,
+    "modifiers_applied": {
+      "protest_escalation": 1.2,
+      "elite_fracture": 1.3,
+      "security_defection": 1.15
+    }
+  },
+  "succession_analysis": {
+    "succession_type_distribution": {
+      "contested": {
+        "count": 4442,
+        "probability": 0.4442
+      },
+      "smooth": {
+        "count": 5558,
+        "probability": 0.5558
+      }
+    },
+    "mourning_type_distribution": {
+      "paralysis": {
+        "count": 3980,
+        "probability": 0.398
+      },
+      "nationalist_rally": {
+        "count": 2528,
+        "probability": 0.2528
+      },
+      "revolutionary_surge": {
+        "count": 3492,
+        "probability": 0.3492
+      }
+    },
+    "mean_cohesion_at_outcome": 0.6491124999999999,
+    "mean_consolidation_day": 7.961301568855316,
+    "elite_fracture_collapse_count": 57
+  },
+  "sample_trajectories": [
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 9,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 paralysis (7 days)",
+        "Day 0: Smooth succession \u2014 Assembly of Experts names successor (legitimacy=0.52)",
+        "Day 1: Protests escalate (ABM: 41.3%)",
+        "Day 7: Mourning period ends",
+        "Day 9: Successor consolidates power \u2014 managed transition (legitimacy=0.60, cohesion=0.90)"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 14,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 revolutionary_surge (3 days)",
+        "Day 0: Smooth succession \u2014 Assembly of Experts names successor (legitimacy=0.72)",
+        "Day 1: Protests escalate (ABM: 40.6%)",
+        "Day 3: Mourning period ends",
+        "Day 10: REGIONAL: Iraqi militias attack US targets",
+        "Day 14: Successor consolidates power \u2014 managed transition (legitimacy=0.85, cohesion=0.90)"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 23,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 paralysis (7 days)",
+        "Day 0: Contested succession \u2014 no clear successor (legitimacy=0.28, cohesion=0.70)",
+        "Day 1: Contested succession triggers rial crash (rate=2012500)",
+        "Day 1: Protests escalate (ABM: 44.5%)",
+        "Day 7: Mourning period ends",
+        "Day 8: REGIONAL: Syrian militias attack US targets",
+        "Day 16: REGIONAL: Russia begins material support to Tehran",
+        "Day 18: Contested succession resolved \u2014 successor named (legitimacy=0.38)"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 11,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 paralysis (7 days)",
+        "Day 0: Smooth succession \u2014 Assembly of Experts names successor (legitimacy=0.67)",
+        "Day 1: Protests escalate (ABM: 41.0%)",
+        "Day 4: REGIONAL: Iraqi militias attack US targets",
+        "Day 7: Mourning period ends",
+        "Day 11: Successor consolidates power \u2014 managed transition (legitimacy=0.77, cohesion=0.90)"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 nationalist_rally (10 days)",
+        "Day 0: Smooth succession \u2014 Assembly of Experts names successor (legitimacy=0.74)",
+        "Day 1: Protests escalate (ABM: 40.3%)",
+        "Day 1: REGIONAL: Iraqi militias attack US targets",
+        "Day 8: REGIONAL: Syrian militias attack US targets",
+        "Day 10: Mourning period ends",
+        "Day 21: Protests collapse (ABM: 1.3%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 14,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 nationalist_rally (10 days)",
+        "Day 0: Smooth succession \u2014 Assembly of Experts names successor (legitimacy=0.69)",
+        "Day 1: Protests escalate (ABM: 40.2%)",
+        "Day 8: REGIONAL: Syrian militias attack US targets",
+        "Day 10: Mourning period ends",
+        "Day 14: Successor consolidates power \u2014 managed transition (legitimacy=0.82, cohesion=0.90)"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 17,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 paralysis (7 days)",
+        "Day 0: Smooth succession \u2014 Assembly of Experts names successor (legitimacy=0.64)",
+        "Day 1: Protests escalate (ABM: 41.3%)",
+        "Day 7: Mourning period ends",
+        "Day 9: REGIONAL: Iraqi militias attack US targets",
+        "Day 11: REGIONAL: Syrian militias attack US targets",
+        "Day 17: Successor consolidates power \u2014 managed transition (legitimacy=0.80, cohesion=0.90)"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 paralysis (7 days)",
+        "Day 0: Smooth succession \u2014 Assembly of Experts names successor (legitimacy=0.79)",
+        "Day 1: Protests escalate (ABM: 40.3%)",
+        "Day 5: REGIONAL: Syrian militias attack US targets",
+        "Day 7: Mourning period ends",
+        "Day 9: REGIONAL: Iraqi militias attack US targets",
+        "Day 21: Protests collapse (ABM: 1.5%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    },
+    {
+      "outcome": "MANAGED_TRANSITION",
+      "outcome_day": 13,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 revolutionary_surge (3 days)",
+        "Day 0: Smooth succession \u2014 Assembly of Experts names successor (legitimacy=0.55)",
+        "Day 1: Protests escalate (ABM: 40.2%)",
+        "Day 3: Mourning period ends",
+        "Day 13: Successor consolidates power \u2014 managed transition (legitimacy=0.67, cohesion=0.90)"
+      ]
+    },
+    {
+      "outcome": "REGIME_SURVIVES_STATUS_QUO",
+      "outcome_day": 21,
+      "events": [
+        "Day 0: US kinetic strikes on Iran (observed)",
+        "Day 0: Khamenei killed (observed)",
+        "Day 0: Mourning phase begins \u2014 paralysis (7 days)",
+        "Day 0: Smooth succession \u2014 Assembly of Experts names successor (legitimacy=0.60)",
+        "Day 1: Protests escalate (ABM: 40.8%)",
+        "Day 7: Mourning period ends",
+        "Day 8: REGIONAL: Russia begins material support to Tehran",
+        "Day 21: Protests collapse (ABM: 1.3%)",
+        "Day 21: Regime successfully suppresses protests"
+      ]
+    }
+  ]
+}
