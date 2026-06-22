@@ -1,0 +1,9 @@
+{
+  "errors": [],
+  "warnings": [
+    "transition_probabilities.security_force_defection_given_protests_30d.probability: name suggests 30d but window_days=60",
+    "transition_probabilities.ethnic_coordination_given_protests_30d.probability: name suggests 30d but window_days=60",
+    "us_intervention_probabilities.covert_support_given_protests_30d.probability: name suggests 30d but window_days=60"
+  ],
+  "status": "OK"
+}
