@@ -1,0 +1,73 @@
+{
+  "total_warnings": 12,
+  "warnings": [
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_28c1a5f1",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.566905+00:00) < published_at_utc (2026-06-27T08:39:09+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_b9d36a7e",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.566960+00:00) < published_at_utc (2026-06-27T08:39:07+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_0cea38c3",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.566987+00:00) < published_at_utc (2026-06-27T08:39:03+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_bbfeaa73",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.567033+00:00) < published_at_utc (2026-06-27T08:38:55+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_8413906a",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.567057+00:00) < published_at_utc (2026-06-27T08:38:51+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_c1a43217",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.567084+00:00) < published_at_utc (2026-06-27T08:38:43+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_68a8c8f3",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.567115+00:00) < published_at_utc (2026-06-27T08:38:12+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_96d9031d",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.567175+00:00) < published_at_utc (2026-06-27T08:37:16+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_46945a1f",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.567194+00:00) < published_at_utc (2026-06-27T08:36:41+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_3021e5fa",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.567218+00:00) < published_at_utc (2026-06-27T08:36:01+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_d5c8b5d2",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.567236+00:00) < published_at_utc (2026-06-27T08:35:48+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260627_0834_75be735a",
+      "issue": "retrieved_at_utc (2026-06-27T08:34:39.567262+00:00) < published_at_utc (2026-06-27T08:35:13+00:00)"
+    }
+  ],
+  "summary": {
+    "dropped_docs": 0,
+    "dropped_claims": 0,
+    "normalized_claim_classes": 0,
+    "normalized_enums": 0,
+    "null_claim_defaults": 0,
+    "timestamp_anomalies": 12
+  }
+}
