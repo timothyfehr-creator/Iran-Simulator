@@ -1,0 +1,23 @@
+{
+  "total_warnings": 2,
+  "warnings": [
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260628_0848_7ecaef41",
+      "issue": "retrieved_at_utc (2026-06-28T08:48:59.481069+00:00) < published_at_utc (2026-06-28T08:51:07+00:00)"
+    },
+    {
+      "type": "timestamp_anomaly",
+      "doc_id": "OONI_20260628_0848_edeb85a3",
+      "issue": "retrieved_at_utc (2026-06-28T08:48:59.481174+00:00) < published_at_utc (2026-06-28T08:49:23+00:00)"
+    }
+  ],
+  "summary": {
+    "dropped_docs": 0,
+    "dropped_claims": 0,
+    "normalized_claim_classes": 0,
+    "normalized_enums": 0,
+    "null_claim_defaults": 0,
+    "timestamp_anomalies": 2
+  }
+}
