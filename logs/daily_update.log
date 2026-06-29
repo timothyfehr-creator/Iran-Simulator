@@ -56384,3 +56384,553 @@ Extracting contested claims...
 2026-06-28 09:02:37,298 - INFO -   Output directory: runs/RUN_20260628_daily
 2026-06-28 09:02:37,298 - INFO - 
 --- Daily Summary ---
+2026-06-29 10:52:58,237 - INFO - No cutoff specified, using end-of-day: 2026-06-29T23:59:59+00:00
+2026-06-29 10:52:58,237 - INFO - Auto-ingest mode: fetching from all sources...
+2026-06-29 10:52:58,268 - INFO - Fetching from Institute for the Study of War...
+2026-06-29 10:52:59,268 - INFO -   Fetched 2 docs from isw
+2026-06-29 10:52:59,268 - INFO - Fetching from Critical Threats Project...
+2026-06-29 10:53:00,702 - INFO -   Fetched 0 docs from ctp
+2026-06-29 10:53:00,702 - INFO - Fetching from Human Rights Activists News Agency...
+2026-06-29 10:53:01,191 - WARNING - Retry 1/3 for hrana in 2s: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:03,533 - WARNING - Retry 2/3 for hrana in 4s: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:07,871 - ERROR - Failed after 3 attempts for hrana: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:07,871 - ERROR -   Error fetching hrana: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+Traceback (most recent call last):
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/fetch_playwright.py", line 163, in fetch
+    raise Exception(error)
+Exception: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:07,872 - INFO - Fetching from Iran Human Rights...
+2026-06-29 10:53:08,213 - WARNING - Retry 1/3 for ihr in 2s: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:10,553 - WARNING - Retry 2/3 for ihr in 4s: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:14,895 - ERROR - Failed after 3 attempts for ihr: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:14,895 - ERROR -   Error fetching ihr: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+Traceback (most recent call last):
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/fetch_playwright.py", line 163, in fetch
+    raise Exception(error)
+Exception: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:14,896 - INFO - Fetching from Amnesty International...
+2026-06-29 10:53:15,309 - INFO -   Fetched 1 docs from amnesty
+2026-06-29 10:53:15,309 - INFO - Fetching from Human Rights Watch...
+2026-06-29 10:53:15,563 - INFO -   Fetched 2 docs from hrw
+2026-06-29 10:53:15,563 - INFO - Fetching from Islamic Republic News Agency...
+2026-06-29 10:53:15,899 - WARNING - Retry 1/3 for irna in 2s: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:18,239 - WARNING - Retry 2/3 for irna in 4s: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:22,574 - ERROR - Failed after 3 attempts for irna: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:22,574 - ERROR -   Error fetching irna: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+Traceback (most recent call last):
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/fetch_playwright.py", line 163, in fetch
+    raise Exception(error)
+Exception: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:22,575 - INFO - Fetching from Mehr News Agency...
+2026-06-29 10:53:22,913 - WARNING - Retry 1/3 for mehr in 2s: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:25,253 - WARNING - Retry 2/3 for mehr in 4s: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:29,591 - ERROR - Failed after 3 attempts for mehr: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:29,591 - ERROR -   Error fetching mehr: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+Traceback (most recent call last):
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/fetch_playwright.py", line 163, in fetch
+    raise Exception(error)
+Exception: BrowserType.launch: Executable doesn't exist at /home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-06-29 10:53:29,592 - INFO - Fetching from Press TV...
+2026-06-29 10:53:30,593 - INFO -   Fetched 14 docs from presstv
+2026-06-29 10:53:30,594 - INFO - Fetching from Iran International...
+2026-06-29 10:53:30,817 - INFO -   Fetched 0 docs from iran_intl
+2026-06-29 10:53:30,817 - INFO - Fetching from BBC Persian...
+2026-06-29 10:53:31,443 - INFO -   Fetched 23 docs from bbc_persian
+2026-06-29 10:53:31,444 - INFO - Fetching from Al Jazeera...
+2026-06-29 10:53:31,627 - INFO -   Fetched 2 docs from aljazeera
+2026-06-29 10:53:31,627 - INFO - Fetching from France 24...
+2026-06-29 10:53:31,816 - INFO -   Fetched 8 docs from france24
+2026-06-29 10:53:31,816 - INFO - Fetching from NetBlocks...
+2026-06-29 10:53:32,099 - INFO -   Fetched 0 docs from netblocks
+2026-06-29 10:53:32,099 - INFO - Fetching from OONI (Open Observatory of Network Interference)...
+2026-06-29 10:54:02,565 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='api.ooni.io', port=443): Read timed out. (read timeout=30)")': /api/v1/measurements?probe_cc=IR&since=2026-06-25&until=2026-06-30&limit=200
+2026-06-29 10:54:03,057 - WARNING - Retry 1/3 for ooni in 2s: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-06-25&until=2026-06-30&limit=200 (Caused by ResponseError('too many 502 error responses'))
+2026-06-29 10:54:05,341 - WARNING - Retry 2/3 for ooni in 4s: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-06-25&until=2026-06-30&limit=200 (Caused by ResponseError('too many 502 error responses'))
+2026-06-29 10:54:09,624 - ERROR - Failed after 3 attempts for ooni: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-06-25&until=2026-06-30&limit=200 (Caused by ResponseError('too many 502 error responses'))
+2026-06-29 10:54:09,625 - ERROR -   Error fetching ooni: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-06-25&until=2026-06-30&limit=200 (Caused by ResponseError('too many 502 error responses'))
+Traceback (most recent call last):
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/fetch_ooni.py", line 136, in fetch
+    raise Exception(error)
+Exception: ooni: OONI API request failed: HTTPSConnectionPool(host='api.ooni.io', port=443): Max retries exceeded with url: /api/v1/measurements?probe_cc=IR&since=2026-06-25&until=2026-06-30&limit=200 (Caused by ResponseError('too many 502 error responses'))
+2026-06-29 10:54:09,626 - INFO - Fetching from IODA Internet Observatory...
+2026-06-29 10:54:12,442 - INFO -   Fetched 1 docs from ioda
+2026-06-29 10:54:12,442 - INFO - Fetching from Nobitex (USDT/IRT)...
+2026-06-29 10:54:22,326 - WARNING - Retry 1/3 for nobitex in 2s: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by NameResolutionError("HTTPSConnection(host='api.nobitex.ir', port=443): Failed to resolve 'api.nobitex.ir' ([Errno -2] Name or service not known)"))
+2026-06-29 10:54:24,842 - WARNING - Retry 2/3 for nobitex in 4s: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by NameResolutionError("HTTPSConnection(host='api.nobitex.ir', port=443): Failed to resolve 'api.nobitex.ir' ([Errno -2] Name or service not known)"))
+2026-06-29 10:54:28,983 - ERROR - Failed after 3 attempts for nobitex: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by NameResolutionError("HTTPSConnection(host='api.nobitex.ir', port=443): Failed to resolve 'api.nobitex.ir' ([Errno -2] Name or service not known)"))
+2026-06-29 10:54:28,984 - ERROR -   Error fetching nobitex: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by NameResolutionError("HTTPSConnection(host='api.nobitex.ir', port=443): Failed to resolve 'api.nobitex.ir' ([Errno -2] Name or service not known)"))
+Traceback (most recent call last):
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/coordinator.py", line 249, in fetch_all
+    docs = fetch_func(source, since=since)
+  File "/home/runner/work/Iran-Simulator/Iran-Simulator/src/ingest/fetch_nobitex.py", line 103, in fetch
+    raise Exception(error)
+Exception: HTTPSConnectionPool(host='api.nobitex.ir', port=443): Max retries exceeded with url: /market/stats (Caused by NameResolutionError("HTTPSConnection(host='api.nobitex.ir', port=443): Failed to resolve 'api.nobitex.ir' ([Errno -2] Name or service not known)"))
+2026-06-29 10:54:28,984 - INFO - Fetching from Bonbast (Rial Rates)...
+2026-06-29 10:54:29,259 - INFO -   Fetched 1 docs from bonbast
+2026-06-29 10:54:29,259 - INFO - Fetching from TGJU (Tehran Gold & Jewelry)...
+2026-06-29 10:54:31,349 - INFO -   Fetched 29 docs from tgju
+2026-06-29 10:54:31,372 - INFO - Total: 50 unique docs from 13 sources
+2026-06-29 10:54:31,372 - INFO - Fetch summary: 13 succeeded, 6 failed, 5 skipped
+2026-06-29 10:54:31,373 - INFO - Wrote evidence_docs.jsonl: ingest/auto_fetched/evidence_docs.jsonl
+2026-06-29 10:54:31,395 - INFO - Coverage: PASS - All buckets covered
+2026-06-29 10:54:31,395 - INFO - Source health: OK
+2026-06-29 10:54:31,396 - INFO - Alerts: {'total_alerts': 7, 'critical': 0, 'warning': 1, 'info': 6, 'buckets_missing': 0, 'buckets_present': 6}
+2026-06-29 10:54:31,397 - INFO - Extracting claims using GPT API...
+2026-06-29 10:54:31,989 - INFO - Extracting claims from ISW_20260629_1052_66585581...
+2026-06-29 10:54:41,405 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:54:41,420 - INFO -   Extracted 3 claims
+2026-06-29 10:54:41,420 - INFO - Extracting claims from ISW_20260629_1052_193e6ab9...
+2026-06-29 10:54:47,126 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:54:47,132 - INFO -   Extracted 3 claims
+2026-06-29 10:54:47,132 - INFO - Extracting claims from HRW_20260629_1053_68a83cf0...
+2026-06-29 10:54:47,877 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:54:47,887 - INFO -   Extracted 0 claims
+2026-06-29 10:54:47,887 - INFO - Extracting claims from HRW_20260629_1053_57407ee3...
+2026-06-29 10:54:50,649 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:54:50,652 - INFO -   Extracted 1 claims
+2026-06-29 10:54:50,652 - INFO - Extracting claims from AMNESTY_20260629_1053_a924f5bd...
+2026-06-29 10:54:56,795 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:54:56,800 - INFO -   Extracted 4 claims
+2026-06-29 10:54:56,800 - INFO - Extracting claims from PRESSTV_20260629_1053_790175d6...
+2026-06-29 10:55:01,065 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:01,070 - INFO -   Extracted 3 claims
+2026-06-29 10:55:01,070 - INFO - Extracting claims from PRESSTV_20260629_1053_93c517b7...
+2026-06-29 10:55:07,717 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:07,723 - INFO -   Extracted 4 claims
+2026-06-29 10:55:07,723 - INFO - Extracting claims from PRESSTV_20260629_1053_490402ec...
+2026-06-29 10:55:20,082 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:20,089 - INFO -   Extracted 2 claims
+2026-06-29 10:55:20,089 - INFO - Extracting claims from PRESSTV_20260629_1053_79a5c327...
+2026-06-29 10:55:30,669 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:30,670 - INFO -   Extracted 4 claims
+2026-06-29 10:55:30,670 - INFO - Extracting claims from PRESSTV_20260629_1053_98be7844...
+2026-06-29 10:55:38,094 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:38,100 - INFO -   Extracted 4 claims
+2026-06-29 10:55:38,100 - INFO - Extracting claims from PRESSTV_20260629_1053_e03cae17...
+2026-06-29 10:55:41,464 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:41,473 - INFO -   Extracted 2 claims
+2026-06-29 10:55:41,473 - INFO - Extracting claims from PRESSTV_20260629_1053_78b03f2f...
+2026-06-29 10:55:45,093 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:45,100 - INFO -   Extracted 2 claims
+2026-06-29 10:55:45,100 - INFO - Extracting claims from PRESSTV_20260629_1053_fbdbe6cb...
+2026-06-29 10:55:45,834 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:45,841 - INFO -   Extracted 0 claims
+2026-06-29 10:55:45,841 - INFO - Extracting claims from PRESSTV_20260629_1053_c830dbac...
+2026-06-29 10:55:52,094 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:52,104 - INFO -   Extracted 4 claims
+2026-06-29 10:55:52,104 - INFO - Extracting claims from PRESSTV_20260629_1053_8a87ecb4...
+2026-06-29 10:55:52,556 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:52,560 - INFO -   Extracted 0 claims
+2026-06-29 10:55:52,560 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_637cba9a...
+2026-06-29 10:55:52,968 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:52,975 - INFO -   Extracted 0 claims
+2026-06-29 10:55:52,975 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_bc802c4d...
+2026-06-29 10:55:55,432 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:55,468 - INFO -   Extracted 1 claims
+2026-06-29 10:55:55,468 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_997f1f23...
+2026-06-29 10:55:57,661 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:57,667 - INFO -   Extracted 1 claims
+2026-06-29 10:55:57,667 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_db4418a3...
+2026-06-29 10:55:59,337 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:55:59,347 - INFO -   Extracted 1 claims
+2026-06-29 10:55:59,347 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_6758eecb...
+2026-06-29 10:56:00,031 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:00,051 - INFO -   Extracted 0 claims
+2026-06-29 10:56:00,051 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_c9215276...
+2026-06-29 10:56:04,446 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:04,447 - INFO -   Extracted 3 claims
+2026-06-29 10:56:04,447 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_337fc373...
+2026-06-29 10:56:06,821 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:06,822 - INFO -   Extracted 1 claims
+2026-06-29 10:56:06,822 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_fb843b99...
+2026-06-29 10:56:07,495 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:07,497 - INFO -   Extracted 0 claims
+2026-06-29 10:56:07,497 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_0f59d854...
+2026-06-29 10:56:07,948 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:07,955 - INFO -   Extracted 0 claims
+2026-06-29 10:56:07,955 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_23d4919e...
+2026-06-29 10:56:09,964 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:09,969 - INFO -   Extracted 1 claims
+2026-06-29 10:56:09,969 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_c408c72a...
+2026-06-29 10:56:10,373 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:10,376 - INFO -   Extracted 0 claims
+2026-06-29 10:56:10,376 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_04c7c90c...
+2026-06-29 10:56:15,849 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:15,855 - INFO -   Extracted 3 claims
+2026-06-29 10:56:15,855 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_a3167092...
+2026-06-29 10:56:16,432 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:16,438 - INFO -   Extracted 0 claims
+2026-06-29 10:56:16,438 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_1b0b05f5...
+2026-06-29 10:56:16,804 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:16,808 - INFO -   Extracted 0 claims
+2026-06-29 10:56:16,808 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_20a728ee...
+2026-06-29 10:56:17,191 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:17,195 - INFO -   Extracted 0 claims
+2026-06-29 10:56:17,195 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_06accfe1...
+2026-06-29 10:56:19,294 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:19,303 - INFO -   Extracted 1 claims
+2026-06-29 10:56:19,304 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_a0b9c718...
+2026-06-29 10:56:19,828 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:19,838 - INFO -   Extracted 0 claims
+2026-06-29 10:56:19,838 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_5403b0c9...
+2026-06-29 10:56:20,267 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:20,273 - INFO -   Extracted 0 claims
+2026-06-29 10:56:20,273 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_fa9dc920...
+2026-06-29 10:56:20,787 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:20,793 - INFO -   Extracted 0 claims
+2026-06-29 10:56:20,794 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_7b7fb573...
+2026-06-29 10:56:24,493 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:24,496 - INFO -   Extracted 2 claims
+2026-06-29 10:56:24,497 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_195a8755...
+2026-06-29 10:56:29,804 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:29,810 - INFO -   Extracted 3 claims
+2026-06-29 10:56:29,810 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_d70d4e70...
+2026-06-29 10:56:30,223 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:30,227 - INFO -   Extracted 0 claims
+2026-06-29 10:56:30,228 - INFO - Extracting claims from BBC_PERSIAN_20260629_1053_ca4490a5...
+2026-06-29 10:56:30,863 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:30,876 - INFO -   Extracted 0 claims
+2026-06-29 10:56:30,876 - INFO - Extracting claims from ALJAZEERA_20260629_1053_6f5dfca5...
+2026-06-29 10:56:33,128 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:33,135 - INFO -   Extracted 1 claims
+2026-06-29 10:56:33,136 - INFO - Extracting claims from FRANCE24_20260629_1053_4fb7374d...
+2026-06-29 10:56:33,573 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:33,580 - INFO -   Extracted 0 claims
+2026-06-29 10:56:33,580 - INFO - Extracting claims from FRANCE24_20260629_1053_f5d347c2...
+2026-06-29 10:56:35,486 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:35,494 - INFO -   Extracted 1 claims
+2026-06-29 10:56:35,494 - INFO - Extracting claims from FRANCE24_20260629_1053_37761135...
+2026-06-29 10:56:37,706 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:37,716 - INFO -   Extracted 1 claims
+2026-06-29 10:56:37,717 - INFO - Extracting claims from FRANCE24_20260629_1053_42f28a59...
+2026-06-29 10:56:38,166 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:38,173 - INFO -   Extracted 0 claims
+2026-06-29 10:56:38,173 - INFO - Extracting claims from ALJAZEERA_20260629_1053_fd996c59...
+2026-06-29 10:56:41,565 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:41,570 - INFO -   Extracted 2 claims
+2026-06-29 10:56:41,570 - INFO - Extracting claims from FRANCE24_20260629_1053_85fc86f7...
+2026-06-29 10:56:46,060 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:46,063 - INFO -   Extracted 3 claims
+2026-06-29 10:56:46,063 - INFO - Extracting claims from FRANCE24_20260629_1053_bf2e9da8...
+2026-06-29 10:56:46,581 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:46,584 - INFO -   Extracted 0 claims
+2026-06-29 10:56:46,585 - INFO - Extracting claims from FRANCE24_20260629_1053_0e887ead...
+2026-06-29 10:56:50,089 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:50,094 - INFO -   Extracted 2 claims
+2026-06-29 10:56:50,095 - INFO - Extracting claims from IODA_20260629_1054_3715f4a0...
+2026-06-29 10:56:52,140 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:52,142 - INFO -   Extracted 1 claims
+2026-06-29 10:56:52,142 - INFO - Extracting claims from TGJU_20260629_1054_68e55d6e...
+2026-06-29 10:56:57,985 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:56:57,991 - INFO -   Extracted 4 claims
+2026-06-29 10:56:57,991 - INFO - Extracting claims from BONBAST_20260629_1054_fe790bed...
+2026-06-29 10:57:02,442 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-06-29 10:57:02,447 - INFO -   Extracted 3 claims
+2026-06-29 10:57:02,447 - INFO - Extracted 71 total claims -> ingest/auto_fetched/claims_extracted.jsonl
+2026-06-29 10:57:02,452 - INFO - ✓ Auto-generated bundle: ingest/auto_fetched/bundle_auto_ingest.json
+2026-06-29 10:57:02,452 - INFO - Starting daily update: RUN_20260629_daily
+2026-06-29 10:57:02,452 - INFO -   Bundle: ingest/auto_fetched/bundle_auto_ingest.json
+2026-06-29 10:57:02,452 - INFO -   Cutoff: 2026-06-29T23:59:59+00:00
+2026-06-29 10:57:02,452 - INFO -   Output: runs/RUN_20260629_daily
+2026-06-29 10:57:02,452 - INFO - 
+=== STAGE 1: Import Bundle ===
+2026-06-29 10:57:02,452 - INFO - Running Import Bundle: /opt/hostedtoolcache/Python/3.14.2/x64/bin/python -m src.pipeline.import_deep_research_bundle_v3 --bundle ingest/auto_fetched/bundle_auto_ingest.json --out_dir runs/RUN_20260629_daily
+2026-06-29 10:57:02,557 - INFO - Validating 50 evidence docs...
+  - Kept 50 docs, dropped 0 docs
+Validating 71 candidate claims...
+  - Checking path registry and normalizing enums...
+  - Kept 71 claims, dropped 0 claims
+Checking quality gates...
+  - Quality gates status: PASS
+Checking rolling-window coverage...
+  - Window coverage status: WARN
+    ⚠ CRITICAL: No docs in ngo_rights bucket (window: 72h)
+  - Buckets present: osint_thinktank, regime_outlets, persian_services, internet_monitoring, econ_fx
+  - Buckets missing: ngo_rights
+Wrote 50 evidence docs to runs/RUN_20260629_daily/evidence_docs.jsonl
+Wrote 71 claims to runs/RUN_20260629_daily/claims_deep_research.jsonl
+Wrote source index to runs/RUN_20260629_daily/source_index.json
+Wrote run manifest to runs/RUN_20260629_daily/run_manifest.json
+Wrote import warnings to runs/RUN_20260629_daily/import_warnings.json
+Wrote coverage report to runs/RUN_20260629_daily/coverage_report.json
+
+✓ Import successful. Output in runs/RUN_20260629_daily
+  ⚠ Coverage warnings - see coverage_report.json
+2026-06-29 10:57:02,557 - INFO - [OK] Import Bundle completed successfully
+2026-06-29 10:57:02,557 - INFO - Copied coverage_report.json to run directory
+2026-06-29 10:57:02,558 - INFO - Copied alerts.json to run directory
+2026-06-29 10:57:02,558 - INFO - 
+=== STAGE 2: Compile Intel ===
+2026-06-29 10:57:02,558 - INFO - Running Compile Intel: /opt/hostedtoolcache/Python/3.14.2/x64/bin/python -m src.pipeline.compile_intel_v2 --claims runs/RUN_20260629_daily/claims_deep_research.jsonl --template data/iran_crisis_intel.json --outdir runs/RUN_20260629_daily
+2026-06-29 10:57:02,622 - INFO - Wrote: runs/RUN_20260629_daily/compiled_intel.json
+Wrote: runs/RUN_20260629_daily/merge_report.json
+Wrote: runs/RUN_20260629_daily/qa_report.json
+2026-06-29 10:57:02,622 - INFO - [OK] Compile Intel completed successfully
+2026-06-29 10:57:02,622 - INFO - 
+=== STAGE 2.5: Economic Enrichment ===
+2026-06-29 10:57:02,622 - INFO - Running Economic Enrichment: /opt/hostedtoolcache/Python/3.14.2/x64/bin/python scripts/enrich_economic_data.py --intel runs/RUN_20260629_daily/compiled_intel.json --no-backup
+2026-06-29 10:57:03,049 - INFO - Fetching economic data from Bonbast...
+Updated rial_usd_rate: 1,703,000 IRR
+Seeded baseline inflation: 42% (SCI anchor)
+Updated: runs/RUN_20260629_daily/compiled_intel.json
+
+Economic enrichment complete!
+
+Current economic conditions:
+  USD/IRR rate: 1,703,000 IRR
+2026-06-29 10:57:03,049 - INFO - [OK] Economic Enrichment completed successfully
+2026-06-29 10:57:03,052 - INFO - 
+=== STAGE 3: Simulation ===
+2026-06-29 10:57:03,052 - INFO - Running Simulation: /opt/hostedtoolcache/Python/3.14.2/x64/bin/python src/simulation.py --intel runs/RUN_20260629_daily/compiled_intel.json --priors data/analyst_priors.json --runs 10000 --seed 42 --abm --output runs/RUN_20260629_daily/simulation_results.json
+2026-06-29 11:05:58,371 - INFO - Running 10000 simulations with ABM (Project Swarm)...
+Completed 1000 / 10000 runs
+Completed 2000 / 10000 runs
+Completed 3000 / 10000 runs
+Completed 4000 / 10000 runs
+Completed 5000 / 10000 runs
+Completed 6000 / 10000 runs
+Completed 7000 / 10000 runs
+Completed 8000 / 10000 runs
+Completed 9000 / 10000 runs
+Completed 10000 / 10000 runs
+
+Results saved to runs/RUN_20260629_daily/simulation_results.json
+
+Outcome Distribution:
+  REGIME_SURVIVES_STATUS_QUO: 58.9% (58.0% - 59.9%)
+  MANAGED_TRANSITION: 38.2% (37.2% - 39.1%)
+  REGIME_COLLAPSE_CHAOTIC: 2.8% (2.5% - 3.1%)
+  ETHNIC_FRAGMENTATION: 0.1% (0.0% - 0.2%)
+
+Key Event Rates:
+  us_soft_intervention: 100.0%
+  us_hard_intervention: 100.0%
+  security_force_defection: 0.2%
+  khamenei_death: 100.0%
+  ethnic_uprising: 0.4%
+2026-06-29 11:05:58,372 - INFO - [OK] Simulation completed successfully
+2026-06-29 11:05:58,372 - INFO - 
+=== STAGE 4: Generate Reports ===
+2026-06-29 11:05:58,372 - INFO - Running Generate Reports: /opt/hostedtoolcache/Python/3.14.2/x64/bin/python -m src.report.generate_report --run_dir runs/RUN_20260629_daily
+2026-06-29 11:06:00,989 - INFO - Loading data from runs/RUN_20260629_daily...
+Generating reports...
+✓ HTML report written to runs/RUN_20260629_daily/report.html
+✓ Markdown report written to runs/RUN_20260629_daily/report.md
+
+✓ Report generation complete!
+  HTML: runs/RUN_20260629_daily/report.html
+  Markdown: runs/RUN_20260629_daily/report.md
+2026-06-29 11:06:00,989 - INFO - [OK] Generate Reports completed successfully
+2026-06-29 11:06:00,989 - INFO - 
+=== Generating Run Manifest ===
+2026-06-29 11:06:00,992 - INFO - ✓ Wrote run manifest: runs/RUN_20260629_daily/run_manifest.json
+2026-06-29 11:06:00,992 - INFO -   Git commit: f37ae299...
+2026-06-29 11:06:00,992 - INFO -   Run reliable: True
+2026-06-29 11:06:00,992 - INFO - 
+=== STAGE 4.5: Scorecard + Public Artifacts ===
+2026-06-29 11:06:01,092 - INFO - Scorecard generated: {'json': PosixPath('forecasting/reports/scorecard.json'), 'md': PosixPath('forecasting/reports/scorecard.md')}
+2026-06-29 11:06:01,092 - INFO - Running Public Artifacts: /opt/hostedtoolcache/Python/3.14.2/x64/bin/python scripts/generate_public_artifacts.py --run-dir runs/RUN_20260629_daily --live-wire data/live_wire/latest.json --scorecard forecasting/reports/scorecard.json --output-dir latest/
+2026-06-29 11:06:01,164 - WARNING - 2026-06-29 11:06:01,153 - INFO - Live wire not found locally, trying R2...
+2026-06-29 11:06:01,153 - WARNING - No live wire data available; defcon will be UNKNOWN
+2026-06-29 11:06:01,153 - INFO - Series file not found locally, trying R2...
+2026-06-29 11:06:01,153 - WARNING - No series data available; headline chart will be empty
+2026-06-29 11:06:01,154 - INFO - Wrote latest/war_room_summary.json
+2026-06-29 11:06:01,154 - INFO - Wrote latest/leaderboard.json
+2026-06-29 11:06:01,154 - WARNING - Skipped live_wire_state.json (no data)
+2026-06-29 11:06:01,154 - INFO - Public artifact generation complete
+2026-06-29 11:06:01,164 - INFO - [OK] Public Artifacts completed successfully
+2026-06-29 11:06:01,165 - INFO - 
+=== STAGE 5: Generate Diff ===
+2026-06-29 11:06:01,165 - INFO - Comparing to previous run: RUN_20260628_daily
+2026-06-29 11:06:01,165 - INFO - Running Diff: /opt/hostedtoolcache/Python/3.14.2/x64/bin/python -m src.pipeline.run_comparator runs/RUN_20260628_daily runs/RUN_20260629_daily --output runs/RUN_20260629_daily/diff_report.json
+2026-06-29 11:06:01,228 - INFO - Loading previous run: runs/RUN_20260628_daily
+Loading current run: runs/RUN_20260629_daily
+Comparing outcome distributions...
+Comparing event rates...
+Comparing claim winners...
+Comparing coverage...
+Computing coverage deltas...
+Computing health deltas...
+Extracting contested claims...
+
+✓ Diff report written to runs/RUN_20260629_daily/diff_report.json
+  Major changes: 10
+  Minor changes: 5
+  Assessment: Major shifts in crisis dynamics
+2026-06-29 11:06:01,228 - INFO - [OK] Diff completed successfully
+2026-06-29 11:06:01,283 - INFO - ✓ Diff report generated
+2026-06-29 11:06:01,283 - INFO - 
+✓ Daily update complete: RUN_20260629_daily
+2026-06-29 11:06:01,283 - INFO -   Output directory: runs/RUN_20260629_daily
+2026-06-29 11:06:01,283 - INFO - 
+--- Daily Summary ---
